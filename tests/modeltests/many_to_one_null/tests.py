@@ -86,6 +86,15 @@ class ManyToOneNullTests(TestCase):
         self.assertQuerysetEqual(Article.objects.filter(reporter__isnull=True),
                                  ['<Article: First>', '<Article: Fourth>'])
 
+    def test_add_efficiency(self):
+        r = Reporter.objects.create()
+        articles = []
+        for _ in xrange(3):
+            articles.append(Article.objects.create())
+        with self.assertNumQueries(1):
+            r.article_set.add(*articles)
+        self.assertEqual(r.article_set.count(), 3)
+
     def test_clear_efficiency(self):
         r = Reporter.objects.create()
         for _ in range(3):
@@ -93,3 +102,14 @@ class ManyToOneNullTests(TestCase):
         with self.assertNumQueries(1):
             r.article_set.clear()
         self.assertEqual(r.article_set.count(), 0)
+
+    def test_remove_efficiency(self):
+        r = Reporter.objects.create()
+        articles = []
+        for _ in xrange(3):
+            articles.append(r.article_set.create())
+        with self.assertNumQueries(1):
+            r.article_set.remove(*articles)
+        self.assertEqual(r.article_set.count(), 0)
+        for article in articles:
+            self.assertEqual(article.reporter, None)

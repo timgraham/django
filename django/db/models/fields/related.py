@@ -517,11 +517,18 @@ class ForeignRelatedObjectsDescriptor(object):
                 return qs, rel_obj_attr, instance_attr, False, cache_name
 
             def add(self, *objs):
+                ids = []
                 for obj in objs:
                     if not isinstance(obj, self.model):
                         raise TypeError("'%s' instance expected, got %r" % (self.model._meta.object_name, obj))
                     setattr(obj, rel_field.name, self.instance)
-                    obj.save()
+                    if obj.pk is None:
+                        obj.save()
+                    else:
+                        ids.append(obj.pk)
+
+                if ids:
+                    self.model.objects.filter(pk__in=ids).update(**{rel_field.name: self.instance})
             add.alters_data = True
 
             def create(self, **kwargs):
@@ -542,13 +549,15 @@ class ForeignRelatedObjectsDescriptor(object):
             if rel_field.null:
                 def remove(self, *objs):
                     val = getattr(self.instance, attname)
+                    ids = []
                     for obj in objs:
                         # Is obj actually part of this descriptor set?
                         if getattr(obj, rel_field.attname) == val:
                             setattr(obj, rel_field.name, None)
-                            obj.save()
+                            ids.append(obj.pk)
                         else:
                             raise rel_field.rel.to.DoesNotExist("%r is not related to %r." % (obj, self.instance))
+                    self.filter(pk__in=ids).update(**{rel_field.name: None})
                 remove.alters_data = True
 
                 def clear(self):

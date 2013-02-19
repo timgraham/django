@@ -44,6 +44,14 @@ Related objects reference
             >>> e = Entry.objects.get(id=234)
             >>> b.entry_set.add(e) # Associates Entry e with Blog b.
 
+        .. versionchanged:: 1.6
+
+        The ``add()`` method executes one query regardless of the number of
+        objects being added, (unless the objects have not yet been saved to the
+        database in which case that is done). In prior versions, it executed
+        two queries per object by calling the ``save()`` method of each object
+        being added.
+
     .. method:: create(**kwargs)
 
         Creates a new object, saves it and puts it in the related object set.
@@ -90,6 +98,12 @@ Related objects reference
         doing ``e.blog = None``, and because the ``blog``
         :class:`~django.db.models.ForeignKey` doesn't have ``null=True``, this
         is invalid.
+
+        .. versionchanged:: 1.6
+
+        The ``remove()`` method executes one query regardless of the number of
+        objects being removed. In prior versions, it executed two queries per
+        object by calling the ``save()`` method of each object being removed.
 
     .. method:: clear()
 

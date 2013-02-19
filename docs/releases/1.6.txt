@@ -147,6 +147,14 @@ Backwards incompatible changes in 1.6
     deprecation timeline for a given feature, its removal may appear as a
     backwards incompatible change.
 
+*  The :meth:`~django.db.models.fields.related.RelatedManager.add` and
+   :meth:`~django.db.models.fields.related.RelatedManager.remove` methods on
+   a reverse foreign key now does one query regardless of the number of objects
+   added or removed rather than one query per object. The ``save()`` method of
+   the objects being removed is no longer called and thus
+   :data:`~django.db.models.signals.pre_save` and
+   :data:`~django.db.models.signals.post_save` signals are no longer sent.
+
 Features deprecated in 1.6
 ==========================
 
