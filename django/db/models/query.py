@@ -165,6 +165,7 @@ class QuerySet:
         self._known_related_objects = {}  # {rel_field: {pk: rel_obj}}
         self._iterable_class = ModelIterable
         self._fields = None
+        self._inplace = False
 
     def as_manager(cls):
         # Address the circular dependency between `Queryset` and `Manager`.
@@ -744,15 +745,20 @@ class QuerySet:
             'datetimefield', flat=True
         ).distinct().filter(plain_field__isnull=False).order_by(('-' if order == 'DESC' else '') + 'datetimefield')
 
+    ##################################################################
+    # PUBLIC METHODS THAT ALTER ATTRIBUTES AND RETURN A NEW QUERYSET #
+    ##################################################################
+
     def none(self):
         """Return an empty QuerySet."""
         clone = self._chain()
         clone.query.set_empty()
         return clone
 
-    ##################################################################
-    # PUBLIC METHODS THAT ALTER ATTRIBUTES AND RETURN A NEW QUERYSET #
-    ##################################################################
+    def inplace(self):
+        clone = self._chain()
+        clone._inplace = True
+        return clone
 
     def all(self):
         """
@@ -1073,7 +1079,7 @@ class QuerySet:
         Return a copy of the current QuerySet that's ready for another
         operation.
         """
-        obj = self._clone()
+        obj = self if self._inplace else self._clone()
         if obj._sticky_filter:
             obj.query.filter_is_sticky = True
             obj._sticky_filter = False
