@@ -796,7 +796,7 @@ class Model(metaclass=ModelBase):
         updated = False
         # If possible, try an UPDATE. If that doesn't update anything, do an INSERT.
         if pk_set and not force_insert:
-            base_qs = cls._base_manager.get_inplace_queryset().using(using)
+            base_qs = cls._base_manager._inplace().using(using)
             values = [(f, None, (getattr(self, f.attname) if raw else f.pre_save(self, False)))
                       for f in non_pks]
             forced_update = update_fields or force_update
@@ -812,7 +812,7 @@ class Model(metaclass=ModelBase):
                 # autopopulate the _order field
                 field = meta.order_with_respect_to
                 filter_args = field.get_filter_kwargs_for_object(self)
-                order_value = cls._base_manager.using(using).filter(**filter_args).count()
+                order_value = cls._base_manager._inplace().using(using).filter(**filter_args).count()
                 self._order = order_value
 
             fields = meta.local_concrete_fields

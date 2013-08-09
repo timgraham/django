@@ -92,7 +92,7 @@ def get_contenttypes_and_models(app_config, using, ContentType):
 
     content_types = {
         ct.model: ct
-        for ct in ContentType.objects.using(using).filter(app_label=app_config.label)
+        for ct in ContentType.objects._inplace().using(using).filter(app_label=app_config.label)
     }
     app_models = {
         model._meta.model_name: model
@@ -128,7 +128,7 @@ def create_contenttypes(app_config, verbosity=2, interactive=True, using=DEFAULT
         for (model_name, model) in app_models.items()
         if model_name not in content_types
     ]
-    ContentType.objects.using(using).bulk_create(cts)
+    ContentType.objects._inplace().using(using).bulk_create(cts)
     if verbosity >= 2:
         for ct in cts:
             print("Adding content type '%s | %s'" % (ct.app_label, ct.model))

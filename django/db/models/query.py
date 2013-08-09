@@ -165,7 +165,7 @@ class QuerySet:
         self._known_related_objects = {}  # {rel_field: {pk: rel_obj}}
         self._iterable_class = ModelIterable
         self._fields = None
-        self._inplace = False
+        self._inplace_flag = False
 
     def as_manager(cls):
         # Address the circular dependency between `Queryset` and `Manager`.
@@ -359,7 +359,7 @@ class QuerySet:
         Perform the query and return a single object matching the given
         keyword arguments.
         """
-        clone = self.filter(*args, **kwargs)
+        clone = self._inplace().filter(*args, **kwargs)
         if self.query.can_filter() and not self.query.distinct_fields:
             clone = clone.order_by()
         num = len(clone)
@@ -579,7 +579,7 @@ class QuerySet:
                     batch = id_list[offset:offset + batch_size]
                     qs += tuple(self.filter(**{filter_key: batch}).order_by())
             else:
-                qs = self.filter(**{filter_key: id_list}).order_by()
+                qs = self._inplace().filter(**{filter_key: id_list}).order_by()
         else:
             qs = self._chain()
         return {getattr(obj, field_name): obj for obj in qs}
@@ -592,8 +592,7 @@ class QuerySet:
         if self._fields is not None:
             raise TypeError("Cannot call delete() after .values() or .values_list()")
 
-        del_query = self._chain()
-
+        del_query = self._inplace()
         # The delete is actually 2 queries - one to find related objects,
         # and one to delete. Make sure that the discovery of related
         # objects is performed on the same database as the deletion.
@@ -620,7 +619,9 @@ class QuerySet:
         Delete objects found from the given queryset in single direct SQL
         query. No signals are sent and there is no protection for cascades.
         """
-        return sql.DeleteQuery(self.model).delete_qs(self, using)
+        qs = sql.DeleteQuery(self.model)
+        qs.inplace = True
+        return qs.delete_qs(self, using)
     _raw_delete.alters_data = True
 
     def update(self, **kwargs):
@@ -755,9 +756,10 @@ class QuerySet:
         clone.query.set_empty()
         return clone
 
-    def inplace(self):
+    def _inplace(self):
         clone = self._chain()
-        clone._inplace = True
+        clone._inplace_flag = True
+        clone.query.inplace = True
         return clone
 
     def all(self):
@@ -1074,12 +1076,13 @@ class QuerySet:
                 self._insert(item, fields=fields, using=self.db)
         return inserted_ids
 
-    def _chain(self, **kwargs):
+    def _chain(self, inplace=None, **kwargs):
         """
         Return a copy of the current QuerySet that's ready for another
         operation.
         """
-        obj = self if self._inplace else self._clone()
+        inplace = (self._inplace_flag or inplace is True) and inplace is not False
+        obj = self if inplace else self._clone()
         if obj._sticky_filter:
             obj.query.filter_is_sticky = True
             obj._sticky_filter = False

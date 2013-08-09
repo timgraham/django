@@ -145,10 +145,11 @@ class BaseManager:
         """
         return self._queryset_class(model=self.model, using=self._db, hints=self._hints)
 
-    def get_inplace_queryset(self):
-        qs = self._queryset_class(self.model, using=self._db)
-        qs._inplace = True
-        return qs
+    def _inplace(self):
+        ret = self.get_queryset()
+        ret._inplace_flag = True
+        ret.query.inplace = True
+        return ret
 
     def all(self):
         # We can't proxy this method through the `QuerySet` like we do for the

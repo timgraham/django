@@ -51,7 +51,7 @@ class ContentTypeManager(models.Manager):
         except self.model.DoesNotExist:
             # Not found in the database; we proceed to create it. This time
             # use get_or_create to take care of any race conditions.
-            ct, created = self.get_or_create(
+            ct, created = self._inplace().get_or_create(
                 app_label=opts.app_label,
                 model=opts.model_name,
             )

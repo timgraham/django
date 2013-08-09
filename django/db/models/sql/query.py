@@ -123,6 +123,7 @@ class Query:
 
     alias_prefix = 'T'
     subq_aliases = frozenset([alias_prefix])
+    inplace = False
 
     compiler = 'SQLCompiler'
 
@@ -315,12 +316,15 @@ class Query:
             del obj.base_table
         return obj
 
-    def chain(self, klass=None):
+    def chain(self, klass=None, inplace=None):
         """
         Return a copy of the current Query that's ready for another operation.
         The klass argument changes the type of the Query, e.g. UpdateQuery.
         """
-        obj = self.clone()
+        if (self.inplace or inplace is True) and inplace is not False:
+            obj = self
+        else:
+            obj = self.clone()
         if klass and obj.__class__ != klass:
             obj.__class__ = klass
         if not obj.filter_is_sticky:
