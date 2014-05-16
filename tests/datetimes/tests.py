@@ -142,10 +142,13 @@ class DateTimesTests(TestCase):
             Article(pub_date=pub_date, title='title #{}'.format(i)).save()
         # Use iterator() with datetimes() to return a generator that lazily
         # requests each result one at a time, to save memory.
-        # TODO: how does it assert it's lazy? self.assertNotEqual(list, type(datetimes))?
         dates = []
-        for article in Article.objects.datetimes('pub_date', 'day', order='DESC').iterator():
-            dates.append(article)
+        with self.assertNumQueries(0):
+            article_datetimes_iterator = Article.objects.datetimes('pub_date', 'day', order='DESC').iterator()
+        
+        with self.assertNumQueries(1):
+            for article in article_datetimes_iterator:
+                dates.append(article)
         self.assertEqual(dates, [
             datetime.datetime(2005, 7, 31, 0, 0),
             datetime.datetime(2005, 7, 30, 0, 0),
