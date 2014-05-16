@@ -195,16 +195,22 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             datetime(2005, 7, 29, 0, 0),
             datetime(2005, 7, 28, 0, 0)])
 
-        # You can combine queries with & and |.
-        s1 = Article.objects.filter(id__exact=a.id)
-        s2 = Article.objects.filter(id__exact=a2.id)
-        self.assertQuerysetEqual(s1 | s2,
+    def test_querysets_can_combine_queries_using_and_and_or_operators(self):
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for headline in headlines:
+            Article(headline=headline, pub_date=some_pub_date).save()
+        s1 = Article.objects.filter(headline__exact='Area man programs in Python')
+        s2 = Article.objects.filter(headline__exact='Second article')
+        self.assertQuerysetEqual((s1 | s2).order_by('headline'),
             ["<Article: Area man programs in Python>",
              "<Article: Second article>"])
         self.assertQuerysetEqual(s1 & s2, [])
 
-        # You can get the number of objects like this:
-        self.assertEqual(len(Article.objects.filter(id__exact=a.id)), 1)
+    def test_querysets_can_get_number_of_items_in_queryset_using_standard_len(self):
+        Article.objects.create(headline='Headline', pub_date=datetime(2014, 5, 16, 15, 27))
+        self.assertEqual(len(Article.objects.filter(headline__exact='Headline')), 1)
 
     def test_can_get_items_using_index_and_slice_notation(self):
         headlines = [
