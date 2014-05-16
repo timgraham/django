@@ -85,9 +85,9 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         """You can leave off the value for an AutoField when creating an
            object, because it'll get filled in automatically when you save()."""
         # TODO: missing assertion that id actually is an autofield
-        a5 = Article(headline='Article 6', pub_date=datetime(2005, 7, 31))
+        a5 = Article(headline='Article 5', pub_date=datetime(2005, 7, 31))
         a5.save()
-        self.assertEqual(a5.headline, 'Article 6')
+        self.assertEqual(a5.headline, 'Article 5')
         self.assertNotEqual(a5.id, None)
 
     def test_leaving_off_a_field_with_default_set_the_default_will_be_saved(self):
