@@ -156,6 +156,7 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             Article.objects.dates,
         )
 
+    def test_dates_fails_when_given_invalid_field_argument(self):
         six.assertRaisesRegex(
             self,
             FieldDoesNotExist,
