@@ -315,7 +315,15 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             "objects",
         )
 
-        # Bulk delete test: How many objects before and after the delete?
+    def test_queryset_delete_removes_all_items_in_that_queryset(self):
+        # TODO: less data can be enough to demonstrate this test
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article',
+            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
+            'Updated article 8']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for pk, headline in enumerate(headlines):
+            Article(headline=headline, pub_date=some_pub_date).save()
         self.assertQuerysetEqual(Article.objects.all().order_by('headline'),
             ["<Article: Area man programs in Python>",
              "<Article: Article 6>",
