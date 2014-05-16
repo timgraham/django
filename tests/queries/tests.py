@@ -2147,43 +2147,41 @@ class ValuesQuerysetTests(BaseQuerysetTest):
 
 class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
 
-    def test_can_get_items_using_index_and_slice_notation(self):
-        article_names = [
-            'Area man programs in Python', 'Second article', 'Third article']
+    def setUp(self):
+        super(QuerysetIndexingAndSlicingTests, self).setUp()
         some_date = datetime.datetime(2014, 5, 16, 12, 1)
-        for name in article_names:
-            Article(name=name, created=some_date).save()
-        ordered_articles = Article.objects.all().order_by('name')
-        self.assertEqual(ordered_articles[0].name, 'Area man programs in Python')
-        self.assertQuerysetEqual(ordered_articles[1:3],
-            ["<Article: Second article>", "<Article: Third article>"])
+        for i in range(1, 8):
+            Article.objects.create(
+                name="Article {}".format(i), created=some_date)
 
-        self.assertQuerysetEqual(ordered_articles[::2],
-            ["<Article: Area man programs in Python>",
-             "<Article: Third article>"])
+    def get_ordered_articles(self):
+        return Article.objects.all().order_by('name')
+
+    def test_can_get_items_using_index_and_slice_notation(self):
+        self.assertEqual(self.get_ordered_articles()[0].name, 'Article 1')
+        self.assertQuerysetEqual(self.get_ordered_articles()[1:3],
+            ["<Article: Article 2>", "<Article: Article 3>"])
+
+        self.assertQuerysetEqual(self.get_ordered_articles()[::2],
+            ["<Article: Article 1>",
+             "<Article: Article 3>",
+             "<Article: Article 5>",
+             "<Article: Article 7>"])
 
     @unittest.skipUnless(six.PY2, "Python 2 only -- Python 3 doesn't have longs.")
     def test_works_with_longs(self):
-        article_names = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default name', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_date = datetime.datetime(2014, 5, 16, 12, 1)
-        for name in article_names:
-            Article(name=name, created=some_date).save()
-        ordered_articles = Article.objects.all().order_by('name')
-        self.assertEqual(ordered_articles[long(0)].name, 'Area man programs in Python')
-        self.assertQuerysetEqual(ordered_articles[long(1):long(3)],
-            ["<Article: Article 6>", "<Article: Article 7>"])
-        self.assertQuerysetEqual(ordered_articles[::long(2)],
-            ["<Article: Area man programs in Python>",
-            "<Article: Article 7>",
-            "<Article: Fourth article>",
-            "<Article: Third article>"])
+        self.assertEqual(self.get_ordered_articles()[long(0)].name, 'Article 1')
+        self.assertQuerysetEqual(self.get_ordered_articles()[long(1):long(3)],
+            ["<Article: Article 2>", "<Article: Article 3>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[::long(2)],
+            ["<Article: Article 1>",
+            "<Article: Article 3>",
+            "<Article: Article 5>",
+            "<Article: Article 7>"])
 
         # And can be mixed with ints.
-        self.assertQuerysetEqual(ordered_articles[1:long(3)],
-            ["<Article: Article 6>", "<Article: Article 7>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[1:long(3)],
+            ["<Article: Article 2>", "<Article: Article 3>"])
 
     # TODO: missing explicit tests, only implicitly above:
     #   * extended ([::2]) slicing
@@ -2191,50 +2189,33 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
     def test_slices_without_step_are_lazy(self):
         # TODO: doesn't this contradict test_cannot_filter_queryset_once_sliced?
         # TODO: it seems there is a missing test for slices with steps
-        article_names = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default name', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_date = datetime.datetime(2014, 5, 16, 12, 1)
-        for name in article_names:
-            Article(name=name, created=some_date).save()
-        ordered_articles = Article.objects.all().order_by('name')
-        self.assertQuerysetEqual(ordered_articles[0:5].filter(),
-            ["<Article: Area man programs in Python>",
-             "<Article: Article 6>",
-             "<Article: Article 7>",
-             "<Article: Default name>",
-             "<Article: Fourth article>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[0:5].filter(),
+            ["<Article: Article 1>",
+             "<Article: Article 2>",
+             "<Article: Article 3>",
+             "<Article: Article 4>",
+             "<Article: Article 5>"])
 
     def test_can_slice_again_after_slicing(self):
-        article_names = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default name', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_date = datetime.datetime(2014, 5, 16, 12, 1)
-        for name in article_names:
-            Article(name=name, created=some_date).save()
-        ordered_articles = Article.objects.all().order_by('name')
-        self.assertQuerysetEqual(ordered_articles[0:5][0:2],
-            ["<Article: Area man programs in Python>",
-             "<Article: Article 6>"])
-        self.assertQuerysetEqual(ordered_articles[0:5][4:],
-            ["<Article: Fourth article>"])
-        self.assertQuerysetEqual(ordered_articles[0:5][5:], [])
+        self.assertQuerysetEqual(self.get_ordered_articles()[0:5][0:2],
+            ["<Article: Article 1>",
+             "<Article: Article 2>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[0:5][4:],
+            ["<Article: Article 5>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[0:5][5:], [])
 
         # Some more tests!
-        self.assertQuerysetEqual(ordered_articles[2:][0:2],
-            ["<Article: Article 7>", "<Article: Default name>"])
-        self.assertQuerysetEqual(ordered_articles[2:][:2],
-            ["<Article: Article 7>", "<Article: Default name>"])
-        self.assertQuerysetEqual(ordered_articles[2:][2:3],
-            ["<Article: Fourth article>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[2:][0:2],
+            ["<Article: Article 3>", "<Article: Article 4>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[2:][:2],
+            ["<Article: Article 3>", "<Article: Article 4>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[2:][2:3],
+            ["<Article: Article 5>"])
 
         # Using an offset without a limit is also possible.
-        self.assertQuerysetEqual(ordered_articles[5:],
-            ["<Article: Second article>",
-             "<Article: Third article>",
-             "<Article: Updated article 8>"])
+        self.assertQuerysetEqual(self.get_ordered_articles()[5:],
+            ["<Article: Article 6>",
+             "<Article: Article 7>"])
 
     def test_cannot_filter_queryset_once_sliced(self):
         six.assertRaisesRegex(
