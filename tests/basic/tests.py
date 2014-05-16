@@ -30,16 +30,16 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         # Save it into the database. You have to call save() explicitly.
         a.save()
 
-        # You can initialize a model instance using positional arguments,
-        # which should match the field order as defined in the model.
+    def test_can_initialize_model_instance_using_positional_arguments(self):
+        """You can initialize a model instance using positional arguments,
+           which should match the field order as defined in the model."""
         a2 = Article(None, 'Second article', datetime(2005, 7, 29))
         a2.save()
 
-        self.assertNotEqual(a2.id, a.id)
         self.assertEqual(a2.headline, 'Second article')
         self.assertEqual(a2.pub_date, datetime(2005, 7, 29, 0, 0))
+        # TODO: missing assertion on model orders
 
-        # ...or, you can use keyword arguments.
     def test_can_create_instance_using_kwargs(self):
         a3 = Article(
             id=None,
