@@ -123,8 +123,15 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         # ... but there will often be more efficient ways if that is all you need:
         self.assertTrue(Article.objects.filter(id=a8.id).exists())
 
-        # datetimes() returns a list of available dates of the given scope for
-        # the given field.
+    def test_datetimes_returns_available_dates_for_given_scope_and_given_field(self):
+        pub_dates = [
+            datetime(2005, 7, 28, 12, 15),
+            datetime(2005, 7, 29, 2, 15),
+            datetime(2005, 7, 30, 5, 15),
+            datetime(2005, 7, 31, 19, 15)]
+        for i, pub_date in enumerate(pub_dates):
+            Article(pub_date=pub_date, headline='Headline #{}'.format(i)).save()
+
         self.assertQuerysetEqual(
             Article.objects.datetimes('pub_date', 'year'),
             ["datetime.datetime(2005, 1, 1, 0, 0)"])
