@@ -19,16 +19,20 @@ from .models import Article, SelfRef, ArticleSelectOnSave
 
 class TemporaryClassSplittingUpObjectCreationTest(TestCase):
 
-    def test_object_creation(self):
+    def test_object_is_not_written_to_database_until_save_was_called(self):
         # Create an Article.
         a = Article(
             id=None,
             headline='Area man programs in Python',
             pub_date=datetime(2005, 7, 28),
         )
+        self.assertIsNone(a.id)
+        self.assertEquals(0, Article.objects.all().count())
 
         # Save it into the database. You have to call save() explicitly.
         a.save()
+        self.assertIsNotNone(a.id)
+        self.assertEquals(1, Article.objects.all().count())
 
     def test_can_initialize_model_instance_using_positional_arguments(self):
         """You can initialize a model instance using positional arguments,
