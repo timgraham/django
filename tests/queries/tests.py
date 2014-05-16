@@ -2162,6 +2162,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
         self.assertQuerysetEqual(self.get_ordered_articles()[1:3],
             ["<Article: Article 2>", "<Article: Article 3>"])
 
+    def test_slicing_with_steps_can_be_used(self):
         self.assertQuerysetEqual(self.get_ordered_articles()[::2],
             ["<Article: Article 1>",
              "<Article: Article 3>",
@@ -2183,12 +2184,8 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
         self.assertQuerysetEqual(self.get_ordered_articles()[1:long(3)],
             ["<Article: Article 2>", "<Article: Article 3>"])
 
-    # TODO: missing explicit tests, only implicitly above:
-    #   * extended ([::2]) slicing
-    #   * slicing combined querysets
     def test_slices_without_step_are_lazy(self):
         # TODO: doesn't this contradict test_cannot_filter_queryset_once_sliced?
-        # TODO: it seems there is a missing test for slices with steps
         self.assertQuerysetEqual(self.get_ordered_articles()[0:5].filter(),
             ["<Article: Article 1>",
              "<Article: Article 2>",
