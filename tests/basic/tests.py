@@ -82,8 +82,8 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         a6.save()
         self.assertEqual(a6.headline, 'Default headline')
 
-        # For DateTimeFields, Django saves as much precision (in seconds)
-        # as you give it.
+    def test_for_datetimefields_saves_as_much_precision_as_was_given(self):
+        """as much precision in *seconds*"""
         a7 = Article(
             headline='Article 7',
             pub_date=datetime(2005, 7, 31, 12, 30),
