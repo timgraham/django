@@ -236,7 +236,14 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "<Article: Article 6>",
              "<Article: Default headline>"])
 
-        # Slicing again works:
+    def test_slicing_can_slice_again_after_slicing(self):
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article',
+            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
+            'Updated article 8']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for headline in headlines:
+            Article(headline=headline, pub_date=some_pub_date).save()
         ordered_articles = Article.objects.all().order_by('headline')
         self.assertQuerysetEqual(ordered_articles[0:5][0:2],
             ["<Article: Area man programs in Python>",
