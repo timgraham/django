@@ -138,9 +138,9 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         # ... but there will often be more efficient ways if that is all you need:
         self.assertTrue(Article.objects.filter(id=a.id).exists())
 
+
+class ModelTest(TestCase):
     def test_objects_attribute_is_only_available_on_the_class_itself(self):
-        # TODO: missing assertion: class actually hasattr
-        # TODO: use context manager?
         six.assertRaisesRegex(
             self,
             AttributeError,
@@ -149,9 +149,9 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             Article(),
             "objects",
         )
+        self.assertFalse(hasattr(Article(), 'objects'))
+        self.assertTrue(hasattr(Article, 'objects'))
 
-
-class ModelTest(TestCase):
     def test_queryset_delete_removes_all_items_in_that_queryset(self):
         # TODO: less data can be enough to demonstrate this test
         headlines = [
