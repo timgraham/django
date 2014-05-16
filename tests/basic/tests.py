@@ -16,175 +16,7 @@ from django.utils.translation import ugettext_lazy
 from .models import Article, SelfRef, ArticleSelectOnSave
 
 
-class ModelTest(TestCase):
-
-    def test_lookup(self):
-        # No articles are in the system yet.
-        self.assertQuerysetEqual(Article.objects.all(), [])
-
-        # Create an Article.
-        a = Article(
-            id=None,
-            headline='Area man programs in Python',
-            pub_date=datetime(2005, 7, 28),
-        )
-
-        # Save it into the database. You have to call save() explicitly.
-        a.save()
-
-        # Now it has an ID.
-        self.assertTrue(a.id is not None)
-
-        # Models have a pk property that is an alias for the primary key
-        # attribute (by default, the 'id' attribute).
-        self.assertEqual(a.pk, a.id)
-
-        # Access database columns via Python attributes.
-        self.assertEqual(a.headline, 'Area man programs in Python')
-        self.assertEqual(a.pub_date, datetime(2005, 7, 28, 0, 0))
-
-        # Change values by changing the attributes, then calling save().
-        a.headline = 'Area woman programs in Python'
-        a.save()
-
-        # Article.objects.all() returns all the articles in the database.
-        self.assertQuerysetEqual(Article.objects.all(),
-            ['<Article: Area woman programs in Python>'])
-
-        # Django provides a rich database lookup API.
-        self.assertEqual(Article.objects.get(id__exact=a.id), a)
-        self.assertEqual(Article.objects.get(headline__startswith='Area woman'), a)
-        self.assertEqual(Article.objects.get(pub_date__year=2005), a)
-        self.assertEqual(Article.objects.get(pub_date__year=2005, pub_date__month=7), a)
-        self.assertEqual(Article.objects.get(pub_date__year=2005, pub_date__month=7, pub_date__day=28), a)
-        self.assertEqual(Article.objects.get(pub_date__week_day=5), a)
-
-        # The "__exact" lookup type can be omitted, as a shortcut.
-        self.assertEqual(Article.objects.get(id=a.id), a)
-        self.assertEqual(Article.objects.get(headline='Area woman programs in Python'), a)
-
-        self.assertQuerysetEqual(
-            Article.objects.filter(pub_date__year=2005),
-            ['<Article: Area woman programs in Python>'],
-        )
-        self.assertQuerysetEqual(
-            Article.objects.filter(pub_date__year=2004),
-            [],
-        )
-        self.assertQuerysetEqual(
-            Article.objects.filter(pub_date__year=2005, pub_date__month=7),
-            ['<Article: Area woman programs in Python>'],
-        )
-
-        self.assertQuerysetEqual(
-            Article.objects.filter(pub_date__week_day=5),
-            ['<Article: Area woman programs in Python>'],
-        )
-        self.assertQuerysetEqual(
-            Article.objects.filter(pub_date__week_day=6),
-            [],
-        )
-
-        # Django raises an Article.DoesNotExist exception for get() if the
-        # parameters don't match any object.
-        six.assertRaisesRegex(
-            self,
-            ObjectDoesNotExist,
-            "Article matching query does not exist.",
-            Article.objects.get,
-            id__exact=2000,
-        )
-        # To avoid dict-ordering related errors check only one lookup
-        # in single assert.
-        self.assertRaises(
-            ObjectDoesNotExist,
-            Article.objects.get,
-            pub_date__year=2005,
-            pub_date__month=8,
-        )
-
-        six.assertRaisesRegex(
-            self,
-            ObjectDoesNotExist,
-            "Article matching query does not exist.",
-            Article.objects.get,
-            pub_date__week_day=6,
-        )
-
-        # Lookup by a primary key is the most common case, so Django
-        # provides a shortcut for primary-key exact lookups.
-        # The following is identical to articles.get(id=a.id).
-        self.assertEqual(Article.objects.get(pk=a.id), a)
-
-        # pk can be used as a shortcut for the primary key name in any query.
-        self.assertQuerysetEqual(Article.objects.filter(pk__in=[a.id]),
-            ["<Article: Area woman programs in Python>"])
-
-        # Model instances of the same type and same ID are considered equal.
-        a = Article.objects.get(pk=a.id)
-        b = Article.objects.get(pk=a.id)
-        self.assertEqual(a, b)
-
-        # Create a very similar object
-        a = Article(
-            id=None,
-            headline='Area man programs in Python',
-            pub_date=datetime(2005, 7, 28),
-        )
-        a.save()
-
-        self.assertEqual(Article.objects.count(), 2)
-
-        # Django raises an Article.MultipleObjectsReturned exception if the
-        # lookup matches more than one object
-        six.assertRaisesRegex(
-            self,
-            MultipleObjectsReturned,
-            "get\(\) returned more than one Article -- it returned 2!",
-            Article.objects.get,
-            headline__startswith='Area',
-        )
-
-        six.assertRaisesRegex(
-            self,
-            MultipleObjectsReturned,
-            "get\(\) returned more than one Article -- it returned 2!",
-            Article.objects.get,
-            pub_date__year=2005,
-        )
-
-        six.assertRaisesRegex(
-            self,
-            MultipleObjectsReturned,
-            "get\(\) returned more than one Article -- it returned 2!",
-            Article.objects.get,
-            pub_date__year=2005,
-            pub_date__month=7,
-        )
-
-    def test_multiple_objects_max_num_fetched(self):
-        """
-        #6785 - get() should fetch a limited number of results.
-        """
-        Article.objects.bulk_create(
-            Article(headline='Area %s' % i, pub_date=datetime(2005, 7, 28))
-            for i in range(MAX_GET_RESULTS)
-        )
-        six.assertRaisesRegex(
-            self,
-            MultipleObjectsReturned,
-            "get\(\) returned more than one Article -- it returned %d!" % MAX_GET_RESULTS,
-            Article.objects.get,
-            headline__startswith='Area',
-        )
-        Article.objects.create(headline='Area %s' % MAX_GET_RESULTS, pub_date=datetime(2005, 7, 28))
-        six.assertRaisesRegex(
-            self,
-            MultipleObjectsReturned,
-            "get\(\) returned more than one Article -- it returned more than %d!" % MAX_GET_RESULTS,
-            Article.objects.get,
-            headline__startswith='Area',
-        )
+class TemporaryClassSplittingUpObjectCreationTest(TestCase):
 
     def test_object_creation(self):
         # Create an Article.
@@ -499,6 +331,177 @@ class ModelTest(TestCase):
              "<Article: Default headline>",
              "<Article: Article 7>",
              "<Article: Updated article 8>"])
+
+
+class ModelTest(TestCase):
+
+    def test_lookup(self):
+        # No articles are in the system yet.
+        self.assertQuerysetEqual(Article.objects.all(), [])
+
+        # Create an Article.
+        a = Article(
+            id=None,
+            headline='Area man programs in Python',
+            pub_date=datetime(2005, 7, 28),
+        )
+
+        # Save it into the database. You have to call save() explicitly.
+        a.save()
+
+        # Now it has an ID.
+        self.assertTrue(a.id is not None)
+
+        # Models have a pk property that is an alias for the primary key
+        # attribute (by default, the 'id' attribute).
+        self.assertEqual(a.pk, a.id)
+
+        # Access database columns via Python attributes.
+        self.assertEqual(a.headline, 'Area man programs in Python')
+        self.assertEqual(a.pub_date, datetime(2005, 7, 28, 0, 0))
+
+        # Change values by changing the attributes, then calling save().
+        a.headline = 'Area woman programs in Python'
+        a.save()
+
+        # Article.objects.all() returns all the articles in the database.
+        self.assertQuerysetEqual(Article.objects.all(),
+            ['<Article: Area woman programs in Python>'])
+
+        # Django provides a rich database lookup API.
+        self.assertEqual(Article.objects.get(id__exact=a.id), a)
+        self.assertEqual(Article.objects.get(headline__startswith='Area woman'), a)
+        self.assertEqual(Article.objects.get(pub_date__year=2005), a)
+        self.assertEqual(Article.objects.get(pub_date__year=2005, pub_date__month=7), a)
+        self.assertEqual(Article.objects.get(pub_date__year=2005, pub_date__month=7, pub_date__day=28), a)
+        self.assertEqual(Article.objects.get(pub_date__week_day=5), a)
+
+        # The "__exact" lookup type can be omitted, as a shortcut.
+        self.assertEqual(Article.objects.get(id=a.id), a)
+        self.assertEqual(Article.objects.get(headline='Area woman programs in Python'), a)
+
+        self.assertQuerysetEqual(
+            Article.objects.filter(pub_date__year=2005),
+            ['<Article: Area woman programs in Python>'],
+        )
+        self.assertQuerysetEqual(
+            Article.objects.filter(pub_date__year=2004),
+            [],
+        )
+        self.assertQuerysetEqual(
+            Article.objects.filter(pub_date__year=2005, pub_date__month=7),
+            ['<Article: Area woman programs in Python>'],
+        )
+
+        self.assertQuerysetEqual(
+            Article.objects.filter(pub_date__week_day=5),
+            ['<Article: Area woman programs in Python>'],
+        )
+        self.assertQuerysetEqual(
+            Article.objects.filter(pub_date__week_day=6),
+            [],
+        )
+
+        # Django raises an Article.DoesNotExist exception for get() if the
+        # parameters don't match any object.
+        six.assertRaisesRegex(
+            self,
+            ObjectDoesNotExist,
+            "Article matching query does not exist.",
+            Article.objects.get,
+            id__exact=2000,
+        )
+        # To avoid dict-ordering related errors check only one lookup
+        # in single assert.
+        self.assertRaises(
+            ObjectDoesNotExist,
+            Article.objects.get,
+            pub_date__year=2005,
+            pub_date__month=8,
+        )
+
+        six.assertRaisesRegex(
+            self,
+            ObjectDoesNotExist,
+            "Article matching query does not exist.",
+            Article.objects.get,
+            pub_date__week_day=6,
+        )
+
+        # Lookup by a primary key is the most common case, so Django
+        # provides a shortcut for primary-key exact lookups.
+        # The following is identical to articles.get(id=a.id).
+        self.assertEqual(Article.objects.get(pk=a.id), a)
+
+        # pk can be used as a shortcut for the primary key name in any query.
+        self.assertQuerysetEqual(Article.objects.filter(pk__in=[a.id]),
+            ["<Article: Area woman programs in Python>"])
+
+        # Model instances of the same type and same ID are considered equal.
+        a = Article.objects.get(pk=a.id)
+        b = Article.objects.get(pk=a.id)
+        self.assertEqual(a, b)
+
+        # Create a very similar object
+        a = Article(
+            id=None,
+            headline='Area man programs in Python',
+            pub_date=datetime(2005, 7, 28),
+        )
+        a.save()
+
+        self.assertEqual(Article.objects.count(), 2)
+
+        # Django raises an Article.MultipleObjectsReturned exception if the
+        # lookup matches more than one object
+        six.assertRaisesRegex(
+            self,
+            MultipleObjectsReturned,
+            "get\(\) returned more than one Article -- it returned 2!",
+            Article.objects.get,
+            headline__startswith='Area',
+        )
+
+        six.assertRaisesRegex(
+            self,
+            MultipleObjectsReturned,
+            "get\(\) returned more than one Article -- it returned 2!",
+            Article.objects.get,
+            pub_date__year=2005,
+        )
+
+        six.assertRaisesRegex(
+            self,
+            MultipleObjectsReturned,
+            "get\(\) returned more than one Article -- it returned 2!",
+            Article.objects.get,
+            pub_date__year=2005,
+            pub_date__month=7,
+        )
+
+    def test_multiple_objects_max_num_fetched(self):
+        """
+        #6785 - get() should fetch a limited number of results.
+        """
+        Article.objects.bulk_create(
+            Article(headline='Area %s' % i, pub_date=datetime(2005, 7, 28))
+            for i in range(MAX_GET_RESULTS)
+        )
+        six.assertRaisesRegex(
+            self,
+            MultipleObjectsReturned,
+            "get\(\) returned more than one Article -- it returned %d!" % MAX_GET_RESULTS,
+            Article.objects.get,
+            headline__startswith='Area',
+        )
+        Article.objects.create(headline='Area %s' % MAX_GET_RESULTS, pub_date=datetime(2005, 7, 28))
+        six.assertRaisesRegex(
+            self,
+            MultipleObjectsReturned,
+            "get\(\) returned more than one Article -- it returned more than %d!" % MAX_GET_RESULTS,
+            Article.objects.get,
+            headline__startswith='Area',
+        )
 
     @skipUnlessDBFeature('supports_microsecond_precision')
     def test_microsecond_precision(self):
