@@ -2184,14 +2184,15 @@ class QuerysetSupportsPythonIdioms(BaseQuerysetTest):
         self.assertQuerysetEqual(self.get_ordered_articles()[1:long(3)],
             ["<Article: Article 2>", "<Article: Article 3>"])
 
-    def test_slicing_slices_without_step_are_lazy(self):
-        # TODO: doesn't this contradict test_cannot_filter_queryset_once_sliced?
-        self.assertQuerysetEqual(self.get_ordered_articles()[0:5].filter(),
-            ["<Article: Article 1>",
-             "<Article: Article 2>",
-             "<Article: Article 3>",
-             "<Article: Article 4>",
-             "<Article: Article 5>"])
+    def test_slicing_without_step_is_lazy(self):
+        self.assertNumQueries(
+            num=0,
+            func=lambda: self.get_ordered_articles()[0:5])
+
+    def test_slicing_with_tests_is_not_lazy(self):
+        self.assertNumQueries(
+            num=1,
+            func=lambda: self.get_ordered_articles()[0:5:3])
 
     def test_slicing_can_slice_again_after_slicing(self):
         self.assertQuerysetEqual(self.get_ordered_articles()[0:5][0:2],
