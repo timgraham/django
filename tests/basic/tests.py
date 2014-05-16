@@ -270,6 +270,7 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             id=a.id,
         )
 
+    def test_slicing_cannot_reorder_queryset_once_sliced(self):
         six.assertRaisesRegex(
             self,
             AssertionError,
