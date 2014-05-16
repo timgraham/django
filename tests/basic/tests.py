@@ -58,14 +58,14 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         a4.save()
         self.assertEqual(a4.headline, 'Fourth article')
 
-        # Don't use invalid keyword arguments.
+    def test_cannot_create_instance_with_invalid_kwargs(self):
         six.assertRaisesRegex(
             self,
             TypeError,
             "'foo' is an invalid keyword argument for this function",
             Article,
             id=None,
-            headline='Invalid',
+            headline='Some headline',
             pub_date=datetime(2005, 7, 31),
             foo='bar',
         )
