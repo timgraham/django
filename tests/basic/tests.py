@@ -12,6 +12,7 @@ from django.db.models.query import QuerySet, EmptyQuerySet, ValuesListQuerySet, 
 from django.test import TestCase, TransactionTestCase, skipIfDBFeature, skipUnlessDBFeature
 from django.utils import six
 from django.utils.translation import ugettext_lazy
+from django.utils.unittest import skipUnless
 
 from .models import Article, SelfRef, ArticleSelectOnSave
 
@@ -215,19 +216,32 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             ["<Article: Area man programs in Python>",
              "<Article: Third article>"])
 
-        # Slicing works with longs (Python 2 only -- Python 3 doesn't have longs).
-        if six.PY2:
-            self.assertEqual(Article.objects.all()[long(0)], a)
-            self.assertQuerysetEqual(Article.objects.all()[long(1):long(3)],
-                ["<Article: Second article>", "<Article: Third article>"])
-            self.assertQuerysetEqual((s1 | s2 | s3)[::long(2)],
-                ["<Article: Area man programs in Python>",
-                "<Article: Third article>"])
+    @skipUnless(six.PY2, "Python 2 only -- Python 3 doesn't have longs.")
+    def test_slicing_works_with_longs(self):
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article',
+            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
+            'Updated article 8']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for headline in headlines:
+            Article(headline=headline, pub_date=some_pub_date).save()
+        ordered_articles = Article.objects.all().order_by('headline')
+        self.assertEqual(ordered_articles[long(0)].headline, 'Area man programs in Python')
+        self.assertQuerysetEqual(ordered_articles[long(1):long(3)],
+            ["<Article: Article 6>", "<Article: Article 7>"])
+        self.assertQuerysetEqual(ordered_articles[::long(2)],
+            ["<Article: Area man programs in Python>",
+            "<Article: Article 7>",
+            "<Article: Fourth article>",
+            "<Article: Third article>"])
 
-            # And can be mixed with ints.
-            self.assertQuerysetEqual(Article.objects.all()[1:long(3)],
-                ["<Article: Second article>", "<Article: Third article>"])
+        # And can be mixed with ints.
+        self.assertQuerysetEqual(ordered_articles[1:long(3)],
+            ["<Article: Article 6>", "<Article: Article 7>"])
 
+    # TODO: missing explicit tests, only implicitly above:
+    #   * extended ([::2]) slicing
+    #   * slicing combined querysets
     def test_slicing_slices_without_step_are_lazy(self):
         # TODO: doesn't this contradict test_slicing_cannot_filter_queryset_once_sliced?
         # TODO: it seems there is a missing test for slices with steps
