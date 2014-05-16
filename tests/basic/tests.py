@@ -40,7 +40,6 @@ class ModelInstanceCreationTests(TestCase):
 
         self.assertEqual(a2.headline, 'Second article')
         self.assertEqual(a2.pub_date, datetime(2005, 7, 29, 0, 0))
-        # TODO: missing assertion on model orders
 
     def test_can_create_instance_using_kwargs(self):
         a3 = Article(
@@ -65,7 +64,6 @@ class ModelInstanceCreationTests(TestCase):
         a4 = Article(None, 'Fourth article', pub_date=datetime(2005, 7, 31))
         a4.save()
         self.assertEqual(a4.headline, 'Fourth article')
-        # TODO: missing test for duplicate field information
 
     def test_cannot_create_instance_with_invalid_kwargs(self):
         six.assertRaisesRegex(
@@ -82,14 +80,12 @@ class ModelInstanceCreationTests(TestCase):
     def test_can_leave_off_value_for_autofield_and_it_gets_value_on_save(self):
         """You can leave off the value for an AutoField when creating an
            object, because it'll get filled in automatically when you save()."""
-        # TODO: missing assertion that id actually is an autofield
         a5 = Article(headline='Article 5', pub_date=datetime(2005, 7, 31))
         a5.save()
         self.assertEqual(a5.headline, 'Article 5')
         self.assertNotEqual(a5.id, None)
 
     def test_leaving_off_a_field_with_default_set_the_default_will_be_saved(self):
-        # TODO: missing assertion that model actually has default
         a6 = Article(pub_date=datetime(2005, 7, 31))
         a6.save()
         self.assertEqual(a6.headline, 'Default headline')
