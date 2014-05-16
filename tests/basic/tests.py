@@ -240,9 +240,6 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         self.assertQuerysetEqual(Article.objects.all()[0:5][0:2],
             ["<Article: Area man programs in Python>",
              "<Article: Second article>"])
-        self.assertQuerysetEqual(Article.objects.all()[0:5][:2],
-            ["<Article: Area man programs in Python>",
-             "<Article: Second article>"])
         self.assertQuerysetEqual(Article.objects.all()[0:5][4:],
             ["<Article: Default headline>"])
         self.assertQuerysetEqual(Article.objects.all()[0:5][5:], [])
