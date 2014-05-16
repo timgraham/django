@@ -329,7 +329,7 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             'Article 6', 'Default headline', 'Fourth article', 'Article 7',
             'Updated article 8']
         some_pub_date = datetime(2014, 5, 16, 12, 1)
-        for pk, headline in enumerate(headlines):
+        for headline in headlines:
             Article(headline=headline, pub_date=some_pub_date).save()
         self.assertQuerysetEqual(Article.objects.all().order_by('headline'),
             ["<Article: Area man programs in Python>",
