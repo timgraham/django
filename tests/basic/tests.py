@@ -174,6 +174,8 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             "bad_kind",
         )
 
+    def test_dates_fails_when_given_invalid_order_argument(self):
+        # TODO: dates vs. datetimes, half the tests work with one, other half with other
         six.assertRaisesRegex(
             self,
             AssertionError,
