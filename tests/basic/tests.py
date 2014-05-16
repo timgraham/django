@@ -150,7 +150,7 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "datetime.datetime(2005, 7, 29, 0, 0)",
              "datetime.datetime(2005, 7, 28, 0, 0)"])
 
-        # datetimes() requires valid arguments.
+    def test_dates_fails_when_no_arguments_are_provided(self):
         self.assertRaises(
             TypeError,
             Article.objects.dates,
