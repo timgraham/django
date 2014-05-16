@@ -12,7 +12,6 @@ from django.db.models.query import QuerySet, EmptyQuerySet, ValuesListQuerySet, 
 from django.test import TestCase, TransactionTestCase, skipIfDBFeature, skipUnlessDBFeature
 from django.utils import six
 from django.utils.translation import ugettext_lazy
-from django.utils.unittest import skipUnless
 
 from .models import Article, SelfRef, ArticleSelectOnSave
 
@@ -20,7 +19,6 @@ from .models import Article, SelfRef, ArticleSelectOnSave
 class TemporaryClassSplittingUpObjectCreationTest(TestCase):
 
     def test_object_is_not_written_to_database_until_save_was_called(self):
-        # Create an Article.
         a = Article(
             id=None,
             headline='Area man programs in Python',
@@ -260,144 +258,6 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
     def test_querysets_can_get_number_of_items_in_queryset_using_standard_len(self):
         Article.objects.create(headline='Headline', pub_date=datetime(2014, 5, 16, 15, 27))
         self.assertEqual(len(Article.objects.filter(headline__exact='Headline')), 1)
-
-    def test_can_get_items_using_index_and_slice_notation(self):
-        headlines = [
-            'Area man programs in Python', 'Second article', 'Third article']
-        some_pub_date = datetime(2014, 5, 16, 12, 1)
-        for headline in headlines:
-            Article(headline=headline, pub_date=some_pub_date).save()
-        ordered_articles = Article.objects.all().order_by('headline')
-        self.assertEqual(ordered_articles[0].headline, 'Area man programs in Python')
-        self.assertQuerysetEqual(ordered_articles[1:3],
-            ["<Article: Second article>", "<Article: Third article>"])
-
-        self.assertQuerysetEqual(ordered_articles[::2],
-            ["<Article: Area man programs in Python>",
-             "<Article: Third article>"])
-
-    @skipUnless(six.PY2, "Python 2 only -- Python 3 doesn't have longs.")
-    def test_slicing_works_with_longs(self):
-        headlines = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_pub_date = datetime(2014, 5, 16, 12, 1)
-        for headline in headlines:
-            Article(headline=headline, pub_date=some_pub_date).save()
-        ordered_articles = Article.objects.all().order_by('headline')
-        self.assertEqual(ordered_articles[long(0)].headline, 'Area man programs in Python')
-        self.assertQuerysetEqual(ordered_articles[long(1):long(3)],
-            ["<Article: Article 6>", "<Article: Article 7>"])
-        self.assertQuerysetEqual(ordered_articles[::long(2)],
-            ["<Article: Area man programs in Python>",
-            "<Article: Article 7>",
-            "<Article: Fourth article>",
-            "<Article: Third article>"])
-
-        # And can be mixed with ints.
-        self.assertQuerysetEqual(ordered_articles[1:long(3)],
-            ["<Article: Article 6>", "<Article: Article 7>"])
-
-    # TODO: missing explicit tests, only implicitly above:
-    #   * extended ([::2]) slicing
-    #   * slicing combined querysets
-    def test_slicing_slices_without_step_are_lazy(self):
-        # TODO: doesn't this contradict test_slicing_cannot_filter_queryset_once_sliced?
-        # TODO: it seems there is a missing test for slices with steps
-        headlines = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_pub_date = datetime(2014, 5, 16, 12, 1)
-        for headline in headlines:
-            Article(headline=headline, pub_date=some_pub_date).save()
-        ordered_articles = Article.objects.all().order_by('headline')
-        self.assertQuerysetEqual(ordered_articles[0:5].filter(),
-            ["<Article: Area man programs in Python>",
-             "<Article: Article 6>",
-             "<Article: Article 7>",
-             "<Article: Default headline>",
-             "<Article: Fourth article>"])
-
-    def test_slicing_can_slice_again_after_slicing(self):
-        headlines = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
-            'Updated article 8']
-        some_pub_date = datetime(2014, 5, 16, 12, 1)
-        for headline in headlines:
-            Article(headline=headline, pub_date=some_pub_date).save()
-        ordered_articles = Article.objects.all().order_by('headline')
-        self.assertQuerysetEqual(ordered_articles[0:5][0:2],
-            ["<Article: Area man programs in Python>",
-             "<Article: Article 6>"])
-        self.assertQuerysetEqual(ordered_articles[0:5][4:],
-            ["<Article: Fourth article>"])
-        self.assertQuerysetEqual(ordered_articles[0:5][5:], [])
-
-        # Some more tests!
-        self.assertQuerysetEqual(ordered_articles[2:][0:2],
-            ["<Article: Article 7>", "<Article: Default headline>"])
-        self.assertQuerysetEqual(ordered_articles[2:][:2],
-            ["<Article: Article 7>", "<Article: Default headline>"])
-        self.assertQuerysetEqual(ordered_articles[2:][2:3],
-            ["<Article: Fourth article>"])
-
-        # Using an offset without a limit is also possible.
-        self.assertQuerysetEqual(ordered_articles[5:],
-            ["<Article: Second article>",
-             "<Article: Third article>",
-             "<Article: Updated article 8>"])
-
-    def test_slicing_cannot_filter_queryset_once_sliced(self):
-        six.assertRaisesRegex(
-            self,
-            AssertionError,
-            "Cannot filter a query once a slice has been taken.",
-            Article.objects.all()[0:5].filter,
-            id=1,
-        )
-
-    def test_slicing_cannot_reorder_queryset_once_sliced(self):
-        six.assertRaisesRegex(
-            self,
-            AssertionError,
-            "Cannot reorder a query once a slice has been taken.",
-            Article.objects.all()[0:5].order_by,
-            'id',
-        )
-
-    def test_slicing_cannot_combine_queries_once_sliced(self):
-        # TODO: there is a missing test ensuring sliced qs are lazy
-        try:
-            Article.objects.all()[0:1] & Article.objects.all()[4:5]
-            self.fail('Should raise an AssertionError')
-        except AssertionError as e:
-            self.assertEqual(str(e), "Cannot combine queries once a slice has been taken.")
-        except Exception as e:
-            self.fail('Should raise an AssertionError, not %s' % e)
-
-    def test_slicing_negative_indexing_not_supported_for_single_element(self):
-        """hint: inverting your ordering might do what you need"""
-        # TODO: use self.assertRaisesRegexp
-        try:
-            Article.objects.all()[-1]
-            self.fail('Should raise an AssertionError')
-        except AssertionError as e:
-            self.assertEqual(str(e), "Negative indexing is not supported.")
-        except Exception as e:
-            self.fail('Should raise an AssertionError, not %s' % e)
-
-    def test_slicing_negative_indexing_not_supported_for_range(self):
-        # TODO: use self.assertRaisesRegexp
-        error = None
-        try:
-            Article.objects.all()[0:-5]
-        except Exception as e:
-            error = e
-        self.assertIsInstance(error, AssertionError)
-        self.assertEqual(str(error), "Negative indexing is not supported.")
 
     def test_objects_attribute_is_only_available_on_the_class_itself(self):
         # TODO: missing assertion: class actually hasattr
