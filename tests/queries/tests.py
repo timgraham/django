@@ -2163,7 +2163,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
              "<Article: Third article>"])
 
     @unittest.skipUnless(six.PY2, "Python 2 only -- Python 3 doesn't have longs.")
-    def test_slicing_works_with_longs(self):
+    def test_works_with_longs(self):
         article_names = [
             'Area man programs in Python', 'Second article', 'Third article',
             'Article 6', 'Default name', 'Fourth article', 'Article 7',
@@ -2188,8 +2188,8 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
     # TODO: missing explicit tests, only implicitly above:
     #   * extended ([::2]) slicing
     #   * slicing combined querysets
-    def test_slicing_slices_without_step_are_lazy(self):
-        # TODO: doesn't this contradict test_slicing_cannot_filter_queryset_once_sliced?
+    def test_slices_without_step_are_lazy(self):
+        # TODO: doesn't this contradict test_cannot_filter_queryset_once_sliced?
         # TODO: it seems there is a missing test for slices with steps
         article_names = [
             'Area man programs in Python', 'Second article', 'Third article',
@@ -2206,7 +2206,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
              "<Article: Default name>",
              "<Article: Fourth article>"])
 
-    def test_slicing_can_slice_again_after_slicing(self):
+    def test_can_slice_again_after_slicing(self):
         article_names = [
             'Area man programs in Python', 'Second article', 'Third article',
             'Article 6', 'Default name', 'Fourth article', 'Article 7',
@@ -2236,7 +2236,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
              "<Article: Third article>",
              "<Article: Updated article 8>"])
 
-    def test_slicing_cannot_filter_queryset_once_sliced(self):
+    def test_cannot_filter_queryset_once_sliced(self):
         six.assertRaisesRegex(
             self,
             AssertionError,
@@ -2245,7 +2245,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
             id=1,
         )
 
-    def test_slicing_cannot_reorder_queryset_once_sliced(self):
+    def test_cannot_reorder_queryset_once_sliced(self):
         six.assertRaisesRegex(
             self,
             AssertionError,
@@ -2254,7 +2254,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
             'id',
         )
 
-    def test_slicing_cannot_combine_queries_once_sliced(self):
+    def test_cannot_combine_queries_once_sliced(self):
         # TODO: there is a missing test ensuring sliced qs are lazy
         try:
             Article.objects.all()[0:1] & Article.objects.all()[4:5]
@@ -2264,7 +2264,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
         except Exception as e:
             self.fail('Should raise an AssertionError, not %s' % e)
 
-    def test_slicing_negative_indexing_not_supported_for_single_element(self):
+    def test_negative_indexing_not_supported_for_single_element(self):
         """hint: inverting your ordering might do what you need"""
         # TODO: use self.assertRaisesRegexp
         try:
@@ -2275,7 +2275,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
         except Exception as e:
             self.fail('Should raise an AssertionError, not %s' % e)
 
-    def test_slicing_negative_indexing_not_supported_for_range(self):
+    def test_negative_indexing_not_supported_for_range(self):
         # TODO: use self.assertRaisesRegexp
         error = None
         try:
@@ -2284,6 +2284,7 @@ class QuerysetIndexingAndSlicingTests(BaseQuerysetTest):
             error = e
         self.assertIsInstance(error, AssertionError)
         self.assertEqual(str(error), "Negative indexing is not supported.")
+
 
 class WeirdQuerysetSlicingTests(BaseQuerysetTest):
     def setUp(self):
