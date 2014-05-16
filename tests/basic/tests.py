@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy
 from .models import Article, SelfRef, ArticleSelectOnSave
 
 
-class TemporaryClassSplittingUpObjectCreationTest(TestCase):
+class ModelInstanceCreationTests(TestCase):
 
     def test_object_is_not_written_to_database_until_save_was_called(self):
         a = Article(
