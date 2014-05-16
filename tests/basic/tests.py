@@ -228,13 +228,23 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             self.assertQuerysetEqual(Article.objects.all()[1:long(3)],
                 ["<Article: Second article>", "<Article: Third article>"])
 
-        # Slices (without step) are lazy:
-        self.assertQuerysetEqual(Article.objects.all()[0:5].filter(),
+    def test_slicing_slices_without_step_are_lazy(self):
+        # TODO: doesn't this contradict test_slicing_cannot_filter_queryset_once_sliced?
+        # TODO: it seems there is a missing test for slices with steps
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article',
+            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
+            'Updated article 8']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for headline in headlines:
+            Article(headline=headline, pub_date=some_pub_date).save()
+        ordered_articles = Article.objects.all().order_by('headline')
+        self.assertQuerysetEqual(ordered_articles[0:5].filter(),
             ["<Article: Area man programs in Python>",
-             "<Article: Second article>",
-             "<Article: Third article>",
              "<Article: Article 6>",
-             "<Article: Default headline>"])
+             "<Article: Article 7>",
+             "<Article: Default headline>",
+             "<Article: Fourth article>"])
 
     def test_slicing_can_slice_again_after_slicing(self):
         headlines = [
