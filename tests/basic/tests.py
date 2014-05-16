@@ -278,6 +278,8 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             'id',
         )
 
+    def test_slicing_cannot_combine_queries_once_sliced(self):
+        # TODO: there is a missing test ensuring sliced qs are lazy
         try:
             Article.objects.all()[0:1] & Article.objects.all()[4:5]
             self.fail('Should raise an AssertionError')
