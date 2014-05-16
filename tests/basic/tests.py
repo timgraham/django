@@ -165,6 +165,7 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             "year",
         )
 
+    def test_dates_fails_when_given_invalid_kind_argument(self):
         six.assertRaisesRegex(
             self,
             AssertionError,
