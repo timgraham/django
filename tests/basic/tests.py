@@ -184,8 +184,17 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             order="bad order",
         )
 
+    def test_datetimes_has_lazy_iterator(self):
+        pub_dates = [
+            datetime(2005, 7, 28, 12, 15),
+            datetime(2005, 7, 29, 2, 15),
+            datetime(2005, 7, 30, 5, 15),
+            datetime(2005, 7, 31, 19, 15)]
+        for i, pub_date in enumerate(pub_dates):
+            Article(pub_date=pub_date, headline='Headline #{}'.format(i)).save()
         # Use iterator() with datetimes() to return a generator that lazily
         # requests each result one at a time, to save memory.
+        # TODO: how does it assert it's lazy? self.assertNotEqual(list, type(datetimes))?
         dates = []
         for article in Article.objects.datetimes('pub_date', 'day', order='DESC').iterator():
             dates.append(article)
