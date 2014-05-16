@@ -149,30 +149,19 @@ class ModelTest(TestCase):
         self.assertTrue(hasattr(Article, 'objects'))
 
     def test_queryset_delete_removes_all_items_in_that_queryset(self):
-        # TODO: less data can be enough to demonstrate this test
         headlines = [
-            'Area man programs in Python', 'Second article', 'Third article',
-            'Article 6', 'Default headline', 'Fourth article', 'Article 7',
-            'Updated article 8']
+            'An article', 'Article One', 'Amazing article', 'Boring article']
         some_pub_date = datetime(2014, 5, 16, 12, 1)
         for headline in headlines:
             Article(headline=headline, pub_date=some_pub_date).save()
         self.assertQuerysetEqual(Article.objects.all().order_by('headline'),
-            ["<Article: Area man programs in Python>",
-             "<Article: Article 6>",
-             "<Article: Article 7>",
-             "<Article: Default headline>",
-             "<Article: Fourth article>",
-             "<Article: Second article>",
-             "<Article: Third article>",
-             "<Article: Updated article 8>"])
+            ["<Article: Amazing article>",
+             "<Article: An article>",
+             "<Article: Article One>",
+             "<Article: Boring article>"])
         Article.objects.filter(headline__startswith='A').delete()
         self.assertQuerysetEqual(Article.objects.all().order_by('headline'),
-            ["<Article: Default headline>",
-             "<Article: Fourth article>",
-             "<Article: Second article>",
-             "<Article: Third article>",
-             "<Article: Updated article 8>"])
+            ["<Article: Boring article>"])
 
     def test_not_equal_and_equal_operators_behave_as_expected_on_instances(self):
         some_pub_date = datetime(2014, 5, 16, 12, 1)
