@@ -237,26 +237,26 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "<Article: Default headline>"])
 
         # Slicing again works:
-        ordered_articles = Article.objects.all()
+        ordered_articles = Article.objects.all().order_by('headline')
         self.assertQuerysetEqual(ordered_articles[0:5][0:2],
             ["<Article: Area man programs in Python>",
-             "<Article: Second article>"])
+             "<Article: Article 6>"])
         self.assertQuerysetEqual(ordered_articles[0:5][4:],
-            ["<Article: Default headline>"])
+            ["<Article: Fourth article>"])
         self.assertQuerysetEqual(ordered_articles[0:5][5:], [])
 
         # Some more tests!
         self.assertQuerysetEqual(ordered_articles[2:][0:2],
-            ["<Article: Third article>", "<Article: Article 6>"])
+            ["<Article: Article 7>", "<Article: Default headline>"])
         self.assertQuerysetEqual(ordered_articles[2:][:2],
-            ["<Article: Third article>", "<Article: Article 6>"])
+            ["<Article: Article 7>", "<Article: Default headline>"])
         self.assertQuerysetEqual(ordered_articles[2:][2:3],
-            ["<Article: Default headline>"])
+            ["<Article: Fourth article>"])
 
         # Using an offset without a limit is also possible.
         self.assertQuerysetEqual(ordered_articles[5:],
-            ["<Article: Fourth article>",
-             "<Article: Article 7>",
+            ["<Article: Second article>",
+             "<Article: Third article>",
              "<Article: Updated article 8>"])
 
     def test_slicing_cannot_filter_queryset_once_sliced(self):
