@@ -261,13 +261,13 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "<Article: Article 7>",
              "<Article: Updated article 8>"])
 
-        # Also, once you have sliced you can't filter, re-order or combine
+    def test_slicing_cannot_filter_queryset_once_sliced(self):
         six.assertRaisesRegex(
             self,
             AssertionError,
             "Cannot filter a query once a slice has been taken.",
             Article.objects.all()[0:5].filter,
-            id=a.id,
+            id=1,
         )
 
     def test_slicing_cannot_reorder_queryset_once_sliced(self):
