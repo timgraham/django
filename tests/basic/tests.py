@@ -242,6 +242,8 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
             "objects",
         )
 
+
+class ModelTest(TestCase):
     def test_queryset_delete_removes_all_items_in_that_queryset(self):
         # TODO: less data can be enough to demonstrate this test
         headlines = [
@@ -267,9 +269,6 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "<Article: Second article>",
              "<Article: Third article>",
              "<Article: Updated article 8>"])
-
-
-class ModelTest(TestCase):
 
     def test_not_equal_and_equal_operators_behave_as_expected_on_instances(self):
         some_pub_date = datetime(2014, 5, 16, 12, 1)
