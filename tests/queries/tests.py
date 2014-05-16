@@ -2185,14 +2185,12 @@ class QuerysetSupportsPythonIdioms(BaseQuerysetTest):
             ["<Article: Article 2>", "<Article: Article 3>"])
 
     def test_slicing_without_step_is_lazy(self):
-        self.assertNumQueries(
-            num=0,
-            func=lambda: self.get_ordered_articles()[0:5])
+        with self.assertNumQueries(0):
+            self.get_ordered_articles()[0:5]
 
     def test_slicing_with_tests_is_not_lazy(self):
-        self.assertNumQueries(
-            num=1,
-            func=lambda: self.get_ordered_articles()[0:5:3])
+        with self.assertNumQueries(1):
+            self.get_ordered_articles()[0:5:3]
 
     def test_slicing_can_slice_again_after_slicing(self):
         self.assertQuerysetEqual(self.get_ordered_articles()[0:5][0:2],
