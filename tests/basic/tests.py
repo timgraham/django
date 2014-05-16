@@ -325,11 +325,12 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
              "<Article: Second article>",
              "<Article: Third article>",
              "<Article: Updated article 8>"])
-        Article.objects.filter(id__lte=a4.id).delete()
+        Article.objects.filter(headline__startswith='A').delete()
         self.assertQuerysetEqual(Article.objects.all().order_by('headline'),
-            ["<Article: Article 6>",
-             "<Article: Article 7>",
-             "<Article: Default headline>",
+            ["<Article: Default headline>",
+             "<Article: Fourth article>",
+             "<Article: Second article>",
+             "<Article: Third article>",
              "<Article: Updated article 8>"])
 
 
