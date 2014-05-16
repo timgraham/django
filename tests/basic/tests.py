@@ -40,23 +40,30 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         self.assertEqual(a2.pub_date, datetime(2005, 7, 29, 0, 0))
 
         # ...or, you can use keyword arguments.
+    def test_can_create_instance_using_kwargs(self):
         a3 = Article(
             id=None,
             headline='Third article',
             pub_date=datetime(2005, 7, 30),
         )
         a3.save()
-
-        self.assertNotEqual(a3.id, a.id)
-        self.assertNotEqual(a3.id, a2.id)
         self.assertEqual(a3.headline, 'Third article')
         self.assertEqual(a3.pub_date, datetime(2005, 7, 30, 0, 0))
 
+    def test_autofields_generate_different_values_for_each_instance(self):
+        a = Article.objects.create(headline='First', pub_date=datetime(2005, 7, 30, 0, 0))
+        a2 = Article.objects.create(headline='First', pub_date=datetime(2005, 7, 30, 0, 0))
+        a3 = Article.objects.create(headline='First', pub_date=datetime(2005, 7, 30, 0, 0))
+        self.assertNotEqual(a3.id, a.id)
+        self.assertNotEqual(a3.id, a2.id)
+
+    def test_can_mix_and_match_position_and_kwargs(self):
         # You can also mix and match position and keyword arguments, but
         # be sure not to duplicate field information.
         a4 = Article(None, 'Fourth article', pub_date=datetime(2005, 7, 31))
         a4.save()
         self.assertEqual(a4.headline, 'Fourth article')
+        # TODO: missing test for duplicate field information
 
     def test_cannot_create_instance_with_invalid_kwargs(self):
         six.assertRaisesRegex(
