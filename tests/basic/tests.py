@@ -304,14 +304,15 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         self.assertIsInstance(error, AssertionError)
         self.assertEqual(str(error), "Negative indexing is not supported.")
 
-        # An Article instance doesn't have access to the "objects" attribute.
-        # That's only available on the class.
+    def test_objects_attribute_is_only_available_on_the_class_itself(self):
+        # TODO: missing assertion: class actually hasattr
+        # TODO: use context manager?
         six.assertRaisesRegex(
             self,
             AttributeError,
             "Manager isn't accessible via Article instances",
             getattr,
-            a7,
+            Article(),
             "objects",
         )
 
