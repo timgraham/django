@@ -286,8 +286,9 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         except Exception as e:
             self.fail('Should raise an AssertionError, not %s' % e)
 
-        # Negative slices are not supported, due to database constraints.
-        # (hint: inverting your ordering might do what you need).
+    def test_slicing_negative_indexing_not_supported_for_single_element(self):
+        """hint: inverting your ordering might do what you need"""
+        # TODO: use self.assertRaisesRegexp
         try:
             Article.objects.all()[-1]
             self.fail('Should raise an AssertionError')
