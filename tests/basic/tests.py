@@ -206,13 +206,18 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         # You can get the number of objects like this:
         self.assertEqual(len(Article.objects.filter(id__exact=a.id)), 1)
 
-        # You can get items using index and slice notation.
-        self.assertEqual(Article.objects.all()[0], a)
-        self.assertQuerysetEqual(Article.objects.all()[1:3],
+    def test_can_get_items_using_index_and_slice_notation(self):
+        headlines = [
+            'Area man programs in Python', 'Second article', 'Third article']
+        some_pub_date = datetime(2014, 5, 16, 12, 1)
+        for headline in headlines:
+            Article(headline=headline, pub_date=some_pub_date).save()
+        ordered_articles = Article.objects.all().order_by('headline')
+        self.assertEqual(ordered_articles[0].headline, 'Area man programs in Python')
+        self.assertQuerysetEqual(ordered_articles[1:3],
             ["<Article: Second article>", "<Article: Third article>"])
 
-        s3 = Article.objects.filter(id__exact=a3.id)
-        self.assertQuerysetEqual((s1 | s2 | s3)[::2],
+        self.assertQuerysetEqual(ordered_articles[::2],
             ["<Article: Area man programs in Python>",
              "<Article: Third article>"])
 
