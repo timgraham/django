@@ -100,14 +100,17 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         self.assertEqual(Article.objects.get(id__exact=a8.id).pub_date,
             datetime(2005, 7, 31, 12, 30, 45))
 
-        # Saving an object again doesn't create a new object -- it just saves
-        # the old one.
-        current_id = a8.id
-        a8.save()
-        self.assertEqual(a8.id, current_id)
-        a8.headline = 'Updated article 8'
-        a8.save()
-        self.assertEqual(a8.id, current_id)
+    def test_saving_an_object_again_does_not_create_a_new_object(self):
+        a = Article(headline='original', pub_date=datetime(2014, 5, 16))
+        a.save()
+        current_id = a.id
+
+        a.save()
+        self.assertEqual(a.id, current_id)
+
+        a.headline = 'Updated headline'
+        a.save()
+        self.assertEqual(a.id, current_id)
 
     def test_not_equal_and_equal_operators_behave_as_expected_on_instances(self):
         some_pub_date = datetime(2014, 5, 16, 12, 1)
