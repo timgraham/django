@@ -296,6 +296,8 @@ class TemporaryClassSplittingUpObjectCreationTest(TestCase):
         except Exception as e:
             self.fail('Should raise an AssertionError, not %s' % e)
 
+    def test_slicing_negative_indexing_not_supported_for_range(self):
+        # TODO: use self.assertRaisesRegexp
         error = None
         try:
             Article.objects.all()[0:-5]
