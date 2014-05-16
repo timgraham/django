@@ -2234,35 +2234,30 @@ class QuerysetSupportsPythonIdioms(BaseQuerysetTest):
         )
 
     def test_slicing_cannot_combine_queries_once_sliced(self):
-        # TODO: there is a missing test ensuring sliced qs are lazy
-        try:
-            Article.objects.all()[0:1] & Article.objects.all()[4:5]
-            self.fail('Should raise an AssertionError')
-        except AssertionError as e:
-            self.assertEqual(str(e), "Cannot combine queries once a slice has been taken.")
-        except Exception as e:
-            self.fail('Should raise an AssertionError, not %s' % e)
+        six.assertRaisesRegex(
+            self,
+            AssertionError,
+            "Cannot combine queries once a slice has been taken.",
+            lambda: Article.objects.all()[0:1] & Article.objects.all()[4:5]
+        )
 
     def test_slicing_negative_indexing_not_supported_for_single_element(self):
         """hint: inverting your ordering might do what you need"""
-        # TODO: use self.assertRaisesRegexp
-        try:
-            Article.objects.all()[-1]
-            self.fail('Should raise an AssertionError')
-        except AssertionError as e:
-            self.assertEqual(str(e), "Negative indexing is not supported.")
-        except Exception as e:
-            self.fail('Should raise an AssertionError, not %s' % e)
+        six.assertRaisesRegex(
+            self,
+            AssertionError,
+            "Negative indexing is not supported.",
+            lambda: Article.objects.all()[-1]
+        )
 
     def test_slicing_negative_indexing_not_supported_for_range(self):
-        # TODO: use self.assertRaisesRegexp
-        error = None
-        try:
-            Article.objects.all()[0:-5]
-        except Exception as e:
-            error = e
-        self.assertIsInstance(error, AssertionError)
-        self.assertEqual(str(error), "Negative indexing is not supported.")
+        """hint: inverting your ordering might do what you need"""
+        six.assertRaisesRegex(
+            self,
+            AssertionError,
+            "Negative indexing is not supported.",
+            lambda: Article.objects.all()[0:-5]
+        )
 
     def test_can_get_number_of_items_in_queryset_using_standard_len(self):
         self.assertEqual(len(Article.objects.filter(name__exact='Article 1')), 1)
