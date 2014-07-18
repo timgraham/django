@@ -770,7 +770,7 @@ Custom users and permissions
 To make it easy to include Django's permission framework into your own User
 class, Django provides :class:`~django.contrib.auth.models.PermissionsMixin`.
 This is an abstract model you can include in the class hierarchy for your User
-model, giving you all the methods and database fields necessary to support
+model that gives you all the methods and database fields necessary to support
 Django's permission model.
 
 :class:`~django.contrib.auth.models.PermissionsMixin` provides the following
