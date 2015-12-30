@@ -38,18 +38,21 @@ Django has a lot of documentation. A high-level overview of how it's organized
 will help you know where to look for certain things:
 
 * :doc:`Tutorials </intro/index>` take you by the hand through a series of
-  steps to create something. They don't explain all the steps in great detail
-  but allow you to achieve something useful with minimum effort.
+  steps to create a web application. Start here if you're new to Django or web
+  application development.
 
-* :doc:`Topic guides </topics/index>` aim to explain a concept at a fairly
-  high level.
+* :doc:`Topic guides </topics/index>` discuss key topics and concepts, often at
+  a fairly high level, and provide useful background information and
+  explanation.
 
-* :doc:`Reference guides </ref/index>` contain technical reference for APIs.
-  They don't explain so much as describe and instruct.
+* :doc:`Reference guides </ref/index>` contain technical reference for APIs and
+  other aspects of Django's machinery. They describe how it works and how to
+  use it, but assume that you have a basic understanding of key concepts.
 
-* :doc:`How-to guides </howto/index>` are recipes that take you through steps
-  in key subjects. They are more advanced than tutorials and assume some
-  knowledge about how Django works.
+* :doc:`How-to guides </howto/index>` are recipes; they guide you through the
+  steps involved in addressing various key problems and use-cases. They are
+  more advanced than the tutorials and assume some knowledge about how Django
+  works.
 
 First steps
 ===========
