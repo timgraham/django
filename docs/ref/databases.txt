@@ -449,8 +449,13 @@ this entry are the four standard isolation levels:
 * ``'serializable'``
 
 or ``None`` to use the server's configured isolation level. However, Django
-works best with read committed rather than MySQL's default, repeatable read.
-Data loss is possible with repeatable read.
+works best with and defaults to read committed rather than MySQL's default,
+repeatable read. Data loss is possible with repeatable read.
+
+.. versionchanged:: 2.0
+
+    In older versions, Django's MySQL database backend doesn't default to the
+    read committed isolation level.
 
 .. _transaction isolation level: https://dev.mysql.com/doc/refman/en/innodb-transaction-isolation-levels.html
 

@@ -52,6 +52,14 @@ class MySQLTests(TestCase):
         finally:
             new_connection.close()
 
+        # If not specified in settings, the default is read committed.
+        new_connection = connection.copy()
+        new_connection.settings_dict['OPTIONS'].pop('isolation_level', None)
+        try:
+            self.assertEqual(self.get_isolation_level(new_connection), isolation_values[read_committed])
+        finally:
+            new_connection.close()
+
     def test_isolation_level_validation(self):
         new_connection = connection.copy()
         new_connection.settings_dict['OPTIONS']['isolation_level'] = 'xxx'
