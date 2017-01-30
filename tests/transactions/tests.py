@@ -375,13 +375,15 @@ class AtomicMySQLTests(TransactionTestCase):
     @skipIf(threading is None, "Test requires threading")
     def test_implicit_savepoint_rollback(self):
         """MySQL implicitly rolls back savepoints when it deadlocks (#22291)."""
+        Reporter.objects.create(id=1)
+        Reporter.objects.create(id=2)
 
         other_thread_ready = threading.Event()
 
         def other_thread():
             try:
                 with transaction.atomic():
-                    Reporter.objects.create(id=1, first_name="Tintin")
+                    list(Reporter.objects.filter(id=1))
                     other_thread_ready.set()
                     # We cannot synchronize the two threads with an event here
                     # because the main thread locks. Sleep for a little while.
@@ -400,8 +402,9 @@ class AtomicMySQLTests(TransactionTestCase):
             # Double atomic to enter a transaction and create a savepoint.
             with transaction.atomic():
                 with transaction.atomic():
+                    list(Reporter.objects.filter(id=2))
                     # 1) This line locks... (see above for 2)
-                    Reporter.objects.create(id=1, first_name="Tintin")
+                    Reporter.objects.exclude(id=2).update(id=1)
 
         other_thread.join()
 
