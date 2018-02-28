@@ -23,9 +23,14 @@ class InclusionAdminNode(InclusionNode):
         opts = context['opts']
         app_label = opts.app_label.lower()
         object_name = opts.object_name.lower()
-        self.filename = [
+
+        # Instantiate template for THIS render call.
+        filenames = [
             'admin/%s/%s/%s' % (app_label, object_name, self.template_name),
             'admin/%s/%s' % (app_label, self.template_name),
             'admin/%s' % (self.template_name,),
         ]
+        template = context.template.engine.select_template(filenames)
+        context.render_context[self] = template
+
         return super().render(context)
