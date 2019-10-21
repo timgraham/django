@@ -1075,6 +1075,14 @@ def connections_support_transactions(aliases=None):
     return all(conn.features.supports_transactions for conn in conns)
 
 
+def connections_support_savepoints(aliases=None):
+    """
+    Return whether or not all (or specified) connections support savepoints.
+    """
+    conns = connections.all() if aliases is None else (connections[alias] for alias in aliases)
+    return all(conn.features.uses_savepoints for conn in conns)
+
+
 class _TestCaseDatabasesDescriptor(_TransactionTestCaseDatabasesDescriptor):
     """Descriptor for TestCase.multi_db deprecation."""
     msg = (
@@ -1119,9 +1127,13 @@ class TestCase(TransactionTestCase):
         return connections_support_transactions(cls.databases)
 
     @classmethod
+    def _databases_support_savepoints(cls):
+        return connections_support_savepoints(cls.databases)
+
+    @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if not cls._databases_support_transactions():
+        if not (cls._databases_support_transactions() and cls._databases_support_savepoints()):
             return
         cls.cls_atomics = cls._enter_atomics()
 
@@ -1142,7 +1154,7 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        if cls._databases_support_transactions():
+        if cls._databases_support_transactions() and cls._databases_support_savepoints():
             cls._rollback_atomics(cls.cls_atomics)
             for conn in connections.all():
                 conn.close()
@@ -1160,13 +1172,15 @@ class TestCase(TransactionTestCase):
 
     def _fixture_setup(self):
         if not self._databases_support_transactions():
-            # If the backend does not support transactions, we should reload
-            # class data before each test
+            # If the backend does not support transactions,
+            # reload class data before each test.
             self.setUpTestData()
             return super()._fixture_setup()
 
         assert not self.reset_sequences, 'reset_sequences cannot be used on TestCase instances'
         self.atomics = self._enter_atomics()
+        if not self._databases_support_savepoints():
+            self.setUpTestData()
 
     def _fixture_teardown(self):
         if not self._databases_support_transactions():
