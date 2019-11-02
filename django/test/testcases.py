@@ -1180,6 +1180,10 @@ class TestCase(TransactionTestCase):
         assert not self.reset_sequences, 'reset_sequences cannot be used on TestCase instances'
         self.atomics = self._enter_atomics()
         if not self._databases_support_savepoints():
+            # TODO: exception wrapping as above
+            if self.fixtures:
+                for db_name in self._databases_names(include_mirrors=False):
+                    call_command('loaddata', *self.fixtures, **{'verbosity': 0, 'database': db_name})
             self.setUpTestData()
 
     def _fixture_teardown(self):
