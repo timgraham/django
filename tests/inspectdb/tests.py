@@ -120,12 +120,12 @@ class InspectDBTestCase(TestCase):
 
         assertFieldType('float_field', "models.FloatField()")
 
-        assertFieldType('int_field', "models.IntegerField()")
+        assertFieldType('int_field', "models.BigIntegerField()")
 
         if connection.features.can_introspect_positive_integer_field:
             assertFieldType('pos_int_field', "models.PositiveIntegerField()")
         else:
-            assertFieldType('pos_int_field', "models.IntegerField()")
+            assertFieldType('pos_int_field', "models.BigIntegerField()")
 
         if connection.features.can_introspect_positive_integer_field:
             if connection.features.can_introspect_big_integer_field:
@@ -203,12 +203,12 @@ class InspectDBTestCase(TestCase):
         call_command('inspectdb', table_name_filter=special_table_only, stdout=out)
         output = out.getvalue()
         base_name = connection.introspection.identifier_converter('Field')
-        self.assertIn("field = models.IntegerField()", output)
-        self.assertIn("field_field = models.IntegerField(db_column='%s_')" % base_name, output)
-        self.assertIn("field_field_0 = models.IntegerField(db_column='%s__')" % base_name, output)
-        self.assertIn("field_field_1 = models.IntegerField(db_column='__field')", output)
-        self.assertIn("prc_x = models.IntegerField(db_column='prc(%) x')", output)
-        self.assertIn("tamaño = models.IntegerField()", output)
+        self.assertIn("field = models.BigIntegerField()", output)
+        self.assertIn("field_field = models.BigIntegerField(db_column='%s_')" % base_name, output)
+        self.assertIn("field_field_0 = models.BigIntegerField(db_column='%s__')" % base_name, output)
+        self.assertIn("field_field_1 = models.BigIntegerField(db_column='__field')", output)
+        self.assertIn("prc_x = models.BigIntegerField(db_column='prc(%) x')", output)
+        self.assertIn("tamaño = models.BigIntegerField()", output)
 
     def test_table_name_introspection(self):
         """

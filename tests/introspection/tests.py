@@ -80,7 +80,7 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(
             [connection.introspection.get_field_type(r[1], r) for r in desc],
             [
-                'AutoField' if connection.features.can_introspect_autofield else 'IntegerField',
+                'BigIntegerField' if connection.features.can_introspect_autofield else 'IntegerField',
                 'CharField',
                 'CharField',
                 'CharField',
