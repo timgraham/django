@@ -64,14 +64,14 @@ class InspectDBTestCase(TestCase):
         # Inspecting Oracle DB doesn't produce correct results (#19884):
         # - it reports fields as blank=True when they aren't.
         if not connection.features.interprets_empty_strings_as_nulls:
-            assertFieldType('char_field', "models.CharField(max_length=10)")
-            assertFieldType('null_char_field', "models.CharField(max_length=10, blank=True, null=True)")
-            assertFieldType('email_field', "models.CharField(max_length=254)")
-            assertFieldType('file_field', "models.CharField(max_length=100)")
-            assertFieldType('file_path_field', "models.CharField(max_length=100)")
-            assertFieldType('slug_field', "models.CharField(max_length=50)")
+            assertFieldType('char_field', "models.TextField()")
+            assertFieldType('null_char_field', "models.TextField(blank=True, null=True)")
+            assertFieldType('email_field', "models.TextField()")
+            assertFieldType('file_field', "models.TextField()")
+            assertFieldType('file_path_field', "models.TextField()")
+            assertFieldType('slug_field', "models.TextField()")
             assertFieldType('text_field', "models.TextField()")
-            assertFieldType('url_field', "models.CharField(max_length=200)")
+            assertFieldType('url_field', "models.TextField()")
         assertFieldType('date_field', "models.DateField()")
         assertFieldType('date_time_field', "models.DateTimeField()")
         if connection.features.can_introspect_ip_address_field:
@@ -101,21 +101,20 @@ class InspectDBTestCase(TestCase):
         assertFieldType('bool_field', "models.{}()".format(bool_field_type))
         assertFieldType('null_bool_field', 'models.{}(blank=True, null=True)'.format(bool_field_type))
 
-        if connection.features.can_introspect_decimal_field:
+        if connection.features.is_cockroachdb_20_1:
             assertFieldType('decimal_field', "models.DecimalField(max_digits=6, decimal_places=1)")
-        else:       # Guessed arguments on SQLite, see #5014
-            assertFieldType('decimal_field', "models.DecimalField(max_digits=10, decimal_places=5)  "
-                                             "# max_digits and decimal_places have been guessed, "
-                                             "as this database handles decimal fields as float")
+        else:
+            # Bug in CockroachDB 20.1.0 and older (fixed in 20.1.1).
+            assertFieldType('decimal_field', "models.DecimalField(max_digits=65535, decimal_places=65535)")
 
         assertFieldType('float_field', "models.FloatField()")
 
-        assertFieldType('int_field', "models.IntegerField()")
+        assertFieldType('int_field', "models.BigIntegerField()")
 
         if connection.features.can_introspect_positive_integer_field:
             assertFieldType('pos_int_field', "models.PositiveIntegerField()")
         else:
-            assertFieldType('pos_int_field', "models.IntegerField()")
+            assertFieldType('pos_int_field', "models.BigIntegerField()")
 
         if connection.features.can_introspect_positive_integer_field:
             if connection.features.can_introspect_small_integer_field:
@@ -166,15 +165,15 @@ class InspectDBTestCase(TestCase):
         call_command('inspectdb', 'inspectdb_digitsincolumnname', stdout=out)
         output = out.getvalue()
         error_message = "inspectdb generated a model field name which is a number"
-        self.assertNotIn("    123 = models.CharField", output, msg=error_message)
-        self.assertIn("number_123 = models.CharField", output)
+        self.assertNotIn("    123 = models.TextField", output, msg=error_message)
+        self.assertIn("number_123 = models.TextField", output)
 
         error_message = "inspectdb generated a model field name which starts with a digit"
-        self.assertNotIn("    4extra = models.CharField", output, msg=error_message)
-        self.assertIn("number_4extra = models.CharField", output)
+        self.assertNotIn("    4extra = models.TextField", output, msg=error_message)
+        self.assertIn("number_4extra = models.TextField", output)
 
-        self.assertNotIn("    45extra = models.CharField", output, msg=error_message)
-        self.assertIn("number_45extra = models.CharField", output)
+        self.assertNotIn("    45extra = models.TextField", output, msg=error_message)
+        self.assertIn("number_45extra = models.TextField", output)
 
     def test_special_column_name_introspection(self):
         """
@@ -185,12 +184,12 @@ class InspectDBTestCase(TestCase):
         call_command('inspectdb', table_name_filter=special_table_only, stdout=out)
         output = out.getvalue()
         base_name = connection.introspection.identifier_converter('Field')
-        self.assertIn("field = models.IntegerField()", output)
-        self.assertIn("field_field = models.IntegerField(db_column='%s_')" % base_name, output)
-        self.assertIn("field_field_0 = models.IntegerField(db_column='%s__')" % base_name, output)
-        self.assertIn("field_field_1 = models.IntegerField(db_column='__field')", output)
-        self.assertIn("prc_x = models.IntegerField(db_column='prc(%) x')", output)
-        self.assertIn("tamaño = models.IntegerField()", output)
+        self.assertIn("field = models.BigIntegerField()", output)
+        self.assertIn("field_field = models.BigIntegerField(db_column='%s_')" % base_name, output)
+        self.assertIn("field_field_0 = models.BigIntegerField(db_column='%s__')" % base_name, output)
+        self.assertIn("field_field_1 = models.BigIntegerField(db_column='__field')", output)
+        self.assertIn("prc_x = models.BigIntegerField(db_column='prc(%) x')", output)
+        self.assertIn("tamaño = models.BigIntegerField()", output)
 
     def test_table_name_introspection(self):
         """
