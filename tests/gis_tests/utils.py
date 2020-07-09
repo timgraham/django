@@ -44,7 +44,7 @@ def no_oracle(func):
 # Shortcut booleans to omit only portions of tests.
 _default_db = settings.DATABASES[DEFAULT_DB_ALIAS]['ENGINE'].rsplit('.')[-1]
 oracle = _default_db == 'oracle'
-postgis = _default_db == 'postgis'
+postgis = _default_db == 'postgis' or _default_db == 'django_cockroachdb_gis'
 mysql = _default_db == 'mysql'
 mariadb = mysql and connection.mysql_is_mariadb
 spatialite = _default_db == 'spatialite'
