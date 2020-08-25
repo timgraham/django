@@ -179,6 +179,9 @@ class BaseDatabaseFeatures:
     # Does it support foreign keys?
     supports_foreign_keys = True
 
+    # Does it automatically index foreign keys?
+    indexes_foreign_keys = True
+
     # Does it support CHECK constraints?
     supports_column_check_constraints = True
     supports_table_check_constraints = True

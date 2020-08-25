@@ -957,6 +957,7 @@ class SchemaTests(TransactionTestCase):
             editor.create_model(Author)
             editor.create_model(Book)
         expected_fks = 1 if connection.features.supports_foreign_keys else 0
+        expected_indexes = 1 if not getattr(connection.features, 'is_cockroachdb_20_2', False) else 0
 
         # Check the index is right to begin with.
         counts = self.get_constraints_count(
@@ -964,7 +965,7 @@ class SchemaTests(TransactionTestCase):
             Book._meta.get_field('author').column,
             (Author._meta.db_table, Author._meta.pk.column),
         )
-        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': 1})
+        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': expected_indexes})
 
         old_field = Book._meta.get_field('author')
         new_field = OneToOneField(Author, CASCADE)
@@ -985,6 +986,7 @@ class SchemaTests(TransactionTestCase):
             editor.create_model(Author)
             editor.create_model(Book)
         expected_fks = 1 if connection.features.supports_foreign_keys else 0
+        expected_indexes = 1 if not getattr(connection.features, 'is_cockroachdb_20_2', False) else 0
 
         # Check the index is right to begin with.
         counts = self.get_constraints_count(
@@ -992,7 +994,7 @@ class SchemaTests(TransactionTestCase):
             Book._meta.get_field('author').column,
             (Author._meta.db_table, Author._meta.pk.column),
         )
-        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': 1})
+        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': expected_indexes})
 
         old_field = Book._meta.get_field('author')
         # on_delete changed from CASCADE.
@@ -1007,7 +1009,7 @@ class SchemaTests(TransactionTestCase):
             (Author._meta.db_table, Author._meta.pk.column),
         )
         # The index remains.
-        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': 1})
+        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': expected_indexes})
 
     def test_alter_field_o2o_to_fk(self):
         with connection.schema_editor() as editor:
@@ -2250,12 +2252,14 @@ class SchemaTests(TransactionTestCase):
             with self.assertRaisesMessage(TransactionManagementError, message):
                 editor.execute(editor.sql_create_table % {'table': 'foo', 'definition': ''})
 
-    @skipUnlessDBFeature('supports_foreign_keys')
+    @skipUnlessDBFeature('supports_foreign_keys', 'indexes_foreign_keys')
     def test_foreign_key_index_long_names_regression(self):
         """
         Regression test for #21497.
         Only affects databases that supports foreign keys.
         """
+        if getattr(connection.features, 'is_cockroachdb_20_2', False):
+            self.skipTest('Foreign keys not indexed.')
         # Create the table
         with connection.schema_editor() as editor:
             editor.create_model(AuthorWithEvenLongerName)
