@@ -88,6 +88,10 @@ class SchemaTests(TransactionTestCase):
                 for model in self.isolated_local_models:
                     editor.delete_model(model)
 
+    @property
+    def CharFieldType(self):
+        return 'CharField' if getattr(connection.features, 'is_cockroachdb_20_1', False) else 'TextField'
+
     def delete_tables(self):
         "Deletes all model tables for our models for a clean test environment"
         converter = connection.introspection.identifier_converter
@@ -524,7 +528,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
         # Ensure the field is right afterwards
         columns = self.column_classes(Author)
-        self.assertEqual(columns['surname'][0], "TextField")
+        self.assertEqual(columns['surname'][0], self.CharFieldType)
         self.assertEqual(columns['surname'][1][6],
                          connection.features.interprets_empty_strings_as_nulls)
 
@@ -632,7 +636,7 @@ class SchemaTests(TransactionTestCase):
             editor.create_model(Author)
         # Ensure the field is right to begin with
         columns = self.column_classes(Author)
-        self.assertEqual(columns['name'][0], "TextField")
+        self.assertEqual(columns['name'][0], self.CharFieldType)
         self.assertEqual(bool(columns['name'][1][6]), bool(connection.features.interprets_empty_strings_as_nulls))
         # Alter the name field to a TextField
         old_field = Author._meta.get_field("name")
@@ -1420,7 +1424,7 @@ class SchemaTests(TransactionTestCase):
             editor.create_model(Author)
         # Ensure the field is right to begin with
         columns = self.column_classes(Author)
-        self.assertEqual(columns['name'][0], "TextField")
+        self.assertEqual(columns['name'][0], self.CharFieldType)
         self.assertNotIn("display_name", columns)
         # Alter the name field's name
         old_field = Author._meta.get_field("name")
@@ -1430,7 +1434,7 @@ class SchemaTests(TransactionTestCase):
             editor.alter_field(Author, old_field, new_field, strict=True)
         # Ensure the field is right afterwards
         columns = self.column_classes(Author)
-        self.assertEqual(columns['display_name'][0], "TextField")
+        self.assertEqual(columns['display_name'][0], self.CharFieldType)
         self.assertNotIn("name", columns)
 
     @isolate_apps('schema')
@@ -2250,14 +2254,14 @@ class SchemaTests(TransactionTestCase):
             editor.create_model(Book)
         # Ensure the table is there to begin with
         columns = self.column_classes(Author)
-        self.assertEqual(columns['name'][0], "TextField")
+        self.assertEqual(columns['name'][0], self.CharFieldType)
         # Alter the table
         with connection.schema_editor(atomic=connection.features.supports_atomic_references_rename) as editor:
             editor.alter_db_table(Author, "schema_author", "schema_otherauthor")
         # Ensure the table is there afterwards
         Author._meta.db_table = "schema_otherauthor"
         columns = self.column_classes(Author)
-        self.assertEqual(columns['name'][0], "TextField")
+        self.assertEqual(columns['name'][0], self.CharFieldType)
         # Ensure the foreign key reference was updated
         self.assertForeignKeyExists(Book, "author_id", "schema_otherauthor")
         # Alter the table again
@@ -2266,7 +2270,7 @@ class SchemaTests(TransactionTestCase):
         # Ensure the table is still there
         Author._meta.db_table = "schema_author"
         columns = self.column_classes(Author)
-        self.assertEqual(columns['name'][0], "TextField")
+        self.assertEqual(columns['name'][0], self.CharFieldType)
 
     def test_add_remove_index(self):
         """
