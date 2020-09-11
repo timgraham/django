@@ -64,14 +64,23 @@ class InspectDBTestCase(TestCase):
         # Inspecting Oracle DB doesn't produce correct results (#19884):
         # - it reports fields as blank=True when they aren't.
         if not connection.features.interprets_empty_strings_as_nulls:
-            assertFieldType('char_field', "models.TextField()")
-            assertFieldType('null_char_field', "models.TextField(blank=True, null=True)")
-            assertFieldType('email_field', "models.TextField()")
-            assertFieldType('file_field', "models.TextField()")
-            assertFieldType('file_path_field', "models.TextField()")
-            assertFieldType('slug_field', "models.TextField()")
-            assertFieldType('text_field', "models.TextField()")
-            assertFieldType('url_field', "models.TextField()")
+            if getattr(connection.features, 'is_cockroachdb_20_1', False):
+                assertFieldType('char_field', "models.CharField(max_length=10)")
+                assertFieldType('null_char_field', "models.CharField(max_length=10, blank=True, null=True)")
+                assertFieldType('email_field', "models.CharField(max_length=254)")
+                assertFieldType('file_field', "models.CharField(max_length=100)")
+                assertFieldType('file_path_field', "models.CharField(max_length=100)")
+                assertFieldType('slug_field', "models.CharField(max_length=50)")
+                assertFieldType('url_field', "models.CharField(max_length=200)")
+            else:
+                assertFieldType('char_field', "models.TextField()")
+                assertFieldType('null_char_field', "models.TextField(blank=True, null=True)")
+                assertFieldType('email_field', "models.TextField()")
+                assertFieldType('file_field', "models.TextField()")
+                assertFieldType('file_path_field', "models.TextField()")
+                assertFieldType('slug_field', "models.TextField()")
+                assertFieldType('url_field', "models.TextField()")
+        assertFieldType('text_field', "models.TextField()")
         assertFieldType('date_field', "models.DateField()")
         assertFieldType('date_time_field', "models.DateTimeField()")
         if connection.features.can_introspect_ip_address_field:
@@ -161,19 +170,20 @@ class InspectDBTestCase(TestCase):
 
     def test_digits_column_name_introspection(self):
         """Introspection of column names consist/start with digits (#16536/#17676)"""
+        CharFieldType = 'CharField' if getattr(connection.features, 'is_cockroachdb_20_1', False) else 'TextField'
         out = StringIO()
         call_command('inspectdb', 'inspectdb_digitsincolumnname', stdout=out)
         output = out.getvalue()
         error_message = "inspectdb generated a model field name which is a number"
-        self.assertNotIn("    123 = models.TextField", output, msg=error_message)
-        self.assertIn("number_123 = models.TextField", output)
+        self.assertNotIn("    123 = models.%s" % CharFieldType, output, msg=error_message)
+        self.assertIn("number_123 = models.%s" % CharFieldType, output)
 
         error_message = "inspectdb generated a model field name which starts with a digit"
-        self.assertNotIn("    4extra = models.TextField", output, msg=error_message)
-        self.assertIn("number_4extra = models.TextField", output)
+        self.assertNotIn("    4extra = models.%s" % CharFieldType, output, msg=error_message)
+        self.assertIn("number_4extra = models.%s" % CharFieldType, output)
 
-        self.assertNotIn("    45extra = models.TextField", output, msg=error_message)
-        self.assertIn("number_45extra = models.TextField", output)
+        self.assertNotIn("    45extra = models.%s" % CharFieldType, output, msg=error_message)
+        self.assertIn("number_45extra = models.%s" % CharFieldType, output)
 
     def test_special_column_name_introspection(self):
         """

@@ -75,13 +75,15 @@ class IntrospectionTests(TransactionTestCase):
     def test_get_table_description_types(self):
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(cursor, Reporter._meta.db_table)
+
+        CharFieldType = 'CharField' if getattr(connection.features, 'is_cockroachdb_20_1', False) else 'TextField'
         self.assertEqual(
             [datatype(r[1], r) for r in desc],
             [
                 'BigIntegerField' if connection.features.can_introspect_autofield else 'IntegerField',
-                'TextField',
-                'TextField',
-                'TextField',
+                CharFieldType,
+                CharFieldType,
+                CharFieldType,
                 'BigIntegerField' if connection.features.can_introspect_big_integer_field else 'IntegerField',
                 'BinaryField' if connection.features.can_introspect_binary_field else 'TextField',
                 'SmallIntegerField' if connection.features.can_introspect_small_integer_field else 'IntegerField',
