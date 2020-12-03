@@ -3074,7 +3074,12 @@ class SchemaTests(TransactionTestCase):
             with connection.schema_editor() as editor:
                 editor.alter_field(Author, Author._meta.get_field("name"), new_field)
         # One SQL statement is executed to alter the field.
-        self.assertEqual(len(cm.records), 1)
+        # Plus another SQL statement on CockroachDB for
+        # enable_experimental_alter_column_type_general.
+        self.assertEqual(
+            len(cm.records),
+            2 if not getattr(connection.features, "is_cockroachdb_25_1", False) else 1,
+        )
 
     @isolate_apps("schema")
     def test_unique_and_reverse_m2m(self):
@@ -3107,7 +3112,12 @@ class SchemaTests(TransactionTestCase):
             with connection.schema_editor() as editor:
                 editor.alter_field(Tag, Tag._meta.get_field("slug"), new_field)
         # One SQL statement is executed to alter the field.
-        self.assertEqual(len(cm.records), 1)
+        # Plus another SQL statement on CockroachDB for
+        # enable_experimental_alter_column_type_general.
+        self.assertEqual(
+            len(cm.records),
+            2 if not getattr(connection.features, "is_cockroachdb_25_1", False) else 1,
+        )
         # Ensure that the field is still unique.
         Tag.objects.create(title="foo", slug="foo")
         with self.assertRaises(IntegrityError):
