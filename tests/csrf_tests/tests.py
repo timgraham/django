@@ -5,7 +5,7 @@ from django.contrib.sessions.backends.cache import SessionStore
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, HttpResponse
 from django.middleware.csrf import (
-    CSRF_SESSION_KEY, CSRF_TOKEN_LENGTH, REASON_BAD_TOKEN,
+    CSRF_SESSION_KEY, CSRF_TOKEN_LENGTH, REASON_BAD_ORIGIN, REASON_BAD_TOKEN,
     REASON_NO_CSRF_COOKIE, CsrfViewMiddleware,
     _compare_masked_tokens as equivalent_tokens, get_token,
 )
@@ -510,6 +510,68 @@ class CsrfViewMiddlewareTestMixin:
             resp = mw.process_view(req, post_form_view, (), {})
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % REASON_BAD_TOKEN)
+
+    @override_settings(ALLOWED_HOSTS=['www.example.com'])
+    def test_bad_origin_bad_domain(self):
+        """A request with a bad origin is rejected."""
+        req = self._get_POST_request_with_token()
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'https://www.evil.org'
+        mw = CsrfViewMiddleware(post_form_view)
+        with self.assertLogs('django.security.csrf', 'WARNING') as cm:
+            response = mw.process_view(req, post_form_view, (), {})
+        self.assertEqual(response.status_code, 403)
+        msg = REASON_BAD_ORIGIN % (req.META['HTTP_ORIGIN'], 'http://www.example.com')
+        self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % msg)
+
+    @override_settings(ALLOWED_HOSTS=['www.example.com'])
+    def test_bad_origin_null_origin(self):
+        """A request with a null origin is rejected."""
+        req = self._get_POST_request_with_token()
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'null'
+        mw = CsrfViewMiddleware(post_form_view)
+        with self.assertLogs('django.security.csrf', 'WARNING') as cm:
+            response = mw.process_view(req, post_form_view, (), {})
+        self.assertEqual(response.status_code, 403)
+        msg = REASON_BAD_ORIGIN % (req.META['HTTP_ORIGIN'], 'http://www.example.com')
+        self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % msg)
+
+    @override_settings(ALLOWED_HOSTS=['www.example.com'])
+    def test_bad_origin_bad_protocol(self):
+        """A request with an origin with wrong protocol is rejected."""
+        req = self._get_POST_request_with_token()
+        req._is_secure_override = True
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'http://example.com'
+        mw = CsrfViewMiddleware(post_form_view)
+        with self.assertLogs('django.security.csrf', 'WARNING') as cm:
+            response = mw.process_view(req, post_form_view, (), {})
+        self.assertEqual(response.status_code, 403)
+        msg = REASON_BAD_ORIGIN % (req.META['HTTP_ORIGIN'], 'https://www.example.com')
+        self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % msg)
+
+    @override_settings(ALLOWED_HOSTS=['www.example.com'])
+    def test_good_origin_insecure(self):
+        """A POST HTTP request with a good origin is accepted."""
+        req = self._get_POST_request_with_token()
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'http://www.example.com'
+        mw = CsrfViewMiddleware(post_form_view)
+        response = mw.process_view(req, post_form_view, (), {})
+        self.assertIsNone(response)
+
+    @override_settings(ALLOWED_HOSTS=['www.example.com'])
+    def test_good_origin_secure(self):
+        """A POST HTTPS request with a good origin is accepted."""
+        req = self._get_POST_request_with_token()
+        req._is_secure_override = True
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'https://www.example.com'
+        req.META['HTTP_REFERER'] = 'https://www.example.com/somepage'
+        mw = CsrfViewMiddleware(post_form_view)
+        response = mw.process_view(req, post_form_view, (), {})
+        self.assertIsNone(response)
 
 
 class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):

@@ -104,7 +104,7 @@ Cache
 CSRF
 ~~~~
 
-* ...
+* CSRF protection now consults the ``Origin`` header, if present.
 
 Decorators
 ~~~~~~~~~~
