@@ -272,7 +272,10 @@ class CsrfViewMiddleware(MiddlewareMixin):
 
                 # Create a list of all acceptable HTTP referers, including the
                 # current host if it's permitted by ALLOWED_HOSTS.
-                good_hosts = list(settings.CSRF_TRUSTED_ORIGINS)
+                good_hosts = [
+                    urlparse(origin).netloc.lstrip('*')
+                    for origin in settings.CSRF_TRUSTED_ORIGINS
+                ]
                 if good_referer is not None:
                     good_hosts.append(good_referer)
 

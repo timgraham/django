@@ -119,6 +119,10 @@ upgrading Django.
   ``(?P<``, begins with a ``^``, or ends with a ``$``. This was likely an
   oversight when migrating from ``url()`` to :func:`~django.urls.path`.
 
+* **4_0.E001**: As of Django 4.0, the values in the
+  :setting:`CSRF_TRUSTED_ORIGINS` setting
+  must start with ``http://`` or ``https://`` (found <hostname>).
+
 Caches
 ------
 

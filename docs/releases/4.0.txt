@@ -239,7 +239,10 @@ PostgreSQL 10 and higher.
 Miscellaneous
 -------------
 
-* ...
+* Values in the setting :setting:`CSRF_TRUSTED_ORIGINS` setting must include
+  the scheme (``'http://'`` or ``'https:://'``) instead of only the hostname.
+  If a value starts with a dot, it should now also include an asterisk before
+  the dot. For example, ``'.example.com'`` becomes ``'https://*.example.com'``.
 
 .. _deprecated-features-4.0:
 
