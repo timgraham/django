@@ -20,7 +20,7 @@ from django.utils.log import log_response
 
 logger = logging.getLogger('django.security.csrf')
 
-REASON_BAD_ORIGIN = "Origin checking failed - %s does not match %s."
+REASON_BAD_ORIGIN = "Origin checking failed - %s does not match any trusted origins."
 REASON_NO_REFERER = "Referer checking failed - no Referer."
 REASON_BAD_REFERER = "Referer checking failed - %s does not match any trusted origins."
 REASON_NO_CSRF_COOKIE = "CSRF cookie not set."
@@ -228,9 +228,19 @@ class CsrfViewMiddleware(MiddlewareMixin):
                     'https' if request.is_secure() else 'http',
                     request.get_host(),
                 )
+                allowed_origins = [good_origin]
+                allowed_origins_regexes = []
+                for trusted_origin in settings.CSRF_TRUSTED_ORIGINS:
+                    if '*' in trusted_origin:
+                        trusted_origin_regex = '^' + trusted_origin.replace('*', r'[\w\-]+') + '$'
+                        allowed_origins_regexes.append(trusted_origin_regex)
+                    else:
+                        allowed_origins.append(trusted_origin)
+
                 origin = request.META['HTTP_ORIGIN']
-                if good_origin != origin:
-                    reason = REASON_BAD_ORIGIN % (origin, good_origin)
+                if (origin not in allowed_origins and
+                        not any(re.match(pattern, origin) for pattern in allowed_origins_regexes)):
+                    reason = REASON_BAD_ORIGIN % origin
                     return self._reject(request, reason)
 
             if request.is_secure():
