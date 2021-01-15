@@ -570,7 +570,6 @@ class CsrfViewMiddlewareTestMixin:
         req._is_secure_override = True
         req.META['HTTP_HOST'] = 'www.example.com'
         req.META['HTTP_ORIGIN'] = 'https://www.example.com'
-        req.META['HTTP_REFERER'] = 'https://www.example.com/somepage'
         mw = CsrfViewMiddleware(post_form_view)
         response = mw.process_view(req, post_form_view, (), {})
         self.assertIsNone(response)

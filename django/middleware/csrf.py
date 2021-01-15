@@ -223,6 +223,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 return self._accept(request)
 
             # Verify the Origin header, if present.
+            origin_verified = False
             if 'HTTP_ORIGIN' in request.META:
                 good_origin = '%s://%s' % (
                     'https' if request.is_secure() else 'http',
@@ -242,8 +243,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
                         not any(re.match(pattern, origin) for pattern in allowed_origins_regexes)):
                     reason = REASON_BAD_ORIGIN % origin
                     return self._reject(request, reason)
+                origin_verified = True
 
-            if request.is_secure():
+            if request.is_secure() and not origin_verified:
                 # Suppose user visits http://example.com/
                 # An active network attacker (man-in-the-middle, MITM) sends a
                 # POST form that targets https://example.com/detonate-bomb/ and
