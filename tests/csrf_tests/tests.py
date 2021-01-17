@@ -553,6 +553,23 @@ class CsrfViewMiddlewareTestMixin:
         msg = REASON_BAD_ORIGIN % req.META['HTTP_ORIGIN']
         self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % msg)
 
+    @override_settings(ALLOWED_HOSTS=['www.example.com'], CSRF_TRUSTED_ORIGINS=['https://*.example.com'])
+    def test_bad_origin_csrf_trusted_origin_bad_protocol(self):
+        """
+        A request with an origin with the wrong protocol compared to
+        CSRF_TRUSTED_ORIGINS is rejected.
+        """
+        req = self._get_POST_request_with_token()
+        req._is_secure_override = True
+        req.META['HTTP_HOST'] = 'www.example.com'
+        req.META['HTTP_ORIGIN'] = 'http://foo.example.com'
+        mw = CsrfViewMiddleware(post_form_view)
+        with self.assertLogs('django.security.csrf', 'WARNING') as cm:
+            response = mw.process_view(req, post_form_view, (), {})
+        self.assertEqual(response.status_code, 403)
+        msg = REASON_BAD_ORIGIN % req.META['HTTP_ORIGIN']
+        self.assertEqual(cm.records[0].getMessage(), 'Forbidden (%s): ' % msg)
+
     @override_settings(ALLOWED_HOSTS=['www.example.com'])
     def test_good_origin_insecure(self):
         """A POST HTTP request with a good origin is accepted."""

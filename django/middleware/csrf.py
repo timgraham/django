@@ -230,19 +230,30 @@ class CsrfViewMiddleware(MiddlewareMixin):
                     request.get_host(),
                 )
                 allowed_origins = [good_origin]
-                allowed_origins_regexes = []
+                # Tuples of (allowed scheme, allowed netloc), where all
+                # subdomains of netloc are allowed.
+                allowed_origin_subdomains = []
                 for trusted_origin in settings.CSRF_TRUSTED_ORIGINS:
                     if '*' in trusted_origin:
-                        trusted_origin_regex = '^' + trusted_origin.replace('*', r'[\w\-]+') + '$'
-                        allowed_origins_regexes.append(trusted_origin_regex)
+                        parsed = urlparse(trusted_origin)
+                        allowed_origin_subdomains.append(
+                            (parsed.scheme, parsed.netloc.lstrip('*'))
+                        )
                     else:
                         allowed_origins.append(trusted_origin)
-
-                origin = request.META['HTTP_ORIGIN']
-                if (origin not in allowed_origins and
-                        not any(re.match(pattern, origin) for pattern in allowed_origins_regexes)):
-                    reason = REASON_BAD_ORIGIN % origin
-                    return self._reject(request, reason)
+                # Reject the request if the origin header doesn't match an
+                # allowed value.
+                expected_origin = request.META['HTTP_ORIGIN']
+                if expected_origin not in allowed_origins:
+                    parsed_origin = urlparse(expected_origin)
+                    expected_scheme = parsed_origin.scheme
+                    expected_netloc = parsed_origin.netloc
+                    for allowed_scheme, allowed_host in allowed_origin_subdomains:
+                        if (allowed_scheme == expected_scheme and
+                                is_same_domain(expected_netloc, allowed_host)):
+                            break
+                    else:
+                        return self._reject(request, REASON_BAD_ORIGIN % expected_origin)
                 origin_verified = True
 
             if request.is_secure() and not origin_verified:
