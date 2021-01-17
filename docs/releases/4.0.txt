@@ -244,6 +244,12 @@ Miscellaneous
   If a value starts with a dot, it should now also include an asterisk before
   the dot. For example, ``'.example.com'`` becomes ``'https://*.example.com'``.
 
+* As CSRF protection now consults the ``Origin`` header, you may need to set
+  :setting:`CSRF_TRUSTED_ORIGINS`, particularly if you set
+  :setting:`CSRF_COOKIE_DOMAIN` (or :setting:`SESSION_COOKIE_DOMAIN` if
+  :setting:`CSRF_USE_SESSIONS` is enabled) to a value that starts with a dot to
+  allow requests from subdomains.
+
 .. _deprecated-features-4.0:
 
 Features deprecated in 4.0

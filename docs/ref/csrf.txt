@@ -263,12 +263,12 @@ The CSRF protection is based on the following things:
 
    This check is done by ``CsrfViewMiddleware``.
 
-#. The `Origin header`_, if provided by the browser, is verified against the
-   current host and the :setting:`CSRF_TRUSTED_ORIGINS` setting. This provides
-   protection against cross-subdomain attacks.
+#. ``CsrfViewMiddleware`` verifies the `Origin header`_, if provided by the
+   browser, against the current host and the :setting:`CSRF_TRUSTED_ORIGINS`
+   setting. This provides protection against cross-subdomain attacks.
 
 #. In addition, for HTTPS requests, if the origin header isn't verified,
-   strict referer checking is done by ``CsrfViewMiddleware``. This means that
+   ``CsrfViewMiddleware`` performs strict referer checking. This means that
    even if a subdomain can set or modify cookies on your domain, it can't
    force a user to post to your application since that request won't come from
    your own exact domain.
