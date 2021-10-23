@@ -49,12 +49,12 @@ class SpecialName(models.Model):
     non_ascii = models.IntegerField(db_column="tamaño")
 
     class Meta:
-        db_table = "inspectdb_special.table name"
+        db_table = "inspectdb_special_table name"
 
 
 class PascalCaseName(models.Model):
     class Meta:
-        db_table = "inspectdb_pascal.PascalCase"
+        db_table = "inspectdb_pascal_PascalCase"
 
 
 class ColumnTypes(models.Model):
