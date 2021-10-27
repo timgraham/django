@@ -1381,13 +1381,17 @@ class TestCase(TransactionTestCase):
             atomics[db_name].__exit__(None, None, None)
 
     @classmethod
-    def _databases_support_transactions(cls):
+    def _databases_support_nested_transactions(cls):
         return connections_support_transactions(cls.databases)
+
+    @classmethod
+    def _databases_support_single_level_transactions(cls):
+        return connection.vendor == 'snowflake'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        if not cls._databases_support_transactions():
+        if not cls._databases_support_nested_transactions():
             return
         # Disable the durability check to allow testing durable atomic blocks
         # in a transaction for performance reasons.
@@ -1422,7 +1426,7 @@ class TestCase(TransactionTestCase):
     @classmethod
     def tearDownClass(cls):
         transaction.Atomic._ensure_durability = True
-        if cls._databases_support_transactions():
+        if cls._databases_support_nested_transactions():
             cls._rollback_atomics(cls.cls_atomics)
             for conn in connections.all():
                 conn.close()
@@ -1434,12 +1438,13 @@ class TestCase(TransactionTestCase):
         pass
 
     def _should_reload_connections(self):
-        if self._databases_support_transactions():
+        if self._databases_support_nested_transactions():
             return False
         return super()._should_reload_connections()
 
     def _fixture_setup(self):
-        if not self._databases_support_transactions():
+        if not (self._databases_support_nested_transactions() or
+                self._databases_support_single_level_transactions()):
             # If the backend does not support transactions, we should reload
             # class data before each test
             self.setUpTestData()
@@ -1448,9 +1453,13 @@ class TestCase(TransactionTestCase):
         if self.reset_sequences:
             raise TypeError("reset_sequences cannot be used on TestCase instances")
         self.atomics = self._enter_atomics()
+        if self._databases_support_single_level_transactions():
+            self.setUpTestData()
+            super()._fixture_setup()
 
     def _fixture_teardown(self):
-        if not self._databases_support_transactions():
+        if not (self._databases_support_nested_transactions() or
+                self._databases_support_single_level_transactions()):
             return super()._fixture_teardown()
         try:
             for db_name in reversed(self._databases_names()):
