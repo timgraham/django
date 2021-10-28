@@ -381,6 +381,7 @@ class WindowFunctionTests(TestCase):
                 expression=LastValue("hire_date"),
                 partition_by=F("department"),
                 order_by=F("hire_date").asc(),
+                frame=RowRange(None, 0),
             )
         )
         self.assertQuerysetEqual(
@@ -619,6 +620,7 @@ class WindowFunctionTests(TestCase):
                 expression=NthValue(expression="salary", nth=2),
                 order_by=[F("hire_date").asc(), F("name").desc()],
                 partition_by=F("department"),
+                frame=RowRange(None, 0),
             )
         ).order_by("department", "hire_date", "name")
         self.assertQuerysetEqual(
