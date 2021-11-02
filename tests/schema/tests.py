@@ -166,8 +166,10 @@ class SchemaTests(TransactionTestCase):
                                   cast_function=None):
         with connection.cursor() as cursor:
             schema_editor.add_field(model, field)
-            cursor.execute("SELECT {} FROM {};".format(field_name, model._meta.db_table))
+            cursor.execute('SELECT {} FROM {}'.format(field_name, model._meta.db_table))
             database_default = cursor.fetchall()[0][0]
+            if getattr(database_default, 'tzinfo', None) is not None:
+                database_default = timezone.make_naive(database_default)
             if cast_function and type(database_default) != type(expected_default):
                 database_default = cast_function(database_default)
             self.assertEqual(database_default, expected_default)
@@ -179,11 +181,13 @@ class SchemaTests(TransactionTestCase):
         `table`.`column`. The `fk_to` argument is a 2-tuple specifying the
         expected foreign key relationship's (table, column).
         """
+        if isinstance(column, str):
+            column = [column]
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
         counts = {'fks': 0, 'uniques': 0, 'indexes': 0}
         for c in constraints.values():
-            if c['columns'] == [column]:
+            if c['columns'] == column:
                 if c['foreign_key'] == fk_to:
                     counts['fks'] += 1
                 if c['unique']:
@@ -211,6 +215,8 @@ class SchemaTests(TransactionTestCase):
         Fail if the FK constraint on `model.Meta.db_table`.`column` to
         `expected_fk_table`.id doesn't exist.
         """
+        if not connection.features.supports_foreign_keys:
+            return
         constraints = self.get_constraints(model._meta.db_table)
         constraint_fk = None
         for details in constraints.values():
@@ -220,6 +226,8 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(constraint_fk, (expected_fk_table, field))
 
     def assertForeignKeyNotExists(self, model, column, expected_fk_table):
+        if not connection.features.supports_foreign_keys:
+            return
         with self.assertRaises(AssertionError):
             self.assertForeignKeyExists(model, column, expected_fk_table)
 
@@ -253,12 +261,14 @@ class SchemaTests(TransactionTestCase):
         list(Author.objects.all())
         list(Book.objects.all())
         # Make sure the FK constraint is present
-        with self.assertRaises(IntegrityError):
-            Book.objects.create(
-                author_id=1,
-                title="Much Ado About Foreign Keys",
-                pub_date=datetime.datetime.now(),
-            )
+        if getattr(connection.features, 'enforces_foreign_key_constraints', True):
+            with self.assertRaises(IntegrityError):
+                Book.objects.create(
+                    author_id=1,
+                    title="Much Ado About Foreign Keys",
+                    pub_date=datetime.datetime.now(),
+                )
+        self.assertForeignKeyExists(Book, 'author_id', 'schema_author')
         # Repoint the FK constraint
         old_field = Book._meta.get_field("author")
         new_field = ForeignKey(Tag, CASCADE)
@@ -312,6 +322,11 @@ class SchemaTests(TransactionTestCase):
     )
     @isolate_apps('schema')
     def test_add_inline_fk_index_update_data(self):
+        if not getattr(connection.features, 'supports_indexes', True):
+            self.skipTest(
+                'This backend does not support indexes.'
+            )
+
         class Node(Model):
             class Meta:
                 app_label = 'schema'
@@ -618,7 +633,7 @@ class SchemaTests(TransactionTestCase):
         field_type, field_info = columns['thing']
         self.assertEqual(field_type, connection.features.introspected_field_types['IntegerField'])
         # Make sure the values were transformed correctly
-        self.assertEqual(Author.objects.extra(where=["thing = 1"]).count(), 2)
+        self.assertEqual(Author.objects.extra(where=['thing = 1']).count(), 2)
 
     def test_add_field_binary(self):
         """
@@ -1120,8 +1135,15 @@ class SchemaTests(TransactionTestCase):
         # Ensure the field is unique
         author = Author.objects.create(name="Joe")
         BookWithO2O.objects.create(author=author, title="Django 1", pub_date=datetime.datetime.now())
-        with self.assertRaises(IntegrityError):
-            BookWithO2O.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            with self.assertRaises(IntegrityError):
+                BookWithO2O.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        counts = self.get_constraints_count(
+            BookWithO2O._meta.db_table,
+            BookWithO2O._meta.get_field('author').column,
+            (Author._meta.db_table, Author._meta.pk.column),
+        )
+        self.assertEqual(counts['uniques'], 1)
         BookWithO2O.objects.all().delete()
         self.assertForeignKeyExists(BookWithO2O, 'author_id', 'schema_author')
         # Alter the OneToOneField to ForeignKey
@@ -1136,6 +1158,12 @@ class SchemaTests(TransactionTestCase):
         # Ensure the field is not unique anymore
         Book.objects.create(author=author, title="Django 1", pub_date=datetime.datetime.now())
         Book.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        counts = self.get_constraints_count(
+            BookWithO2O._meta.db_table,
+            BookWithO2O._meta.get_field('author').column,
+            (Author._meta.db_table, Author._meta.pk.column),
+        )
+        self.assertEqual(counts['uniques'], 0)
         self.assertForeignKeyExists(Book, 'author_id', 'schema_author')
 
     @skipUnlessDBFeature('supports_foreign_keys')
@@ -1154,6 +1182,12 @@ class SchemaTests(TransactionTestCase):
         author = Author.objects.create(name="Joe")
         Book.objects.create(author=author, title="Django 1", pub_date=datetime.datetime.now())
         Book.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        counts = self.get_constraints_count(
+            BookWithO2O._meta.db_table,
+            BookWithO2O._meta.get_field('author').column,
+            (Author._meta.db_table, Author._meta.pk.column),
+        )
+        self.assertEqual(counts['uniques'], 0)
         Book.objects.all().delete()
         self.assertForeignKeyExists(Book, 'author_id', 'schema_author')
         # Alter the ForeignKey to OneToOneField
@@ -1166,9 +1200,16 @@ class SchemaTests(TransactionTestCase):
         columns = self.column_classes(BookWithO2O)
         self.assertEqual(columns['author_id'][0], connection.features.introspected_field_types['IntegerField'])
         # Ensure the field is unique now
-        BookWithO2O.objects.create(author=author, title="Django 1", pub_date=datetime.datetime.now())
-        with self.assertRaises(IntegrityError):
-            BookWithO2O.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            BookWithO2O.objects.create(author=author, title="Django 1", pub_date=datetime.datetime.now())
+            with self.assertRaises(IntegrityError):
+                BookWithO2O.objects.create(author=author, title="Django 2", pub_date=datetime.datetime.now())
+        counts = self.get_constraints_count(
+            BookWithO2O._meta.db_table,
+            BookWithO2O._meta.get_field('author').column,
+            (Author._meta.db_table, Author._meta.pk.column),
+        )
+        self.assertEqual(counts['uniques'], 1)
         self.assertForeignKeyExists(BookWithO2O, 'author_id', 'schema_author')
 
     def test_alter_field_fk_to_o2o(self):
@@ -1265,7 +1306,10 @@ class SchemaTests(TransactionTestCase):
             (Author._meta.db_table, Author._meta.pk.column),
         )
         # The unique constraint on OneToOneField is replaced with an index for ForeignKey.
-        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': 1})
+        # TODO: consider CockroachDB which doesn't implicitly index foreign
+        # keys but will use the one created by Django.
+        expected_indexes = 1 if connection.features.indexes_foreign_keys else 0
+        self.assertEqual(counts, {'fks': expected_fks, 'uniques': 0, 'indexes': expected_indexes})
 
     def test_alter_field_o2o_keeps_unique(self):
         with connection.schema_editor() as editor:
@@ -1502,9 +1546,16 @@ class SchemaTests(TransactionTestCase):
                 db_table = 'INTEGERPK'
 
         # Ensure unique constraint works.
-        IntegerUnique.objects.create(i=1, j=1)
-        with self.assertRaises(IntegrityError):
-            IntegerUnique.objects.create(i=1, j=2)
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            IntegerUnique.objects.create(i=1, j=1)
+            with self.assertRaises(IntegrityError):
+                IntegerUnique.objects.create(i=1, j=2)
+        counts = self.get_constraints_count(
+            IntegerUnique._meta.db_table,
+            IntegerUnique._meta.get_field('i').column,
+            None
+        )
+        self.assertEqual(counts['uniques'], 1)
 
     def test_rename(self):
         """
@@ -1919,40 +1970,68 @@ class SchemaTests(TransactionTestCase):
         with connection.schema_editor() as editor:
             editor.create_model(Tag)
         # Ensure the field is unique to begin with
-        Tag.objects.create(title="foo", slug="foo")
-        with self.assertRaises(IntegrityError):
-            Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            Tag.objects.create(title="foo", slug="foo")
+            with self.assertRaises(IntegrityError):
+                Tag.objects.create(title="bar", slug="foo")
+            Tag.objects.all().delete()
+        counts = self.get_constraints_count(
+            Tag._meta.db_table,
+            Tag._meta.get_field('slug').column,
+            None,
+        )
+        self.assertEqual(counts['uniques'], 1)
         # Alter the slug field to be non-unique
         old_field = Tag._meta.get_field("slug")
         new_field = SlugField(unique=False)
         new_field.set_attributes_from_name("slug")
         with connection.schema_editor() as editor:
             editor.alter_field(Tag, old_field, new_field, strict=True)
-        # Ensure the field is no longer unique
-        Tag.objects.create(title="foo", slug="foo")
-        Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            # Ensure the field is no longer unique
+            Tag.objects.create(title="foo", slug="foo")
+            Tag.objects.create(title="bar", slug="foo")
+            Tag.objects.all().delete()
+        counts = self.get_constraints_count(
+            Tag._meta.db_table,
+            Tag._meta.get_field('slug').column,
+            None,
+        )
+        self.assertEqual(counts['uniques'], 0)
         # Alter the slug field to be unique
         new_field2 = SlugField(unique=True)
         new_field2.set_attributes_from_name("slug")
         with connection.schema_editor() as editor:
             editor.alter_field(Tag, new_field, new_field2, strict=True)
         # Ensure the field is unique again
-        Tag.objects.create(title="foo", slug="foo")
-        with self.assertRaises(IntegrityError):
-            Tag.objects.create(title="bar", slug="foo")
-        Tag.objects.all().delete()
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            Tag.objects.create(title="foo", slug="foo")
+            with self.assertRaises(IntegrityError):
+                Tag.objects.create(title="bar", slug="foo")
+            Tag.objects.all().delete()
+        counts = self.get_constraints_count(
+            Tag._meta.db_table,
+            Tag._meta.get_field('slug').column,
+            None,
+        )
+        self.assertEqual(counts['uniques'], 1)
         # Rename the field
         new_field3 = SlugField(unique=True)
         new_field3.set_attributes_from_name("slug2")
         with connection.schema_editor() as editor:
             editor.alter_field(Tag, new_field2, new_field3, strict=True)
         # Ensure the field is still unique
-        TagUniqueRename.objects.create(title="foo", slug2="foo")
-        with self.assertRaises(IntegrityError):
-            TagUniqueRename.objects.create(title="bar", slug2="foo")
-        Tag.objects.all().delete()
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            TagUniqueRename.objects.create(title="foo", slug2="foo")
+            with self.assertRaises(IntegrityError):
+                TagUniqueRename.objects.create(title="bar", slug2="foo")
+            Tag.objects.all().delete()
+        counts = self.get_constraints_count(
+            TagUniqueRename._meta.db_table,
+            TagUniqueRename._meta.get_field('slug2').column,
+            None,
+        )
+        self.assertEqual(counts['uniques'], 1)
 
     def test_unique_name_quoting(self):
         old_table_name = TagUniqueRename._meta.db_table
@@ -1964,6 +2043,9 @@ class SchemaTests(TransactionTestCase):
                 # This fails if the unique index name isn't quoted.
                 editor.alter_unique_together(TagUniqueRename, [], (('title', 'slug2'),))
         finally:
+            if TagUniqueRename._meta.db_table == 'unique-table':
+                with connection.schema_editor() as editor:
+                    editor.delete_model(TagUniqueRename)
             TagUniqueRename._meta.db_table = old_table_name
 
     @isolate_apps('schema')
@@ -2035,9 +2117,16 @@ class SchemaTests(TransactionTestCase):
         # enable_experimental_alter_column_type_general.
         self.assertEqual(len(cm.records), 2 if getattr(connection.features, 'is_cockroachdb_21_1', False) else 1)
         # Ensure that the field is still unique.
-        Tag.objects.create(title='foo', slug='foo')
-        with self.assertRaises(IntegrityError):
-            Tag.objects.create(title='bar', slug='foo')
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            Tag.objects.create(title='foo', slug='foo')
+            with self.assertRaises(IntegrityError):
+                Tag.objects.create(title='bar', slug='foo')
+        counts = self.get_constraints_count(
+            Tag._meta.db_table,
+            Tag._meta.get_field('slug').column,
+            None
+        )
+        self.assertEqual(counts['uniques'], 1)
 
     @skipUnlessDBFeature('allows_multiple_constraints_on_same_fields')
     def test_remove_field_unique_does_not_remove_meta_constraints(self):
@@ -2094,29 +2183,50 @@ class SchemaTests(TransactionTestCase):
         with connection.schema_editor() as editor:
             editor.create_model(UniqueTest)
         # Ensure the fields are unique to begin with
-        UniqueTest.objects.create(year=2012, slug="foo")
-        UniqueTest.objects.create(year=2011, slug="foo")
-        UniqueTest.objects.create(year=2011, slug="bar")
-        with self.assertRaises(IntegrityError):
+        if getattr(connection.features, 'enforces_unique_constraints', True):
             UniqueTest.objects.create(year=2012, slug="foo")
-        UniqueTest.objects.all().delete()
+            UniqueTest.objects.create(year=2011, slug="foo")
+            UniqueTest.objects.create(year=2011, slug="bar")
+            with self.assertRaises(IntegrityError):
+                UniqueTest.objects.create(year=2012, slug="foo")
+            UniqueTest.objects.all().delete()
+        counts = self.get_constraints_count(
+            UniqueTest._meta.db_table,
+            [UniqueTest._meta.get_field('year').column, UniqueTest._meta.get_field('slug').column],
+            None
+        )
+        self.assertEqual(counts['uniques'], 1)
         # Alter the model to its non-unique-together companion
         with connection.schema_editor() as editor:
             editor.alter_unique_together(UniqueTest, UniqueTest._meta.unique_together, [])
         # Ensure the fields are no longer unique
-        UniqueTest.objects.create(year=2012, slug="foo")
-        UniqueTest.objects.create(year=2012, slug="foo")
-        UniqueTest.objects.all().delete()
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            UniqueTest.objects.create(year=2012, slug="foo")
+            UniqueTest.objects.create(year=2012, slug="foo")
+            UniqueTest.objects.all().delete()
+        counts = self.get_constraints_count(
+            UniqueTest._meta.db_table,
+            [UniqueTest._meta.get_field('year').column, UniqueTest._meta.get_field('slug').column],
+            None
+        )
+        self.assertEqual(counts['uniques'], 0)
         # Alter it back
         new_field2 = SlugField(unique=True)
         new_field2.set_attributes_from_name("slug")
         with connection.schema_editor() as editor:
             editor.alter_unique_together(UniqueTest, [], UniqueTest._meta.unique_together)
         # Ensure the fields are unique again
-        UniqueTest.objects.create(year=2012, slug="foo")
-        with self.assertRaises(IntegrityError):
+        if getattr(connection.features, 'enforces_unique_constraints', True):
             UniqueTest.objects.create(year=2012, slug="foo")
-        UniqueTest.objects.all().delete()
+            with self.assertRaises(IntegrityError):
+                UniqueTest.objects.create(year=2012, slug="foo")
+            UniqueTest.objects.all().delete()
+        counts = self.get_constraints_count(
+            UniqueTest._meta.db_table,
+            [UniqueTest._meta.get_field('year').column, UniqueTest._meta.get_field('slug').column],
+            None
+        )
+        self.assertEqual(counts['uniques'], 1)
 
     def test_unique_together_with_fk(self):
         """
@@ -2974,6 +3084,9 @@ class SchemaTests(TransactionTestCase):
         new_field.set_attributes_from_name('author')
         with connection.schema_editor() as editor:
             editor.add_field(BookForeignObj, new_field)
+        # Clean up that table
+        with connection.schema_editor() as editor:
+            editor.delete_model(BookForeignObj)
 
     def test_creation_deletion_reserved_names(self):
         """
@@ -3077,7 +3190,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
         # Ensure field was added with the right default
         with connection.cursor() as cursor:
-            cursor.execute("SELECT surname FROM schema_author;")
+            cursor.execute('SELECT surname FROM schema_author')
             item = cursor.fetchall()[0]
             self.assertEqual(item[0], None if connection.features.interprets_empty_strings_as_nulls else '')
 
@@ -3097,7 +3210,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
         # Ensure field was added with the right default
         with connection.cursor() as cursor:
-            cursor.execute("SELECT surname FROM schema_author;")
+            cursor.execute('SELECT surname FROM schema_author')
             item = cursor.fetchall()[0]
             self.assertEqual(item[0], 'surname default')
             # And that the default is no longer set in the database.
@@ -3118,7 +3231,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
         Author.objects.create(name='Anonymous1')
         with connection.cursor() as cursor:
-            cursor.execute('SELECT surname FROM schema_author;')
+            cursor.execute('SELECT surname FROM schema_author')
             item = cursor.fetchall()[0]
             self.assertIsNone(item[0])
             field = next(
@@ -3145,7 +3258,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
         Author.objects.create(name='Anonymous1')
         with connection.cursor() as cursor:
-            cursor.execute('SELECT description FROM schema_author;')
+            cursor.execute('SELECT description FROM schema_author')
             item = cursor.fetchall()[0]
             self.assertIsNone(item[0])
             field = next(
@@ -3461,6 +3574,7 @@ class SchemaTests(TransactionTestCase):
             editor.alter_field(Author, new_field, old_field, strict=True)
         self.assertEqual(self.get_constraints_for_column(Author, 'weight'), [])
 
+    @skipUnlessDBFeature('supports_foreign_keys')
     def test_alter_pk_with_self_referential_field(self):
         """
         Changing the primary key field name of a model with a self-referential
