@@ -78,6 +78,7 @@ def override_database_connection_timezone(timezone):
         del connection.timezone
         connection.timezone_name
         del connection.timezone_name
+        connection.ensure_timezone()
         yield
     finally:
         connection.settings_dict['TIME_ZONE'] = orig_timezone
