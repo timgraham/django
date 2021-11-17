@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from datetime import timezone as datetime_timezone
 
 from django.conf import settings
-from django.db import DataError, OperationalError
+from django.db import DataError, OperationalError, connection
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -1677,6 +1677,13 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         delta_tzinfo_neg = datetime_timezone(timedelta(hours=-5, minutes=17))
         melb = zoneinfo.ZoneInfo("Australia/Melbourne")
 
+        supports_tz_offsets = getattr(connection.features, 'supports_tz_offsets', True)
+        offset_annotations = {
+            'hour_with_delta_pos': ExtractHour('start_datetime', tzinfo=delta_tzinfo_pos),
+            'hour_with_delta_neg': ExtractHour('start_datetime', tzinfo=delta_tzinfo_neg),
+            'minute_with_delta_neg': ExtractMinute('start_datetime', tzinfo=delta_tzinfo_neg),
+        } if supports_tz_offsets else {}
+
         qs = DTModel.objects.annotate(
             day=Extract("start_datetime", "day"),
             day_melb=Extract("start_datetime", "day", tzinfo=melb),
@@ -1689,11 +1696,7 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             quarter=ExtractQuarter("start_datetime", tzinfo=melb),
             hour=ExtractHour("start_datetime"),
             hour_melb=ExtractHour("start_datetime", tzinfo=melb),
-            hour_with_delta_pos=ExtractHour("start_datetime", tzinfo=delta_tzinfo_pos),
-            hour_with_delta_neg=ExtractHour("start_datetime", tzinfo=delta_tzinfo_neg),
-            minute_with_delta_neg=ExtractMinute(
-                "start_datetime", tzinfo=delta_tzinfo_neg
-            ),
+            **offset_annotations
         ).order_by("start_datetime")
 
         utc_model = qs.get()
@@ -1708,9 +1711,10 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.assertEqual(utc_model.quarter, 2)
         self.assertEqual(utc_model.hour, 23)
         self.assertEqual(utc_model.hour_melb, 9)
-        self.assertEqual(utc_model.hour_with_delta_pos, 4)
-        self.assertEqual(utc_model.hour_with_delta_neg, 18)
-        self.assertEqual(utc_model.minute_with_delta_neg, 47)
+        if supports_tz_offsets:
+            self.assertEqual(utc_model.hour_with_delta_pos, 4)
+            self.assertEqual(utc_model.hour_with_delta_neg, 18)
+            self.assertEqual(utc_model.minute_with_delta_neg, 47)
 
         with timezone.override(melb):
             melb_model = qs.get()
