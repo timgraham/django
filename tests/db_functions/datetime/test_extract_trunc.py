@@ -13,7 +13,7 @@ except ImportError:
     pytz = None
 
 from django.conf import settings
-from django.db import DataError, OperationalError
+from django.db import DataError, OperationalError, connection
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -1703,30 +1703,28 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         delta_tzinfo_pos = datetime_timezone(timedelta(hours=5))
         delta_tzinfo_neg = datetime_timezone(timedelta(hours=-5, minutes=17))
 
-        for melb in self.get_timezones("Australia/Melbourne"):
+        supports_tz_offsets = getattr(connection.features, 'supports_tz_offsets', True)
+        offset_annotations = {
+            'hour_with_delta_pos': ExtractHour('start_datetime', tzinfo=delta_tzinfo_pos),
+            'hour_with_delta_neg': ExtractHour('start_datetime', tzinfo=delta_tzinfo_neg),
+            'minute_with_delta_neg': ExtractMinute('start_datetime', tzinfo=delta_tzinfo_neg),
+        } if supports_tz_offsets else {}
+        for melb in self.get_timezones('Australia/Melbourne'):
             with self.subTest(repr(melb)):
                 qs = DTModel.objects.annotate(
-                    day=Extract("start_datetime", "day"),
-                    day_melb=Extract("start_datetime", "day", tzinfo=melb),
-                    week=Extract("start_datetime", "week", tzinfo=melb),
-                    isoyear=ExtractIsoYear("start_datetime", tzinfo=melb),
-                    weekday=ExtractWeekDay("start_datetime"),
-                    weekday_melb=ExtractWeekDay("start_datetime", tzinfo=melb),
-                    isoweekday=ExtractIsoWeekDay("start_datetime"),
-                    isoweekday_melb=ExtractIsoWeekDay("start_datetime", tzinfo=melb),
-                    quarter=ExtractQuarter("start_datetime", tzinfo=melb),
-                    hour=ExtractHour("start_datetime"),
-                    hour_melb=ExtractHour("start_datetime", tzinfo=melb),
-                    hour_with_delta_pos=ExtractHour(
-                        "start_datetime", tzinfo=delta_tzinfo_pos
-                    ),
-                    hour_with_delta_neg=ExtractHour(
-                        "start_datetime", tzinfo=delta_tzinfo_neg
-                    ),
-                    minute_with_delta_neg=ExtractMinute(
-                        "start_datetime", tzinfo=delta_tzinfo_neg
-                    ),
-                ).order_by("start_datetime")
+                    day=Extract('start_datetime', 'day'),
+                    day_melb=Extract('start_datetime', 'day', tzinfo=melb),
+                    week=Extract('start_datetime', 'week', tzinfo=melb),
+                    isoyear=ExtractIsoYear('start_datetime', tzinfo=melb),
+                    weekday=ExtractWeekDay('start_datetime'),
+                    weekday_melb=ExtractWeekDay('start_datetime', tzinfo=melb),
+                    isoweekday=ExtractIsoWeekDay('start_datetime'),
+                    isoweekday_melb=ExtractIsoWeekDay('start_datetime', tzinfo=melb),
+                    quarter=ExtractQuarter('start_datetime', tzinfo=melb),
+                    hour=ExtractHour('start_datetime'),
+                    hour_melb=ExtractHour('start_datetime', tzinfo=melb),
+                    **offset_annotations
+                ).order_by('start_datetime')
 
                 utc_model = qs.get()
                 self.assertEqual(utc_model.day, 15)
@@ -1740,9 +1738,10 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
                 self.assertEqual(utc_model.quarter, 2)
                 self.assertEqual(utc_model.hour, 23)
                 self.assertEqual(utc_model.hour_melb, 9)
-                self.assertEqual(utc_model.hour_with_delta_pos, 4)
-                self.assertEqual(utc_model.hour_with_delta_neg, 18)
-                self.assertEqual(utc_model.minute_with_delta_neg, 47)
+                if supports_tz_offsets:
+                    self.assertEqual(utc_model.hour_with_delta_pos, 4)
+                    self.assertEqual(utc_model.hour_with_delta_neg, 18)
+                    self.assertEqual(utc_model.minute_with_delta_neg, 47)
 
                 with timezone.override(melb):
                     melb_model = qs.get()
