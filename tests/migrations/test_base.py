@@ -56,6 +56,8 @@ class MigrationTestBase(TransactionTestCase):
         self.assertFalse(self._get_column_allows_null(table, column, using))
 
     def assertIndexExists(self, table, columns, value=True, using='default', index_type=None):
+        if not getattr(connection.features, 'supports_indexes', True):
+            return
         with connections[using].cursor() as cursor:
             self.assertEqual(
                 value,
