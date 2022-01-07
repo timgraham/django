@@ -354,8 +354,10 @@ class IntrospectionTests(TransactionTestCase):
         # Test custom constraints
         custom_constraints = {
             "article_email_pub_date_uniq",
-            "email_pub_date_idx",
         }
+        if getattr(connection.features, 'supports_indexes', True):
+            custom_constraints.add('email_pub_date_idx')
+
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor, Comment._meta.db_table
@@ -378,9 +380,10 @@ class IntrospectionTests(TransactionTestCase):
             ["article_id", "email", "pub_date"],
             unique=True,
         )
-        assertDetails(
-            constraints["email_pub_date_idx"], ["email", "pub_date"], index=True
-        )
+        if getattr(connection.features, 'supports_indexes', True):
+            assertDetails(
+                constraints["email_pub_date_idx"], ["email", "pub_date"], index=True
+            )
         # Test field constraints
         field_constraints = set()
         for name, details in constraints.items():
