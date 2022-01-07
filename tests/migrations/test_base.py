@@ -92,6 +92,8 @@ class MigrationTestBase(TransactionTestCase):
     def assertIndexExists(
         self, table, columns, value=True, using="default", index_type=None
     ):
+        if not getattr(connection.features, 'supports_indexes', True):
+            return
         with connections[using].cursor() as cursor:
             self.assertEqual(
                 value,
