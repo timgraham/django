@@ -55,6 +55,7 @@ from django.db.models.indexes import IndexExpression
 from django.db.transaction import TransactionManagementError, atomic
 from django.test import TransactionTestCase, skipIfDBFeature, skipUnlessDBFeature
 from django.test.utils import CaptureQueriesContext, isolate_apps, register_lookup
+from django.utils import timezone
 
 from .fields import CustomManyToManyField, InheritedManyToManyField, MediumBlobField
 from .models import (
