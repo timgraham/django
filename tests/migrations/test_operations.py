@@ -3123,14 +3123,15 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists("test_rnflut_pony", "blue")
         self.assertColumnNotExists("test_rnflut_pony", "pink")
         # The unique constraint has been ported over.
-        with connection.cursor() as cursor:
-            cursor.execute("INSERT INTO test_rnflut_pony (blue, weight) VALUES (1, 1)")
-            with self.assertRaises(IntegrityError):
-                with atomic():
-                    cursor.execute(
-                        "INSERT INTO test_rnflut_pony (blue, weight) VALUES (1, 1)"
-                    )
-            cursor.execute("DELETE FROM test_rnflut_pony")
+        if getattr(connection.features, 'enforces_unique_constraints', True):
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO test_rnflut_pony (blue, weight) VALUES (1, 1)")
+                with self.assertRaises(IntegrityError):
+                    with atomic():
+                        cursor.execute(
+                            "INSERT INTO test_rnflut_pony (blue, weight) VALUES (1, 1)"
+                        )
+                cursor.execute("DELETE FROM test_rnflut_pony")
         # Reversal.
         with connection.schema_editor() as editor:
             operation.database_backwards(
@@ -3383,29 +3384,32 @@ class OperationTests(OperationTestBase):
         )
         # Make sure we can insert duplicate rows
         with connection.cursor() as cursor:
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("DELETE FROM test_alunto_pony")
+            if getattr(connection.features, 'enforces_unique_constraints', True):
+                cursor.execute('INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)')
+                cursor.execute('INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)')
+                cursor.execute('DELETE FROM test_alunto_pony')
             # Test the database alteration
             with connection.schema_editor() as editor:
                 operation.database_forwards(
                     "test_alunto", editor, project_state, new_state
                 )
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            with self.assertRaises(IntegrityError):
-                with atomic():
-                    cursor.execute(
-                        "INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)"
-                    )
-            cursor.execute("DELETE FROM test_alunto_pony")
+            if getattr(connection.features, 'enforces_unique_constraints', True):
+                cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+                with self.assertRaises(IntegrityError):
+                    with atomic():
+                        cursor.execute(
+                            "INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)"
+                        )
+                cursor.execute("DELETE FROM test_alunto_pony")
             # And test reversal
             with connection.schema_editor() as editor:
                 operation.database_backwards(
                     "test_alunto", editor, new_state, project_state
                 )
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("DELETE FROM test_alunto_pony")
+            if getattr(connection.features, 'enforces_unique_constraints', True):
+                cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+                cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+                cursor.execute("DELETE FROM test_alunto_pony")
         # Test flat unique_together
         operation = migrations.AlterUniqueTogether("Pony", ("pink", "weight"))
         operation.state_forwards("test_alunto", new_state)
