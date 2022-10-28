@@ -85,3 +85,46 @@ class DbshellTests(SimpleTestCase):
             env['COCKROACH_URL'],
             'postgresql://someuser:somepassword@somehost:444/somedbname'
         )
+
+    def test_sslmode_and_options(self):
+        expected_args = ["cockroach", "sql"]
+        args, env = self.settings_to_cmd_args_env(
+            {
+                "NAME": "somedbname",
+                "USER": "someuser",
+                "PASSWORD": "somepassword",
+                "HOST": "somehost",
+                "PORT": 444,
+                "OPTIONS": {
+                    'options': '--cluster={routing-id}',
+                    'sslmode': 'verify-full',
+                },
+            }
+        )
+        self.assertEqual(args, expected_args)
+        self.assertEqual(
+            env['COCKROACH_URL'],
+            'postgresql://someuser:somepassword@somehost:444/somedbname?'
+            'sslmode=verify-full&options=--cluster%3D%7Brouting-id%7D'
+        )
+
+    def test_sslmode_disable(self):
+        expected_args = ["cockroach", "sql", "--insecure"]
+        args, env = self.settings_to_cmd_args_env(
+            {
+                "NAME": "somedbname",
+                "USER": "someuser",
+                "PASSWORD": "somepassword",
+                "HOST": "somehost",
+                "PORT": 444,
+                "OPTIONS": {
+                    'sslmode': 'disable',
+                },
+            }
+        )
+        self.assertEqual(args, expected_args)
+        self.assertEqual(
+            env['COCKROACH_URL'],
+            'postgresql://someuser:somepassword@somehost:444/somedbname?'
+            'sslmode=disable'
+        )
