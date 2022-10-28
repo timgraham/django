@@ -69,7 +69,7 @@ class DbshellTests(SimpleTestCase):
         )
 
     def test_sslrootcert(self):
-        expected_args = ["cockroach", "sql", "--certs-dir=path/to"]
+        expected_args = ["cockroach", "sql"]
         args, env = self.settings_to_cmd_args_env(
             {
                 "NAME": "somedbname",
@@ -83,7 +83,31 @@ class DbshellTests(SimpleTestCase):
         self.assertEqual(args, expected_args)
         self.assertEqual(
             env['COCKROACH_URL'],
-            'postgresql://someuser:somepassword@somehost:444/somedbname'
+            'postgresql://someuser:somepassword@somehost:444/somedbname?'
+            'sslrootcert=path%2Fto%2Fca.crt'
+        )
+
+    def test_sslcert_and_sslkey(self):
+        expected_args = ["cockroach", "sql"]
+        args, env = self.settings_to_cmd_args_env(
+            {
+                "NAME": "somedbname",
+                "USER": "someuser",
+                "PASSWORD": "somepassword",
+                "HOST": "somehost",
+                "PORT": "444",
+                "OPTIONS": {
+                    'sslcert': '/certs/client.myprojectuser.crt',
+                    'sslkey': '/certs/client.myprojectuser.key',
+                },
+            }
+        )
+        self.assertEqual(args, expected_args)
+        self.assertEqual(
+            env['COCKROACH_URL'],
+            'postgresql://someuser:somepassword@somehost:444/somedbname?'
+            'sslcert=%2Fcerts%2Fclient.myprojectuser.crt&'
+            'sslkey=%2Fcerts%2Fclient.myprojectuser.key'
         )
 
     def test_sslmode_and_options(self):
