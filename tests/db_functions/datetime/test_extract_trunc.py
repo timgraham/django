@@ -13,7 +13,7 @@ except ImportError:
     pytz = None
 
 from django.conf import settings
-from django.db import DataError, OperationalError, connection
+from django.db import DataError, OperationalError, ProgrammingError, connection
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -245,7 +245,7 @@ class DateFunctionTests(TestCase):
         self.create_model(start_datetime, end_datetime)
         self.create_model(end_datetime, start_datetime)
 
-        with self.assertRaises((DataError, OperationalError, ValueError)):
+        with self.assertRaises((ProgrammingError, DataError, OperationalError, ValueError)):
             DTModel.objects.filter(
                 start_datetime__year=Extract(
                     "start_datetime", "day' FROM start_datetime)) OR 1=1;--"
@@ -948,7 +948,7 @@ class DateFunctionTests(TestCase):
                     "year', start_datetime)) OR 1=1;--",
                 )
             ).exists()
-        except (DataError, OperationalError):
+        except (DataError, OperationalError, ProgrammingError):
             pass
         else:
             self.assertIs(exists, False)
