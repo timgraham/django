@@ -3381,6 +3381,10 @@ class SchemaTests(TransactionTestCase):
             editor.alter_unique_together(Book, [["author", "title"]], [])
 
     def _test_composed_index_with_fk(self, index):
+        if not getattr(connection.features, 'supports_indexes', True):
+            self.skipTest(
+                'This backend does not support indexes.'
+            )
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
