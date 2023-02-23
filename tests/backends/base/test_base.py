@@ -73,7 +73,7 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
                     Person.objects.create(first_name="first", last_name="last")
 
                 self.assertGreaterEqual(len(conn.queries_log), 3)
-                self.assertEqual(conn.queries_log[-3]["sql"], "BEGIN")
+                self.assertEqual(conn.queries_log[0]["sql"], "BEGIN")
                 self.assertRegex(
                     cm.output[0],
                     r"DEBUG:django.db.backends:\(\d+.\d{3}\) "
