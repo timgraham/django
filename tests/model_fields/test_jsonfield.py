@@ -11,6 +11,7 @@ from django.db import (
     IntegrityError,
     NotSupportedError,
     OperationalError,
+    ProgrammingError,
     connection,
     models,
 )
@@ -64,7 +65,7 @@ class JSONFieldTests(TestCase):
     def test_db_check_constraints(self):
         value = "{@!invalid json value 123 $!@#"
         with mock.patch.object(DjangoJSONEncoder, "encode", return_value=value):
-            with self.assertRaises((IntegrityError, DataError, OperationalError)):
+            with self.assertRaises((IntegrityError, DataError, OperationalError, ProgrammingError)):
                 NullableJSONModel.objects.create(value_custom=value)
 
 
@@ -249,6 +250,7 @@ class TestSaveLoad(TestCase):
         sql_null.refresh_from_db()
         # 'null' is not equal to NULL in the database.
         self.assertSequenceEqual(
+            # works with value=RawSQL("PARSE_JSON(%s)", ["null"])
             NullableJSONModel.objects.filter(value=Value(None, JSONField())),
             [json_null],
         )
@@ -363,6 +365,8 @@ class TestQuerying(TestCase):
                 ]
             )
         cls.raw_sql = "%s::jsonb" if connection.vendor == "postgresql" else "%s"
+        if connection.vendor == 'snowflake':
+            cls.raw_sql = "PARSE_JSON(%s)"
 
     def test_exact(self):
         self.assertSequenceEqual(
@@ -776,12 +780,14 @@ class TestQuerying(TestCase):
             )
 
     def test_shallow_list_lookup(self):
+        # SELECT ... WHERE "MODEL_FIELDS_NULLABLEJSONMODEL"."VALUE"[0] = '1';
         self.assertSequenceEqual(
             NullableJSONModel.objects.filter(value__0=1),
             [self.objs[5]],
         )
 
     def test_shallow_obj_lookup(self):
+        # SELECT ... WHERE TO_JSON("MODEL_FIELDS_NULLABLEJSONMODEL"."VALUE":a) = '"b"'
         self.assertCountEqual(
             NullableJSONModel.objects.filter(value__a="b"),
             [self.objs[3], self.objs[4]],
@@ -802,12 +808,14 @@ class TestQuerying(TestCase):
         )
 
     def test_shallow_lookup_obj_target(self):
+        # WHERE TO_JSON("MODEL_FIELDS_NULLABLEJSONMODEL"."VALUE":k) = '{"l": "m"}';
         self.assertSequenceEqual(
             NullableJSONModel.objects.filter(value__k={"l": "m"}),
             [self.objs[4]],
         )
 
     def test_deep_lookup_array(self):
+        # WHERE TO_JSON("MODEL_FIELDS_NULLABLEJSONMODEL"."VALUE"[1][0]) = '2'
         self.assertSequenceEqual(
             NullableJSONModel.objects.filter(value__1__0=2),
             [self.objs[5]],
@@ -927,6 +935,8 @@ class TestQuerying(TestCase):
             ),
             ("value__foo__in", [F("value__bax__foo"), "baz"], [self.objs[7]]),
             ("value__foo__in", ["bar", "baz"], [self.objs[7]]),
+            #  WHERE TO_JSON("MODEL_FIELDS_NULLABLEJSONMODEL"."VALUE":bar) IN ('["foo", "bar"]')
+            # must be: ... IN (PARSE_JSON('["foo", "bar"]'))
             ("value__bar__in", [["foo", "bar"]], [self.objs[7]]),
             ("value__bar__in", [["foo", "bar"], ["a"]], [self.objs[7]]),
             ("value__bax__in", [{"foo": "bar"}, {"a": "b"}], [self.objs[7]]),
