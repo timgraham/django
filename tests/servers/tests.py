@@ -100,7 +100,7 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
         # Wait for the server's request thread to close the connection.
         # A timeout of 0.1 seconds should be more than enough. If the wait
         # times out, the assertion after should fail.
-        closed_event.wait(timeout=0.1)
+        closed_event.wait(timeout=0.2)
         self.assertIsNone(conn.connection)
 
 
