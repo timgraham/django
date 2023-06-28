@@ -361,7 +361,7 @@ class InspectDBTestCase(TestCase):
 
         class MyCommand(inspectdb.Command):
             def normalize_table_name(self, table_name):
-                normalized_name = table_name.split(".")[1]
+                normalized_name = table_name.rsplit("_", 1)[1]
                 if connection.features.ignores_table_name_case:
                     normalized_name = normalized_name.lower()
                 return normalized_name
