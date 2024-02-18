@@ -1902,8 +1902,9 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
 
         timezones = [
             zoneinfo.ZoneInfo("Australia/Melbourne"),
-            zoneinfo.ZoneInfo("Etc/GMT+10"),
         ]
+        if getattr(connection.features, 'supports_tz_offsets', True):
+            timezones.append(zoneinfo.ZoneInfo("Etc/GMT+10"))
         date_truncations = ["year", "quarter", "month", "week", "day"]
         time_truncations = ["hour", "minute", "second"]
         tests = [
