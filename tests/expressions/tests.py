@@ -2390,10 +2390,11 @@ class ExistsTests(TestCase):
             connection.ops.quote_name(Experiment._meta.pk.column),
             captured_sql,
         )
-        self.assertIn(
-            connection.ops.limit_offset_sql(None, 1),
-            captured_sql,
-        )
+        if getattr(connection.features, 'supports_limit_in_exists', True):
+            self.assertIn(
+                connection.ops.limit_offset_sql(None, 1),
+                captured_sql,
+            )
         self.assertNotIn("ORDER BY", captured_sql)
 
     def test_negated_empty_exists(self):
