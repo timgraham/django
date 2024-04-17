@@ -3,6 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class FlatPagesConfig(AppConfig):
-    default_auto_field = "django.db.models.AutoField"
+    default_auto_field = "django_mongodb.fields.MongoAutoField"
     name = "django.contrib.flatpages"
     verbose_name = _("Flat Pages")

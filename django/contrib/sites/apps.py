@@ -8,7 +8,7 @@ from .management import create_default_site
 
 
 class SitesConfig(AppConfig):
-    default_auto_field = "django.db.models.AutoField"
+    default_auto_field = "django_mongodb.fields.MongoAutoField"
     name = "django.contrib.sites"
     verbose_name = _("Sites")
 
