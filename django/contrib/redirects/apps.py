@@ -3,6 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class RedirectsConfig(AppConfig):
-    default_auto_field = "django.db.models.AutoField"
+    default_auto_field = "django_mongodb_backend.fields.ObjectIdAutoField"
     name = "django.contrib.redirects"
     verbose_name = _("Redirects")

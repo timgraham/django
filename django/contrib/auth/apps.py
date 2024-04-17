@@ -11,7 +11,7 @@ from .signals import user_logged_in
 
 
 class AuthConfig(AppConfig):
-    default_auto_field = "django.db.models.AutoField"
+    default_auto_field = "django_mongodb_backend.fields.ObjectIdAutoField"
     name = "django.contrib.auth"
     verbose_name = _("Authentication and Authorization")
 
