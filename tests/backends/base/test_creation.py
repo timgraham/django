@@ -269,11 +269,11 @@ class TestDeserializeDbFromString(TransactionTestCase):
 
 
 class SkipTestClass:
-    def skip_function(self):
+    def test_skip_function(self):
         pass
 
 
-def skip_test_function():
+def test_skip_test_function():
     pass
 
 
@@ -293,7 +293,7 @@ class TestMarkTests(SimpleTestCase):
                 "backends.base.test_creation.SkipTestClass",
             },
             "skip test function": {
-                "backends.base.test_creation.skip_test_function",
+                "backends.base.test_creation.test_skip_test_function",
             },
         }
         creation.mark_expected_failures_and_skips()
@@ -306,8 +306,8 @@ class TestMarkTests(SimpleTestCase):
             SkipTestClass.__unittest_skip_why__,
             "skip test class",
         )
-        self.assertIs(skip_test_function.__unittest_skip__, True)
+        self.assertIs(test_skip_test_function.__unittest_skip__, True)
         self.assertEqual(
-            skip_test_function.__unittest_skip_why__,
+            test_skip_test_function.__unittest_skip_why__,
             "skip test function",
         )
