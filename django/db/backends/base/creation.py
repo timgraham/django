@@ -350,9 +350,6 @@ class BaseDatabaseCreation:
                 test_app = test_name.split(".")[0]
                 # Importing a test app that isn't installed raises RuntimeError.
                 if test_app in settings.INSTALLED_APPS:
-                    # If this is a a test class, it may need to be imported.
-                    if test_name.count(".") == 2:
-                        import_string(test_name)
                     test_case = import_string(test_case_name)
                     test_method = getattr(test_case, test_method_name)
                     setattr(test_case, test_method_name, skip(reason)(test_method))
