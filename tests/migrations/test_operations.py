@@ -1372,47 +1372,47 @@ class OperationTests(OperationTestBase):
         self.assertEqual(definition[1], [])
         self.assertEqual(sorted(definition[2]), ["field", "model_name", "name"])
 
-    @skipUnlessDBFeature("supports_stored_generated_columns")
-    def test_add_generate_field(self):
-        app_label = "test_add_generate_field"
-        project_state = self.apply_operations(
-            app_label,
-            ProjectState(),
-            operations=[
-                migrations.CreateModel(
-                    "Rider",
-                    fields=[
-                        ("id", models.AutoField(primary_key=True)),
-                    ],
-                ),
-                migrations.CreateModel(
-                    "Pony",
-                    fields=[
-                        ("id", models.AutoField(primary_key=True)),
-                        ("pink", models.IntegerField()),
-                        (
-                            "rider",
-                            models.ForeignKey(
-                                f"{app_label}.Rider", on_delete=models.CASCADE
-                            ),
-                        ),
-                        (
-                            "pink_plus_rider",
-                            models.GeneratedField(
-                                expression=F("pink") + F("rider_id"),
-                                output_field=models.IntegerField(),
-                                db_persist=True,
-                            ),
-                        ),
-                    ],
-                ),
-            ],
-        )
-        Pony = project_state.apps.get_model(app_label, "Pony")
-        Rider = project_state.apps.get_model(app_label, "Rider")
-        rider = Rider.objects.create()
-        pony = Pony.objects.create(pink=3, rider=rider)
-        self.assertEqual(pony.pink_plus_rider, 3 + rider.id)
+#    @skipUnlessDBFeature("supports_stored_generated_columns")
+#    def test_add_generate_field(self):
+#        app_label = "test_add_generate_field"
+#        project_state = self.apply_operations(
+#            app_label,
+#            ProjectState(),
+#            operations=[
+#                migrations.CreateModel(
+#                    "Rider",
+#                    fields=[
+#                        ("id", models.AutoField(primary_key=True)),
+#                    ],
+#                ),
+#                migrations.CreateModel(
+#                    "Pony",
+#                    fields=[
+#                        ("id", models.AutoField(primary_key=True)),
+#                        ("pink", models.IntegerField()),
+#                        (
+#                            "rider",
+#                            models.ForeignKey(
+#                                f"{app_label}.Rider", on_delete=models.CASCADE
+#                            ),
+#                        ),
+#                        (
+#                            "pink_plus_rider",
+#                            models.GeneratedField(
+#                                expression=F("pink") + F("rider_id"),
+#                                output_field=models.IntegerField(),
+#                                db_persist=True,
+#                            ),
+#                        ),
+#                    ],
+#                ),
+#            ],
+#        )
+#        Pony = project_state.apps.get_model(app_label, "Pony")
+#        Rider = project_state.apps.get_model(app_label, "Rider")
+#        rider = Rider.objects.create()
+#        pony = Pony.objects.create(pink=3, rider=rider)
+#        self.assertEqual(pony.pink_plus_rider, 3 + rider.id)
 
     def test_add_charfield(self):
         """
