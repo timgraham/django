@@ -4,7 +4,7 @@ Various complex queries that have been problematic in the past.
 
 import datetime
 
-from django.db import models
+from django.db import connection, models
 from django.db.models.functions import Now
 
 
@@ -66,8 +66,17 @@ class Annotation(models.Model):
         return self.name
 
 
+def now():
+    value = datetime.datetime.now()
+    return (
+        value
+        if connection.features.supports_microsecond_precision
+        else value.replace(microsecond=0)
+    )
+
+
 class DateTimePK(models.Model):
-    date = models.DateTimeField(primary_key=True, default=datetime.datetime.now)
+    date = models.DateTimeField(primary_key=True, default=now)
 
     class Meta:
         ordering = ["date"]
