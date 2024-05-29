@@ -11,9 +11,17 @@ from django.utils import timezone
 from ..models import Article, Author, DecimalModel, Fan
 
 
+def microsecond_support(value):
+    return (
+        value
+        if connection.features.supports_microsecond_precision
+        else value.replace(microsecond=0)
+    )
+
+
 class GreatestTests(TestCase):
     def test_basic(self):
-        now = timezone.now()
+        now = microsecond_support(timezone.now())
         before = now - timedelta(hours=1)
         Article.objects.create(
             title="Testing with Django", written=before, published=now
@@ -25,7 +33,7 @@ class GreatestTests(TestCase):
 
     @skipUnlessDBFeature("greatest_least_ignores_nulls")
     def test_ignores_null(self):
-        now = timezone.now()
+        now = microsecond_support(timezone.now())
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(
             last_updated=Greatest("written", "published")
@@ -42,7 +50,7 @@ class GreatestTests(TestCase):
 
     def test_coalesce_workaround(self):
         past = datetime(1900, 1, 1)
-        now = timezone.now()
+        now = microsecond_support(timezone.now())
         Article.objects.create(title="Testing with Django", written=now)
         articles = Article.objects.annotate(
             last_updated=Greatest(

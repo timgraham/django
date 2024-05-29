@@ -3,7 +3,7 @@ import json
 
 from django import forms
 from django.core import exceptions, serializers
-from django.db import models
+from django.db import connection, models
 from django.test import SimpleTestCase, TestCase
 
 from .models import DurationModel, NullDurationModel
@@ -11,7 +11,10 @@ from .models import DurationModel, NullDurationModel
 
 class TestSaveLoad(TestCase):
     def test_simple_roundtrip(self):
-        duration = datetime.timedelta(microseconds=8999999999999999)
+        microseconds = 8999999999999999
+        if not connection.features.supports_microsecond_precision:
+            microseconds -= 999
+        duration = datetime.timedelta(microseconds=microseconds)
         DurationModel.objects.create(field=duration)
         loaded = DurationModel.objects.get()
         self.assertEqual(loaded.field, duration)

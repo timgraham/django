@@ -2,7 +2,7 @@ import datetime
 import pickle
 
 import django
-from django.db import models
+from django.db import connection, models
 from django.test import TestCase
 
 from .models import (
@@ -19,9 +19,17 @@ from .models import (
 class PickleabilityTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.happening = (
-            Happening.objects.create()
+        cls.happening = Happening.objects.create(
+            when=cls._truncate_ms(datetime.datetime.now())
         )  # make sure the defaults are working (#20158)
+
+    @classmethod
+    def _truncate_ms(cls, val):
+        # Some databases don't support microseconds in datetimes which causes
+        # problems when comparing the original value to that loaded from the DB.
+        if connection.features.supports_microsecond_precision:
+            return val
+        return val - datetime.timedelta(microseconds=val.microsecond)
 
     def assert_pickles(self, qs):
         self.assertEqual(list(pickle.loads(pickle.dumps(qs))), list(qs))
