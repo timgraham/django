@@ -1627,6 +1627,7 @@ class FTimeDeltaTests(TestCase):
 
         # e1: started one day after assigned, tiny duration, data
         # set so that end time has no fractional seconds, which
+<<<<<<< HEAD
         # tests an edge case on sqlite.
         delay = datetime.timedelta(1)
         end = stime + delay + delta1
@@ -1641,6 +1642,21 @@ class FTimeDeltaTests(TestCase):
         cls.deltas.append(delta1)
         cls.delays.append(e1.start - datetime.datetime.combine(e1.assigned, midnight))
         cls.days_long.append(e1.completed - e1.assigned)
+=======
+        # tests an edge case on sqlite. This Experiment is only
+        # included in the test data when the DB supports microsecond
+        # precision.
+        if connection.features.supports_microsecond_precision:
+            delay = datetime.timedelta(1)
+            end = stime + delay + delta1
+            e1 = Experiment.objects.create(
+                name='e1', assigned=sday, start=stime + delay, end=end,
+                completed=end.date(), estimated_time=delta1,
+            )
+            cls.deltas.append(delta1)
+            cls.delays.append(e1.start - datetime.datetime.combine(e1.assigned, midnight))
+            cls.days_long.append(e1.completed - e1.assigned)
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
 
         # e2: started three days after assigned, small duration
         end = stime + delta2
@@ -1808,11 +1824,19 @@ class FTimeDeltaTests(TestCase):
         )
 
     def test_mixed_comparisons1(self):
+<<<<<<< HEAD
         for i, delay in enumerate(self.delays):
             test_set = [
                 e.name
                 for e in Experiment.objects.filter(assigned__gt=F("start") - delay)
             ]
+=======
+        for i in range(len(self.delays)):
+            delay = self.delays[i]
+            if not connection.features.supports_microsecond_precision:
+                delay = datetime.timedelta(delay.days, delay.seconds)
+            test_set = [e.name for e in Experiment.objects.filter(assigned__gt=F('start') - delay)]
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
             self.assertEqual(test_set, self.expnames[:i])
 
             test_set = [
@@ -1972,6 +1996,7 @@ class FTimeDeltaTests(TestCase):
         ).filter(difference=datetime.timedelta())
         self.assertTrue(queryset.exists())
 
+<<<<<<< HEAD
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_date_case_subtraction(self):
         queryset = Experiment.objects.annotate(
@@ -1986,13 +2011,27 @@ class FTimeDeltaTests(TestCase):
             difference=F("date_case") - F("completed_value"),
         ).filter(difference=datetime.timedelta())
         self.assertEqual(queryset.get(), self.e0)
+=======
+        less_than_5_days = {e.name for e in queryset.filter(completion_duration__lt=datetime.timedelta(days=5))}
+        expected = {'e0', 'e2'}
+        if connection.features.supports_microsecond_precision:
+            expected.add('e1')
+        self.assertEqual(less_than_5_days, expected)
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_time_subtraction(self):
-        Time.objects.create(time=datetime.time(12, 30, 15, 2345))
+        if connection.features.supports_microsecond_precision:
+            time = datetime.time(12, 30, 15, 2345)
+            timedelta = datetime.timedelta(hours=1, minutes=15, seconds=15, microseconds=2345)
+        else:
+            time = datetime.time(12, 30, 15)
+            timedelta = datetime.timedelta(hours=1, minutes=15, seconds=15)
+        Time.objects.create(time=time)
         queryset = Time.objects.annotate(
             difference=F("time") - Value(datetime.time(11, 15, 0)),
         )
+<<<<<<< HEAD
         self.assertEqual(
             queryset.get().difference,
             datetime.timedelta(hours=1, minutes=15, seconds=15, microseconds=2345),
@@ -2019,6 +2058,9 @@ class FTimeDeltaTests(TestCase):
             difference=subquery - F("time"),
         ).filter(difference=datetime.timedelta())
         self.assertTrue(queryset.exists())
+=======
+        self.assertEqual(queryset.get().difference, timedelta)
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_datetime_subtraction(self):
@@ -2112,6 +2154,7 @@ class FTimeDeltaTests(TestCase):
             )
         )
         expected_start = datetime.datetime(2010, 6, 23, 9, 45, 0)
+<<<<<<< HEAD
         # subtract 30 microseconds
         experiments = experiments.annotate(
             new_start=F("new_start") + datetime.timedelta(microseconds=-30)
@@ -2119,6 +2162,14 @@ class FTimeDeltaTests(TestCase):
         expected_start += datetime.timedelta(microseconds=+746970)
         experiments.update(start=F("new_start"))
         e0 = Experiment.objects.get(name="e0")
+=======
+        if connection.features.supports_microsecond_precision:
+            # subtract 30 microseconds
+            experiments = experiments.annotate(new_start=F('new_start') + datetime.timedelta(microseconds=-30))
+            expected_start += datetime.timedelta(microseconds=+746970)
+        experiments.update(start=F('new_start'))
+        e0 = Experiment.objects.get(name='e0')
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
         self.assertEqual(e0.start, expected_start)
 
 

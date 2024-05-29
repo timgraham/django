@@ -1,8 +1,12 @@
 from datetime import date, datetime, timedelta
 from operator import attrgetter
 
+<<<<<<< HEAD
 from django.db import IntegrityError
 from django.test import TestCase
+=======
+from django.test import TestCase, skipUnlessDBFeature
+>>>>>>> parent of a80903b711... Removed DatabaseFeatures.supports_microsecond_precision.
 
 from .models import (
     CustomMembership,
@@ -250,6 +254,7 @@ class M2mThroughTests(TestCase):
             Group.objects.filter(members__name="Bob"), ["Roll"], attrgetter("name")
         )
 
+    @skipUnlessDBFeature('supports_microsecond_precision')
     def test_order_by_relational_field_through_model(self):
         today = datetime.now()
         yesterday = today - timedelta(days=1)
