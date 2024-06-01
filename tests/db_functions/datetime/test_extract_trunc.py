@@ -2,7 +2,13 @@ import datetime
 import zoneinfo
 
 from django.conf import settings
-from django.db import DataError, NotSupportedError, OperationalError, connection
+from django.db import (
+    DatabaseError,
+    DataError,
+    NotSupportedError,
+    OperationalError,
+    connection,
+)
 from django.db.models import (
     DateField,
     DateTimeField,
@@ -981,7 +987,7 @@ class DateFunctionTests(TestCase):
                     "year', start_datetime)) OR 1=1;--",
                 )
             ).exists()
-        except (DataError, NotSupportedError, OperationalError):
+        except (DataError, DatabaseError, NotSupportedError, OperationalError):
             pass
         else:
             self.assertIs(exists, False)
