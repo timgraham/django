@@ -5,7 +5,7 @@ from django.db import models
 
 class Award(models.Model):
     name = models.CharField(max_length=25)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
     content_object = GenericForeignKey()
 

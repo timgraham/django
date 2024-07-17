@@ -7,7 +7,7 @@ from django.db import models
 class Review(models.Model):
     source = models.CharField(max_length=100)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey()
 
     class Meta:

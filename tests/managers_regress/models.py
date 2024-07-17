@@ -131,7 +131,7 @@ class RelationModel(models.Model):
     m2m = models.ManyToManyField(RelatedModel, related_name="test_m2m")
 
     gfk_ctype = models.ForeignKey(ContentType, models.SET_NULL, null=True)
-    gfk_id = models.IntegerField(null=True)
+    gfk_id = models.TextField()
     gfk = GenericForeignKey(ct_field="gfk_ctype", fk_field="gfk_id")
 
     def __str__(self):

@@ -77,7 +77,7 @@ class TaggedItem(models.Model):
     content_type = models.ForeignKey(
         ContentType, models.CASCADE, related_name="tagged_items"
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):

@@ -21,7 +21,7 @@ __all__ = (
 
 class Link(models.Model):
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey()
 
 
@@ -50,7 +50,7 @@ class Address(models.Model):
     state = models.CharField(max_length=2)
     zipcode = models.CharField(max_length=5)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey()
 
 
@@ -87,7 +87,7 @@ class OddRelation2(models.Model):
 # models for test_q_object_or:
 class Note(models.Model):
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey()
     note = models.TextField()
 
@@ -124,7 +124,7 @@ class Tag(models.Model):
     content_type = models.ForeignKey(
         ContentType, models.CASCADE, related_name="g_r_r_tags"
     )
-    object_id = models.CharField(max_length=15)
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey()
     label = models.CharField(max_length=15)
 
@@ -157,7 +157,7 @@ class HasLinkThing(HasLinks):
 class A(models.Model):
     flag = models.BooleanField(null=True)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey("content_type", "object_id")
 
 
@@ -187,7 +187,7 @@ class D(models.Model):
 
 class Node(models.Model):
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content = GenericForeignKey("content_type", "object_id")
 
 
