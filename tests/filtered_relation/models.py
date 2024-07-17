@@ -11,7 +11,7 @@ class Author(models.Model):
         related_query_name="preferred_by_authors",
     )
     content_type = models.ForeignKey(ContentType, models.CASCADE, null=True)
-    object_id = models.PositiveIntegerField(null=True)
+    object_id = models.TextField(null=True)
     content_object = GenericForeignKey()
 
 

@@ -151,7 +151,7 @@ class TaggedItem(models.Model):
         models.CASCADE,
         related_name="taggeditem_set2",
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey("content_type", "object_id")
     created_by_ct = models.ForeignKey(
         ContentType,
@@ -159,7 +159,7 @@ class TaggedItem(models.Model):
         null=True,
         related_name="taggeditem_set3",
     )
-    created_by_fkey = models.PositiveIntegerField(null=True)
+    created_by_fkey = models.TextField(null=True)
     created_by = GenericForeignKey(
         "created_by_ct",
         "created_by_fkey",

@@ -106,7 +106,7 @@ class Person(models.Model):
     favorite_thing_type = models.ForeignKey(
         "contenttypes.ContentType", models.SET_NULL, null=True
     )
-    favorite_thing_id = models.IntegerField(null=True)
+    favorite_thing_id = models.TextField()
     favorite_thing = GenericForeignKey("favorite_thing_type", "favorite_thing_id")
 
     objects = PersonManager()
@@ -134,7 +134,7 @@ class FunPerson(models.Model):
     favorite_thing_type = models.ForeignKey(
         "contenttypes.ContentType", models.SET_NULL, null=True
     )
-    favorite_thing_id = models.IntegerField(null=True)
+    favorite_thing_id = models.TextField()
     favorite_thing = GenericForeignKey("favorite_thing_type", "favorite_thing_id")
 
     objects = FunPeopleManager()

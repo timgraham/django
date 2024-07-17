@@ -219,13 +219,13 @@ class DeleteBottom(models.Model):
 
 class GenericB1(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     generic_delete_top = GenericForeignKey("content_type", "object_id")
 
 
 class GenericB2(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     generic_delete_top = GenericForeignKey("content_type", "object_id")
     generic_delete_bottom = GenericRelation("GenericDeleteBottom")
 
@@ -233,7 +233,7 @@ class GenericB2(models.Model):
 class GenericDeleteBottom(models.Model):
     generic_b1 = models.ForeignKey(GenericB1, models.RESTRICT)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     generic_b2 = GenericForeignKey()
 
 

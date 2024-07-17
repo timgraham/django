@@ -548,7 +548,7 @@ class FunkyTag(models.Model):
     "Because we all know there's only one real use case for GFKs."
     name = models.CharField(max_length=25)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
@@ -1051,7 +1051,7 @@ class ImplicitlyGeneratedPK(models.Model):
 # Models for #25622
 class ReferencedByGenRel(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey("content_type", "object_id")
 
 

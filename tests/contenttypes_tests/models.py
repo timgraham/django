@@ -77,7 +77,7 @@ class Question(models.Model):
 class Answer(models.Model):
     text = models.CharField(max_length=200)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     question = GenericForeignKey()
 
     class Meta:
@@ -89,7 +89,7 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200)
     content_type = models.ForeignKey(ContentType, models.CASCADE, null=True)
-    object_id = models.PositiveIntegerField(null=True)
+    object_id = models.TextField(null=True)
     parent = GenericForeignKey()
     children = GenericRelation("Post")
 

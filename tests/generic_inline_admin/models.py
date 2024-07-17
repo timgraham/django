@@ -15,7 +15,7 @@ class Media(models.Model):
     """
 
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey()
     url = models.URLField()
     description = models.CharField(max_length=100, blank=True)
@@ -34,7 +34,7 @@ class Category(models.Model):
 
 class PhoneNumber(models.Model):
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.TextField()
     content_object = GenericForeignKey("content_type", "object_id")
     phone_number = models.CharField(max_length=30)
     category = models.ForeignKey(Category, models.SET_NULL, null=True, blank=True)
