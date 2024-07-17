@@ -1,5 +1,7 @@
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -128,7 +130,7 @@ class OrderedObject(models.Model):
 
 
 class CustomIdUser(models.Model):
-    uuid = models.AutoField(primary_key=True)
+    uuid = ObjectIdAutoField(primary_key=True)
 
 
 class CharPK(models.Model):

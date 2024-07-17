@@ -2,6 +2,8 @@ import json
 import tempfile
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.storage import FileSystemStorage
@@ -113,15 +115,15 @@ class UnicodeSlugField(models.Model):
 
 
 class AutoModel(models.Model):
-    value = models.AutoField(primary_key=True)
+    value = ObjectIdAutoField(primary_key=True)
 
 
 class BigAutoModel(models.Model):
-    value = models.BigAutoField(primary_key=True)
+    value = ObjectIdAutoField(primary_key=True)
 
 
 class SmallAutoModel(models.Model):
-    value = models.SmallAutoField(primary_key=True)
+    value = ObjectIdAutoField(primary_key=True)
 
 
 class SmallIntegerModel(models.Model):
@@ -198,7 +200,7 @@ class RenamedField(models.Model):
 
 
 class VerboseNameField(models.Model):
-    id = models.AutoField("verbose pk", primary_key=True)
+    id = ObjectIdAutoField("verbose pk", primary_key=True)
     field1 = models.BigIntegerField("verbose field1")
     field2 = models.BooleanField("verbose field2", default=False)
     field3 = models.CharField("verbose field3", max_length=10)

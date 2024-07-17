@@ -84,11 +84,11 @@ class M2MThroughSerializationTestCase(TestCase):
         )
         self.assertJSONEqual(
             out.getvalue().strip(),
-            '[{"pk": %(m_pk)s, "model": "m2m_through_regress.membership", '
-            '"fields": {"person": %(p_pk)s, "price": 100, "group": %(g_pk)s}}, '
-            '{"pk": %(p_pk)s, "model": "m2m_through_regress.person", '
+            '[{"pk": "%(m_pk)s", "model": "m2m_through_regress.membership", '
+            '"fields": {"person": "%(p_pk)s", "price": 100, "group": "%(g_pk)s"}}, '
+            '{"pk": "%(p_pk)s", "model": "m2m_through_regress.person", '
             '"fields": {"name": "Bob"}}, '
-            '{"pk": %(g_pk)s, "model": "m2m_through_regress.group", '
+            '{"pk": "%(g_pk)s", "model": "m2m_through_regress.group", '
             '"fields": {"name": "Roll"}}]' % pks,
         )
 

@@ -1,5 +1,7 @@
 import datetime
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -30,7 +32,7 @@ class ParkingLot(Place):
 
 class ParkingLot3(Place):
     # The parent_link connector need not be the pk on the model.
-    primary_key = models.AutoField(primary_key=True)
+    primary_key = ObjectIdAutoField(primary_key=True)
     parent = models.OneToOneField(Place, models.CASCADE, parent_link=True)
 
 
@@ -189,13 +191,13 @@ class User(models.Model):
 
 
 class Profile(User):
-    profile_id = models.AutoField(primary_key=True)
+    profile_id = ObjectIdAutoField(primary_key=True)
     extra = models.CharField(max_length=30, blank=True)
 
 
 # Check concrete + concrete -> concrete -> concrete
 class Politician(models.Model):
-    politician_id = models.AutoField(primary_key=True)
+    politician_id = ObjectIdAutoField(primary_key=True)
     title = models.CharField(max_length=50)
 
 

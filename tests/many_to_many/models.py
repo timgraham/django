@@ -7,6 +7,8 @@ In this example, an ``Article`` can be published in multiple ``Publication``
 objects, and a ``Publication`` has multiple ``Article`` objects.
 """
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -21,7 +23,7 @@ class Publication(models.Model):
 
 
 class Tag(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=50)
 
     def __str__(self):

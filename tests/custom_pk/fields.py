@@ -1,6 +1,8 @@
 import random
 import string
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -59,7 +61,7 @@ class MyWrapperField(models.CharField):
         return value
 
 
-class MyAutoField(models.BigAutoField):
+class MyAutoField(ObjectIdAutoField):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return None

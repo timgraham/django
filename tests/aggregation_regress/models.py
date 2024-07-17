@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -45,13 +47,13 @@ class Store(models.Model):
 
 
 class Entries(models.Model):
-    EntryID = models.AutoField(primary_key=True, db_column="Entry ID")
+    EntryID = ObjectIdAutoField(primary_key=True, db_column="Entry ID")
     Entry = models.CharField(unique=True, max_length=50)
     Exclude = models.BooleanField(default=False)
 
 
 class Clues(models.Model):
-    ID = models.AutoField(primary_key=True)
+    ID = ObjectIdAutoField(primary_key=True)
     EntryID = models.ForeignKey(
         Entries, models.CASCADE, verbose_name="Entry", db_column="Entry ID"
     )
@@ -63,7 +65,7 @@ class WithManualPK(models.Model):
     # classes with the same PK value, and there are some (external)
     # DB backends that don't work nicely when assigning integer to AutoField
     # column (MSSQL at least).
-    id = models.IntegerField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
 
 
 class HardbackBook(Book):

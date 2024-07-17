@@ -2,6 +2,8 @@ import datetime
 import uuid
 from decimal import Decimal
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 from django.utils import timezone
 
@@ -85,11 +87,11 @@ class NoFields(models.Model):
 
 
 class SmallAutoFieldModel(models.Model):
-    id = models.SmallAutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
 
 
 class BigAutoFieldModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
 
 
 class NullableFields(models.Model):

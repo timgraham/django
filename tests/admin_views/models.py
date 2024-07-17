@@ -2,6 +2,8 @@ import datetime
 import tempfile
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -447,7 +449,7 @@ class DooHickey(models.Model):
 
 
 class Grommet(models.Model):
-    code = models.AutoField(primary_key=True)
+    code = ObjectIdAutoField(primary_key=True)
     owner = models.ForeignKey(Collector, models.CASCADE)
     name = models.CharField(max_length=100)
 
@@ -687,7 +689,7 @@ class Bonus(models.Model):
 
 
 class Question(models.Model):
-    big_id = models.BigAutoField(primary_key=True)
+    big_id = ObjectIdAutoField(primary_key=True)
     question = models.CharField(max_length=20)
     posted = models.DateField(default=datetime.date.today)
     expires = models.DateTimeField(null=True, blank=True)

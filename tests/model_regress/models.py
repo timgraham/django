@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -20,7 +22,7 @@ class Article(models.Model):
 
 class Movie(models.Model):
     # Test models with non-default primary keys / AutoFields #5218
-    movie_id = models.AutoField(primary_key=True)
+    movie_id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=60)
 
 

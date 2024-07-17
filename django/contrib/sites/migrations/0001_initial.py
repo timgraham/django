@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 import django.contrib.sites.models
 from django.contrib.sites.models import _simple_domain_name_validator
 from django.db import migrations, models
@@ -12,7 +14,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.AutoField(
+                    ObjectIdAutoField(
                         verbose_name="ID",
                         serialize=False,
                         auto_created=True,

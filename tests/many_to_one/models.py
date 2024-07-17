@@ -4,6 +4,8 @@ Many-to-one relationships
 To define a many-to-one relationship, use ``ForeignKey()``.
 """
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -29,12 +31,12 @@ class Article(models.Model):
 
 
 class Country(models.Model):
-    id = models.SmallAutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=50)
 
 
 class City(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
     country = models.ForeignKey(
         Country, models.CASCADE, related_name="cities", null=True
     )
