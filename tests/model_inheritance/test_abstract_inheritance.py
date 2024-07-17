@@ -440,33 +440,46 @@ class AbstractInheritanceTests(SimpleTestCase):
             "Model5", (Mixin2, ConcreteModel2, Mixin, AbstractModel), model_dict.copy()
         )
 
+        pk_field = ConcreteModel._meta.pk.__class__
         self.assertEqual(
             fields(model1),
             [
-                ("id", models.BigAutoField),
+                ("id", pk_field),
                 ("name", models.CharField),
                 ("age", models.IntegerField),
             ],
         )
 
         self.assertEqual(
-            fields(model2), [("id", models.BigAutoField), ("name", models.CharField)]
+            fields(model2),
+            [
+                ("id", pk_field),
+                ("name", models.CharField),
+            ],
         )
         self.assertEqual(getattr(model2, "age"), 2)
 
         self.assertEqual(
-            fields(model3), [("id", models.BigAutoField), ("name", models.CharField)]
+            fields(model3),
+            [
+                ("id", pk_field),
+                ("name", models.CharField),
+            ],
         )
 
         self.assertEqual(
-            fields(model4), [("id", models.BigAutoField), ("name", models.CharField)]
+            fields(model4),
+            [
+                ("id", pk_field),
+                ("name", models.CharField),
+            ],
         )
         self.assertEqual(getattr(model4, "age"), 2)
 
         self.assertEqual(
             fields(model5),
             [
-                ("id", models.BigAutoField),
+                ("id", pk_field),
                 ("foo", models.IntegerField),
                 ("concretemodel_ptr", models.OneToOneField),
                 ("age", models.SmallIntegerField),

@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import connection, models
 from django.db.models.functions import Lower
 from django.utils.functional import SimpleLazyObject
@@ -58,7 +60,7 @@ class PascalCaseName(models.Model):
 
 
 class ColumnTypes(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
     big_int_field = models.BigIntegerField()
     bool_field = models.BooleanField(default=False)
     null_bool_field = models.BooleanField(null=True)

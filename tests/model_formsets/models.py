@@ -1,6 +1,8 @@
 import datetime
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -93,7 +95,7 @@ class Place(models.Model):
 
 
 class Owner(models.Model):
-    auto_id = models.AutoField(primary_key=True)
+    auto_id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=100)
     place = models.ForeignKey(Place, models.CASCADE)
 

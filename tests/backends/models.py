@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -47,7 +49,7 @@ class SchoolBus(models.Model):
 
 
 class VeryLongModelNameZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ(models.Model):
-    primary_key_is_quite_long_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = models.AutoField(
+    primary_key_is_quite_long_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = ObjectIdAutoField(
         primary_key=True
     )
     charfield_is_quite_long_zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz = models.CharField(
@@ -165,7 +167,7 @@ class Book(models.Model):
 
 
 class SQLKeywordsModel(models.Model):
-    id = models.AutoField(primary_key=True, db_column="select")
+    id = ObjectIdAutoField(primary_key=True, db_column="select")
     reporter = models.ForeignKey(Reporter, models.CASCADE, db_column="where")
 
     class Meta:

@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -11,7 +13,7 @@ class Membership(models.Model):
 
 # using custom id column to test ticket #11107
 class UserMembership(models.Model):
-    id = models.AutoField(db_column="usermembership_id", primary_key=True)
+    id = ObjectIdAutoField(db_column="usermembership_id", primary_key=True)
     user = models.ForeignKey(User, models.CASCADE)
     group = models.ForeignKey("Group", models.CASCADE)
     price = models.IntegerField(default=100)

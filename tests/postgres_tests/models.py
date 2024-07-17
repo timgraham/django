@@ -103,11 +103,13 @@ class TextFieldModel(models.Model):
 
 
 class SmallAutoFieldModel(models.Model):
-    id = models.SmallAutoField(primary_key=True)
+    # id = models.SmallAutoField(primary_key=True)
+    pass
 
 
 class BigAutoFieldModel(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    # id = models.BigAutoField(primary_key=True)
+    pass
 
 
 # Scene/Character/Line models are used to test full text search. They're

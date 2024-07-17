@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -36,7 +38,7 @@ class Coffee(models.Model):
 
 
 class MixedCaseIDColumn(models.Model):
-    id = models.AutoField(primary_key=True, db_column="MiXeD_CaSe_Id")
+    id = ObjectIdAutoField(primary_key=True, db_column="MiXeD_CaSe_Id")
 
 
 class Reviewer(models.Model):

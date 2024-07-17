@@ -4,6 +4,8 @@ Various complex queries that have been problematic in the past.
 
 import datetime
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import connection, models
 from django.db.models.functions import Now
 
@@ -436,7 +438,7 @@ class ChildObjectA(ObjectA):
 class ObjectB(models.Model):
     name = models.CharField(max_length=50)
     objecta = models.ForeignKey(ObjectA, models.CASCADE)
-    num = models.PositiveIntegerField()
+    num = models.CharField(max_length=24)
 
     def __str__(self):
         return self.name
@@ -636,7 +638,7 @@ class MyObject(models.Model):
 
 
 class Order(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = ObjectIdAutoField(primary_key=True)
     name = models.CharField(max_length=12, null=True, default="")
 
     class Meta:
@@ -648,7 +650,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, models.CASCADE, related_name="items")
-    status = models.IntegerField()
+    status = models.CharField(max_length=24)
 
     class Meta:
         ordering = ("pk",)
@@ -686,13 +688,13 @@ class StaffUser(BaseUser):
 
 
 class Ticket21203Parent(models.Model):
-    parentid = models.AutoField(primary_key=True)
+    parentid = ObjectIdAutoField(primary_key=True)
     parent_bool = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now=True)
 
 
 class Ticket21203Child(models.Model):
-    childid = models.AutoField(primary_key=True)
+    childid = ObjectIdAutoField(primary_key=True)
     parent = models.ForeignKey(Ticket21203Parent, models.CASCADE)
 
 

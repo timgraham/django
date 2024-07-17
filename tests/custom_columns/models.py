@@ -15,11 +15,13 @@ from the default generated name, use the ``db_table`` parameter on the
 
 """
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
 class Author(models.Model):
-    Author_ID = models.AutoField(primary_key=True, db_column="Author ID")
+    Author_ID = ObjectIdAutoField(primary_key=True, db_column="Author ID")
     first_name = models.CharField(max_length=30, db_column="firstname")
     last_name = models.CharField(max_length=30, db_column="last")
 
@@ -32,7 +34,7 @@ class Author(models.Model):
 
 
 class Article(models.Model):
-    Article_ID = models.AutoField(primary_key=True, db_column="Article ID")
+    Article_ID = ObjectIdAutoField(primary_key=True, db_column="Article ID")
     headline = models.CharField(max_length=100)
     authors = models.ManyToManyField(Author, db_table="my_m2m_table")
     primary_author = models.ForeignKey(

@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 
@@ -46,7 +48,7 @@ class Parent1(models.Model):
 
 class Parent2(models.Model):
     # Avoid having two "id" fields in the Child1 subclass
-    id2 = models.AutoField(primary_key=True)
+    id2 = ObjectIdAutoField(primary_key=True)
     name2 = models.CharField(max_length=50)
 
 
