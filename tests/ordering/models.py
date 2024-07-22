@@ -50,7 +50,7 @@ class OrderedByAuthorArticle(Article):
 class OrderedByFArticle(Article):
     class Meta:
         proxy = True
-        ordering = (models.F("author").asc(nulls_first=True), "id")
+        ordering = (models.F("author").asc(), "id")
 
 
 class ChildArticle(Article):
