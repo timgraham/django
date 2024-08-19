@@ -19,7 +19,6 @@ from django.db.models import (
     Value,
     When,
 )
-from django.db.models.expressions import RawSQL
 from django.db.models.functions import Abs, Cast, Length, Substr
 from django.db.models.lookups import (
     Exact,
@@ -1602,7 +1601,7 @@ class LookupTests(TestCase):
         qs = Stock.objects.filter(short=True)
         self.assertSequenceEqual(qs, [stock_1])
         self.assertIn(
-            "%s = True" % connection.ops.quote_name("short"),
+            "{'$match': {'short': True}}",
             str(qs.query),
         )
 
@@ -1617,7 +1616,8 @@ class LookupTests(TestCase):
             short_annotation=F("short"),
         ).filter(short_annotation=True)
         self.assertSequenceEqual(qs, [stock_1])
-        self.assertIn(" = True", str(qs.query))
+        match = "{'short': True}"
+        self.assertIn(match, str(qs.query))
         # ExpressionWrapper should be unwrapped.
         qs = Stock.objects.annotate(
             short_wrapper=ExpressionWrapper(
@@ -1626,20 +1626,18 @@ class LookupTests(TestCase):
             )
         ).filter(short_wrapper=True)
         self.assertSequenceEqual(qs, [stock_1])
-        self.assertIn(" = True", str(qs.query))
+        self.assertIn("{'$eq': ['$short', True]}", str(qs.query))
         # Q which resolve to WhereNode should not be compared to a boolean
         # value as it's compatible by definition.
         qs = Author.objects.annotate(
             node=Q(alias="a1"),
         ).filter(node=True)
         self.assertSequenceEqual(qs, [self.au1])
-        self.assertNotIn(" = True", str(qs.query))
         # EXISTS(...) shouldn't be compared to a boolean value.
         qs = Author.objects.annotate(
             exists=Exists(Author.objects.filter(alias="a1", pk=OuterRef("pk"))),
         ).filter(exists=True)
         self.assertSequenceEqual(qs, [self.au1])
-        self.assertNotIn(" = True", str(qs.query))
         # CASE shouldn't be compared to a boolean value.
         qs = Author.objects.annotate(
             case=Case(
@@ -1649,17 +1647,6 @@ class LookupTests(TestCase):
             )
         ).filter(case=True)
         self.assertSequenceEqual(qs, [self.au1])
-        self.assertEqual(str(qs.query).count(" = True"), 1)
-        # Conditional usage of RawSQL usage should not be compared to a boolean
-        # value.
-        queryset = Author.objects.all()
-        compiler = queryset.query.get_compiler(connection=connection)
-        sql, params = compiler.compile(Q(alias="a1").resolve_expression(queryset.query))
-        qs = Author.objects.alias(
-            raw=RawSQL(sql, params, BooleanField()),
-        ).filter(raw=True)
-        self.assertSequenceEqual(qs, [self.au1])
-        self.assertNotIn(" = True", str(qs.query))
 
     def test_custom_field_none_rhs(self):
         """

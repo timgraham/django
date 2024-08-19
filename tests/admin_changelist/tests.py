@@ -208,7 +208,7 @@ class ChangeListTests(TestCase):
         with CaptureQueriesContext(connection) as context:
             object_count = cl.queryset.count()
         self.assertEqual(object_count, 1)
-        self.assertEqual(context.captured_queries[0]["sql"].count("JOIN"), 1)
+        self.assertEqual(context.captured_queries[0]["sql"].count("$lookup"), 1)
 
     def test_related_field_multiple_search_terms(self):
         """
@@ -1438,11 +1438,12 @@ class ChangeListTests(TestCase):
         with CaptureQueriesContext(connection) as context:
             response = self.client.post(changelist_url, data=data)
             self.assertEqual(response.status_code, 200)
-            self.assertIn("WHERE", context.captured_queries[4]["sql"])
-            self.assertIn("IN", context.captured_queries[4]["sql"])
-            # Check only the first few characters since the UUID may have
+            # Check only the first few characters of the pk since the UUID has
             # dashes.
-            self.assertIn(str(a.pk)[:8], context.captured_queries[4]["sql"])
+            self.assertIn(
+                "{'$match': {'uuid': {'$in': ('%s" % str(a.pk)[:8],
+                context.captured_queries[4]["sql"],
+            )
 
     def test_list_editable_error_title(self):
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
