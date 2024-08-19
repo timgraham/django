@@ -19,7 +19,7 @@ class Publisher(models.Model):
 class ItemTag(models.Model):
     tag = models.CharField(max_length=100)
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.CharField(max_length=24)
     content_object = GenericForeignKey("content_type", "object_id")
 
 
