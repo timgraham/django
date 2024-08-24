@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import migrations, models
 
 
@@ -6,7 +8,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             "Author",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 ("name", models.CharField(max_length=255)),
                 ("slug", models.SlugField(null=True)),
                 ("age", models.IntegerField(default=0)),
@@ -16,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             "Tribble",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 ("fluffy", models.BooleanField(default=True)),
             ],
         ),

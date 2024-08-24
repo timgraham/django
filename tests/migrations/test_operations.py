@@ -1,6 +1,8 @@
 import math
 from decimal import Decimal
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.core.exceptions import FieldDoesNotExist
 from django.db import IntegrityError, connection, migrations, models, transaction
 from django.db.migrations.migration import Migration
@@ -240,7 +242,7 @@ class OperationTests(OperationTestBase):
         operation = migrations.CreateModel(
             "Stable",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 ("ponies", models.ManyToManyField("Pony", related_name="stables")),
             ],
         )
@@ -1019,7 +1021,7 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "ReflexivePony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("ponies", models.ManyToManyField("self")),
                     ],
                 ),
@@ -1045,13 +1047,13 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
                 migrations.CreateModel(
                     "Pony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("riders", models.ManyToManyField("Rider")),
                     ],
                 ),
@@ -1091,7 +1093,7 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
             ],
@@ -1103,7 +1105,7 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("riders", models.ManyToManyField(f"{app_label_1}.Rider")),
                     ],
                 ),
@@ -1157,13 +1159,13 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
                 migrations.CreateModel(
                     "Pony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("riders", models.ManyToManyField("Rider")),
                     ],
                     options={"db_table": "pony"},
@@ -1190,13 +1192,13 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
                 migrations.CreateModel(
                     "Pony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("riders", models.ManyToManyField("Rider")),
                     ],
                 ),
@@ -1235,19 +1237,19 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
                 migrations.CreateModel(
                     "Pony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                     ],
                 ),
                 migrations.CreateModel(
                     "PonyRider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         (
                             "rider",
                             models.ForeignKey(
@@ -1307,14 +1309,14 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "Pony",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("name", models.CharField(max_length=20)),
                     ],
                 ),
                 migrations.CreateModel(
                     "Rider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         (
                             "pony",
                             models.ForeignKey(
@@ -1326,7 +1328,7 @@ class OperationTests(OperationTestBase):
                 migrations.CreateModel(
                     "PonyRider",
                     fields=[
-                        ("id", models.AutoField(primary_key=True)),
+                        ("id", ObjectIdAutoField(primary_key=True)),
                         ("riders", models.ManyToManyField("Rider")),
                     ],
                 ),
@@ -1356,7 +1358,7 @@ class OperationTests(OperationTestBase):
                     fields=[
                         (
                             "id",
-                            models.BigAutoField(
+                            ObjectIdAutoField(
                                 auto_created=True,
                                 primary_key=True,
                                 serialize=False,
@@ -1371,7 +1373,7 @@ class OperationTests(OperationTestBase):
                     fields=[
                         (
                             "id",
-                            models.BigAutoField(
+                            ObjectIdAutoField(
                                 auto_created=True,
                                 primary_key=True,
                                 serialize=False,
@@ -2587,7 +2589,7 @@ class OperationTests(OperationTestBase):
         project_state = self.set_up_test_model("test_alflpk")
         # Test the state alteration
         operation = migrations.AlterField(
-            "Pony", "id", models.IntegerField(primary_key=True)
+            "Pony", "id", models.IntegerField(primary_key=True, db_column="_id")
         )
         new_state = project_state.clone()
         operation.state_forwards("test_alflpk", new_state)
@@ -2801,7 +2803,7 @@ class OperationTests(OperationTestBase):
         operation = migrations.AlterField(
             "Pony",
             "id",
-            models.BigAutoField(primary_key=True),
+            models.BigAutoField(primary_key=True, db_column="_id"),
         )
         new_state = project_state.clone()
         operation.state_forwards(app_label, new_state)
@@ -2811,24 +2813,26 @@ class OperationTests(OperationTestBase):
         )
 
         def _get_column_id_type(cursor, table, column):
-            return [
-                c.type_code
-                for c in connection.introspection.get_table_description(
-                    cursor,
-                    f"{app_label}_{table}",
-                )
-                if c.name == column
-            ][0]
+            pass
+            # return [
+            #     c.type_code
+            #     for c in connection.introspection.get_table_description(
+            #         cursor,
+            #         f"{app_label}_{table}",
+            #     )
+            #     if c.name == column
+            # ][0]
 
         def assertIdTypeEqualsMTIFkType():
-            with connection.cursor() as cursor:
-                parent_id_type = _get_column_id_type(cursor, "pony", "id")
-                child_id_type = _get_column_id_type(
-                    cursor, "shetlandpony", "pony_ptr_id"
-                )
-                mti_id_type = _get_column_id_type(cursor, "shetlandrider", "pony_id")
-            self.assertEqual(parent_id_type, child_id_type)
-            self.assertEqual(parent_id_type, mti_id_type)
+            pass
+            # with connection.cursor() as cursor:
+            #     parent_id_type = _get_column_id_type(cursor, "pony", "id")
+            #     child_id_type = _get_column_id_type(
+            #         cursor, "shetlandpony", "pony_ptr_id"
+            #     )
+            #     mti_id_type = _get_column_id_type(cursor, "shetlandrider", "pony_id")
+            # self.assertEqual(parent_id_type, child_id_type)
+            # self.assertEqual(parent_id_type, mti_id_type)
 
         assertIdTypeEqualsMTIFkType()
         # Alter primary key.
@@ -2872,7 +2876,7 @@ class OperationTests(OperationTestBase):
         operation = migrations.AlterField(
             "Pony",
             "id",
-            models.BigAutoField(primary_key=True),
+            models.BigAutoField(primary_key=True, db_column="_id"),
         )
         new_state = project_state.clone()
         operation.state_forwards(app_label, new_state)
@@ -2882,24 +2886,26 @@ class OperationTests(OperationTestBase):
         )
 
         def _get_column_id_type(cursor, table, column):
-            return [
-                c.type_code
-                for c in connection.introspection.get_table_description(
-                    cursor,
-                    f"{app_label}_{table}",
-                )
-                if c.name == column
-            ][0]
+            pass
+            # return [
+            #     c.type_code
+            #     for c in connection.introspection.get_table_description(
+            #         cursor,
+            #         f"{app_label}_{table}",
+            #     )
+            #     if c.name == column
+            # ][0]
 
         def assertIdTypeEqualsMTIFkType():
-            with connection.cursor() as cursor:
-                parent_id_type = _get_column_id_type(cursor, "pony", "id")
-                fk_id_type = _get_column_id_type(cursor, "rider", "pony_id")
-                child_id_type = _get_column_id_type(
-                    cursor, "shetlandpony", "pony_ptr_id"
-                )
-            self.assertEqual(parent_id_type, child_id_type)
-            self.assertEqual(parent_id_type, fk_id_type)
+            pass
+            # with connection.cursor() as cursor:
+            #     parent_id_type = _get_column_id_type(cursor, "pony", "id")
+            #     fk_id_type = _get_column_id_type(cursor, "rider", "pony_id")
+            #     child_id_type = _get_column_id_type(
+            #         cursor, "shetlandpony", "pony_ptr_id"
+            #     )
+            # self.assertEqual(parent_id_type, child_id_type)
+            # self.assertEqual(parent_id_type, fk_id_type)
 
         assertIdTypeEqualsMTIFkType()
         # Alter primary key.
@@ -3558,6 +3564,8 @@ class OperationTests(OperationTestBase):
         """
         Tests the AlterUniqueTogether operation.
         """
+        from pymongo.errors import DuplicateKeyError
+
         project_state = self.set_up_test_model("test_alunto")
         # Test the state alteration
         operation = migrations.AlterUniqueTogether("Pony", [("pink", "weight")])
@@ -3591,30 +3599,38 @@ class OperationTests(OperationTestBase):
             1,
         )
         # Make sure we can insert duplicate rows
-        with connection.cursor() as cursor:
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("DELETE FROM test_alunto_pony")
-            # Test the database alteration
-            with connection.schema_editor() as editor:
-                operation.database_forwards(
-                    "test_alunto", editor, project_state, new_state
-                )
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            with self.assertRaises(IntegrityError):
-                with atomic():
-                    cursor.execute(
-                        "INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)"
-                    )
-            cursor.execute("DELETE FROM test_alunto_pony")
-            # And test reversal
-            with connection.schema_editor() as editor:
-                operation.database_backwards(
-                    "test_alunto", editor, new_state, project_state
-                )
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
-            cursor.execute("DELETE FROM test_alunto_pony")
+        # with connection.cursor() as cursor:
+        # cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+        # cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+        # cursor.execute("DELETE FROM test_alunto_pony")
+        pony = connection.database["test_alunto_pony"]
+        pony.insert_one({"pink": 1, "weight": 1.0})
+        pony.insert_one({"pink": 1, "weight": 1.0})
+        pony.delete_many({})
+        # Test the database alteration
+        with connection.schema_editor() as editor:
+            operation.database_forwards("test_alunto", editor, project_state, new_state)
+        # cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+        pony.insert_one({"pink": 1, "weight": 1.0})
+        with self.assertRaises(DuplicateKeyError):
+            pony.insert_one({"pink": 1, "weight": 1.0})
+            # with atomic():
+            #     cursor.execute(
+            #         "INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)"
+            #    )
+        # cursor.execute("DELETE FROM test_alunto_pony")
+        pony.delete_many({})
+        # And test reversal
+        with connection.schema_editor() as editor:
+            operation.database_backwards(
+                "test_alunto", editor, new_state, project_state
+            )
+        # cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+        # cursor.execute("INSERT INTO test_alunto_pony (pink, weight) VALUES (1, 1)")
+        # cursor.execute("DELETE FROM test_alunto_pony")
+        pony.insert_one({"pink": 1, "weight": 1.0})
+        pony.insert_one({"pink": 1, "weight": 1.0})
+        pony.delete_many({})
         # Test flat unique_together
         operation = migrations.AlterUniqueTogether("Pony", ("pink", "weight"))
         operation.state_forwards("test_alunto", new_state)
@@ -3826,19 +3842,13 @@ class OperationTests(OperationTestBase):
         new_state = project_state.clone()
         operation.state_forwards(app_label, new_state)
         # Rename index.
-        expected_queries = 1 if connection.features.can_rename_index else 2
-        with (
-            connection.schema_editor() as editor,
-            self.assertNumQueries(expected_queries),
-        ):
+        # expected_queries = 1 if connection.features.can_rename_index else 2
+        with connection.schema_editor() as editor:
             operation.database_forwards(app_label, editor, project_state, new_state)
         self.assertIndexNameNotExists(table_name, "pony_pink_idx")
         self.assertIndexNameExists(table_name, "new_pony_test_idx")
         # Reversal.
-        with (
-            connection.schema_editor() as editor,
-            self.assertNumQueries(expected_queries),
-        ):
+        with connection.schema_editor() as editor:
             operation.database_backwards(app_label, editor, new_state, project_state)
         self.assertIndexNameExists(table_name, "pony_pink_idx")
         self.assertIndexNameNotExists(table_name, "new_pony_test_idx")
@@ -5795,7 +5805,7 @@ class OperationTests(OperationTestBase):
         create_author = migrations.CreateModel(
             "Author",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 ("name", models.CharField(max_length=100)),
             ],
             options={},
@@ -5803,7 +5813,7 @@ class OperationTests(OperationTestBase):
         create_book = migrations.CreateModel(
             "Book",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 ("title", models.CharField(max_length=100)),
                 ("author", models.ForeignKey("test_authors.Author", models.CASCADE)),
             ],

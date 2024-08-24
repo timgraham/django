@@ -466,16 +466,16 @@ class ExecutorTests(MigrationTestBase):
 
         # Leave the tables for 0001 except the many-to-many table. That missing
         # table should cause detect_soft_applied() to return False.
-        with connection.schema_editor() as editor:
-            for table in tables[2:]:
-                editor.execute(editor.sql_delete_table % {"table": table})
+        for table in tables[2:]:
+            connection.database[table].drop()
+            # editor.execute(editor.sql_delete_table % {"table": table})
         migration = executor.loader.get_migration("migrations", "0001_initial")
         self.assertIs(executor.detect_soft_applied(None, migration)[0], False)
 
         # Cleanup by removing the remaining tables.
-        with connection.schema_editor() as editor:
-            for table in tables[:2]:
-                editor.execute(editor.sql_delete_table % {"table": table})
+        for table in tables[:2]:
+            connection.database[table].drop()
+            # editor.execute(editor.sql_delete_table % {"table": table})
         for table in tables:
             self.assertTableNotExists(table)
 
@@ -689,11 +689,13 @@ class ExecutorTests(MigrationTestBase):
             # Rebuild the graph to reflect the new DB state
             executor.loader.build_graph()
         finally:
+            connection.database["book_app_book"].drop()
+            connection.database["author_app_author"].drop()
             # We can't simply unapply the migrations here because there is no
             # implicit cast from VARCHAR to INT on the database level.
-            with connection.schema_editor() as editor:
-                editor.execute(editor.sql_delete_table % {"table": "book_app_book"})
-                editor.execute(editor.sql_delete_table % {"table": "author_app_author"})
+            # with connection.schema_editor() as editor:
+            #   editor.execute(editor.sql_delete_table % {"table": "book_app_book"})
+            #   editor.execute(editor.sql_delete_table % {"table": "author_app_author"})
             self.assertTableNotExists("author_app_author")
             self.assertTableNotExists("book_app_book")
             executor.migrate([("author_app", None)], fake=True)

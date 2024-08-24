@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import migrations, models
 
 
@@ -13,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             "Book",
             [
-                ("id", models.AutoField(primary_key=True)),
+                ("id", ObjectIdAutoField(primary_key=True)),
                 (
                     "author",
                     models.ForeignKey("migrations.Author", models.SET_NULL, null=True),
