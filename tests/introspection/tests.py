@@ -34,15 +34,14 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_django_table_names(self):
-        with connection.cursor() as cursor:
-            cursor.execute("CREATE TABLE django_ixn_test_table (id INTEGER);")
-            tl = connection.introspection.django_table_names()
-            cursor.execute("DROP TABLE django_ixn_test_table;")
-            self.assertNotIn(
-                "django_ixn_test_table",
-                tl,
-                "django_table_names() returned a non-Django table",
-            )
+        connection.database.create_collection("django_ixn_test_table")
+        tl = connection.introspection.django_table_names()
+        connection.database["django_ixn_test_table"].drop()
+        self.assertNotIn(
+            "django_ixn_test_table",
+            tl,
+            "django_table_names() returned a non-Django table",
+        )
 
     def test_django_table_names_retval_type(self):
         # Table name is a list #15216
