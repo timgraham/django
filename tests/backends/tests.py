@@ -272,14 +272,12 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
 
         connection_created.connect(receiver)
         connection.close()
-        with connection.cursor():
-            pass
+        connection.connect()
         self.assertIs(data["connection"].connection, connection.connection)
-
+        connection.close()
         connection_created.disconnect(receiver)
         data.clear()
-        with connection.cursor():
-            pass
+        connection.connect()
         self.assertEqual(data, {})
 
 
