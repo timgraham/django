@@ -79,7 +79,7 @@ class LastExecutedQueryTest(TestCase):
     def test_debug_sql(self):
         list(Reporter.objects.filter(first_name="test"))
         sql = connection.queries[-1]["sql"].lower()
-        self.assertIn("select", sql)
+        self.assertIn("$match", sql)
         self.assertIn(Reporter._meta.db_table, sql)
 
     def test_query_encoding(self):
@@ -262,14 +262,12 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
 
         connection_created.connect(receiver)
         connection.close()
-        with connection.cursor():
-            pass
+        connection.connect()
         self.assertIs(data["connection"].connection, connection.connection)
-
+        connection.close()
         connection_created.disconnect(receiver)
         data.clear()
-        with connection.cursor():
-            pass
+        connection.connect()
         self.assertEqual(data, {})
 
 
