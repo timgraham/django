@@ -14,7 +14,7 @@ from django.db.models.functions import Mod
 from django.test import TestCase, skipIfDBFeature, skipUnlessDBFeature
 from django.test.utils import CaptureQueriesContext
 
-from .models import Author, Celebrity, ExtraInfo, Number, ReservedName
+from .models import Author, Celebrity, ExtraInfo, Number, Report, ReservedName
 
 
 @skipUnlessDBFeature("supports_select_union")
@@ -131,6 +131,31 @@ class QuerySetSetOperationTests(TestCase):
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             ordered=False,
         )
+
+    def test_union_with_different_models(self):
+        expected_result = {
+            "Angel",
+            "Lionel",
+            "Emiliano",
+            "Demetrio",
+            "Daniel",
+            "Javier",
+        }
+        Celebrity.objects.create(name="Angel")
+        Celebrity.objects.create(name="Lionel")
+        Celebrity.objects.create(name="Emiliano")
+        Celebrity.objects.create(name="Demetrio")
+        Report.objects.create(name="Demetrio")
+        Report.objects.create(name="Daniel")
+        Report.objects.create(name="Javier")
+        qs1 = Celebrity.objects.values(alias=F("name"))
+        qs2 = Report.objects.values(alias_author=F("name"))
+        qs3 = qs1.union(qs2).values("name")
+        self.assertCountEqual((e["name"] for e in qs3), expected_result)
+        qs4 = qs1.union(qs2)
+        self.assertCountEqual((e["alias"] for e in qs4), expected_result)
+        qs5 = qs2.union(qs1)
+        self.assertCountEqual((e["alias_author"] for e in qs5), expected_result)
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection_with_empty_qs(self):
@@ -499,6 +524,16 @@ class QuerySetSetOperationTests(TestCase):
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__lte=5)
         self.assertEqual(qs1.intersection(qs2).count(), 1)
+
+    @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
+    def test_count_union_with_select_related_projected(self):
+        e1 = ExtraInfo.objects.create(value=1, info="e1")
+        a1 = Author.objects.create(name="a1", num=1, extra=e1)
+        qs = Author.objects.select_related("extra").values("pk", "name", "extra__value")
+        self.assertEqual(len(qs.union(qs)), 1)
+        self.assertEqual(
+            qs.union(qs).first(), {"pk": a1.id, "name": "a1", "extra__value": 1}
+        )
 
     def test_exists_union(self):
         qs1 = Number.objects.filter(num__gte=5)
