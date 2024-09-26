@@ -107,9 +107,9 @@ class ProxyModelTests(TestCase):
         Proxy models are included in the ancestors for a model's DoesNotExist
         and MultipleObjectsReturned
         """
-        Person.objects.create(name="Foo McBar")
-        MyPerson.objects.create(name="Bazza del Frob")
-        LowerStatusPerson.objects.create(status="low", name="homer")
+        Person.objects.create(name="Foo McBar", pk=1)
+        MyPerson.objects.create(name="Bazza del Frob", pk=2)
+        LowerStatusPerson.objects.create(status="low", name="homer", pk=3)
         max_id = Person.objects.aggregate(max_id=models.Max("id"))["max_id"]
 
         with self.assertRaises(Person.DoesNotExist):
@@ -119,8 +119,8 @@ class ProxyModelTests(TestCase):
         with self.assertRaises(Person.DoesNotExist):
             StatusPerson.objects.get(name="Zathras")
 
-        StatusPerson.objects.create(name="Bazza Jr.")
-        StatusPerson.objects.create(name="Foo Jr.")
+        StatusPerson.objects.create(name="Bazza Jr.", pk=4)
+        StatusPerson.objects.create(name="Foo Jr.", pk=5)
         max_id = Person.objects.aggregate(max_id=models.Max("id"))["max_id"]
 
         with self.assertRaises(Person.MultipleObjectsReturned):

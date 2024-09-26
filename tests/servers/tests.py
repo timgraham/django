@@ -93,6 +93,7 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
         # its database connections.
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
+        conn.close()
         # Open a connection to the database.
         conn.connect()
         self.assertIsNotNone(conn.connection)

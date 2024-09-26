@@ -249,7 +249,8 @@ class GenericRelationTests(TestCase):
         HasLinkThing.objects.create()
         b = Board.objects.create(name=str(hs1.pk))
         Link.objects.create(content_object=hs2)
-        link = Link.objects.create(content_object=hs1)
+        # An integer PK is required for the Sum() queryset that follows.
+        link = Link.objects.create(content_object=hs1, pk=10)
         Link.objects.create(content_object=b)
         qs = HasLinkThing.objects.annotate(Sum("links")).filter(pk=hs1.pk)
         # If content_type restriction isn't in the query's join condition,
@@ -263,11 +264,11 @@ class GenericRelationTests(TestCase):
         # clear cached results
         qs = qs.all()
         self.assertEqual(qs.count(), 1)
-        # Note - 0 here would be a nicer result...
-        self.assertIs(qs[0].links__sum, None)
+        # Unlike other databases, MongoDB returns 0 instead of null (None).
+        self.assertIs(qs[0].links__sum, 0)
         # Finally test that filtering works.
-        self.assertEqual(qs.filter(links__sum__isnull=True).count(), 1)
-        self.assertEqual(qs.filter(links__sum__isnull=False).count(), 0)
+        self.assertEqual(qs.filter(links__sum__isnull=True).count(), 0)
+        self.assertEqual(qs.filter(links__sum__isnull=False).count(), 1)
 
     def test_filter_targets_related_pk(self):
         # Use hardcoded PKs to ensure different PKs for "link" and "hs2"

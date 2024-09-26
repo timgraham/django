@@ -1,6 +1,6 @@
 [
     {
-        "pk": "2",
+        "pk": "6708500773c47166dfa11512",
         "model": "fixtures_model_package.article",
         "fields": {
             "headline": "Poker has no place on ESPN",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "pk": "3",
+        "pk": "6708500773c47166dfa11513",
         "model": "fixtures_model_package.article",
         "fields": {
             "headline": "Time to reform copyright",

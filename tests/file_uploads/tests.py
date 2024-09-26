@@ -9,6 +9,8 @@ from io import BytesIO, StringIO
 from unittest import mock
 from urllib.parse import quote
 
+from bson import ObjectId
+
 from django.conf import DEFAULT_STORAGE_ALIAS
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files import temp as tempfile
@@ -792,7 +794,7 @@ class FileUploadTests(TestCase):
             "multipart/form-data; boundary=%(boundary)s" % vars,
         )
         self.assertEqual(response.status_code, 200)
-        id = int(response.content)
+        id = ObjectId(response.content.decode())
         obj = FileModel.objects.get(pk=id)
         # The name of the file uploaded and the file stored in the server-side
         # shouldn't differ.

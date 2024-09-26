@@ -206,7 +206,7 @@ class ChangeListTests(TestCase):
         with CaptureQueriesContext(connection) as context:
             object_count = cl.queryset.count()
         self.assertEqual(object_count, 1)
-        self.assertEqual(context.captured_queries[0]["sql"].count("JOIN"), 1)
+        self.assertEqual(context.captured_queries[0]["sql"].count("$lookup"), 1)
 
     def test_related_field_multiple_search_terms(self):
         """
@@ -421,7 +421,7 @@ class ChangeListTests(TestCase):
         # make sure that hidden fields are in the correct place
         hiddenfields_div = (
             '<div class="hiddenfields">'
-            '<input type="hidden" name="form-0-id" value="%d" id="id_form-0-id">'
+            '<input type="hidden" name="form-0-id" value="%s" id="id_form-0-id">'
             "</div>"
         ) % new_child.id
         self.assertInHTML(
@@ -781,7 +781,9 @@ class ChangeListTests(TestCase):
         cl = m.get_changelist_instance(request)
         self.assertEqual(cl.queryset.count(), 1)
 
-        request = self.factory.get("/concert/", data={SEARCH_VAR: band.pk + 5})
+        request = self.factory.get(
+            "/concert/", data={SEARCH_VAR: "6722e37ac32eaa8ecf4eec61"}
+        )
         request.user = self.superuser
         cl = m.get_changelist_instance(request)
         self.assertEqual(cl.queryset.count(), 0)
@@ -1259,10 +1261,12 @@ class ChangeListTests(TestCase):
         with CaptureQueriesContext(connection) as context:
             response = self.client.post(changelist_url, data=data)
             self.assertEqual(response.status_code, 200)
-            self.assertIn("WHERE", context.captured_queries[4]["sql"])
-            self.assertIn("IN", context.captured_queries[4]["sql"])
-            # Check only the first few characters since the UUID may have dashes.
-            self.assertIn(str(a.pk)[:8], context.captured_queries[4]["sql"])
+            # Check only the first few characters of the pk since the UUID has
+            # dashes.
+            self.assertIn(
+                "{'$match': {'$expr': {'$in': ['$uuid', ['%s" % str(a.pk)[:8],
+                context.captured_queries[4]["sql"],
+            )
 
     def test_deterministic_order_for_unordered_model(self):
         """

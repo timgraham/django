@@ -20,6 +20,7 @@ class LiveServerThreadTest(TransactionTestCase):
         conn = connections[DEFAULT_DB_ALIAS]
         # Pass a connection to the thread to check they are being closed.
         connections_override = {DEFAULT_DB_ALIAS: conn}
+        conn.close()
         # Open a connection to the database.
         conn.connect()
         conn.inc_thread_sharing()

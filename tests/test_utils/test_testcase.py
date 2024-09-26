@@ -56,7 +56,7 @@ class TestTestCase(TestCase):
 
     def test_disallowed_database_queries(self):
         message = (
-            "Database queries to 'other' are not allowed in this test. "
+            "Database connections to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_testcase.TestTestCase.databases to "
             "ensure proper test isolation and silence this failure."
         )

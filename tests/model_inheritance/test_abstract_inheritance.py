@@ -1,3 +1,5 @@
+import django_mongodb_backend
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.checks import Error
@@ -416,30 +418,42 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertEqual(
             fields(model1),
             [
-                ("id", models.AutoField),
+                ("id", django_mongodb_backend.fields.ObjectIdAutoField),
                 ("name", models.CharField),
                 ("age", models.IntegerField),
             ],
         )
 
         self.assertEqual(
-            fields(model2), [("id", models.AutoField), ("name", models.CharField)]
+            fields(model2),
+            [
+                ("id", django_mongodb_backend.fields.ObjectIdAutoField),
+                ("name", models.CharField),
+            ],
         )
         self.assertEqual(getattr(model2, "age"), 2)
 
         self.assertEqual(
-            fields(model3), [("id", models.AutoField), ("name", models.CharField)]
+            fields(model3),
+            [
+                ("id", django_mongodb_backend.fields.ObjectIdAutoField),
+                ("name", models.CharField),
+            ],
         )
 
         self.assertEqual(
-            fields(model4), [("id", models.AutoField), ("name", models.CharField)]
+            fields(model4),
+            [
+                ("id", django_mongodb_backend.fields.ObjectIdAutoField),
+                ("name", models.CharField),
+            ],
         )
         self.assertEqual(getattr(model4, "age"), 2)
 
         self.assertEqual(
             fields(model5),
             [
-                ("id", models.AutoField),
+                ("id", django_mongodb_backend.fields.ObjectIdAutoField),
                 ("foo", models.IntegerField),
                 ("concretemodel_ptr", models.OneToOneField),
                 ("age", models.SmallIntegerField),

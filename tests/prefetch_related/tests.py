@@ -1252,8 +1252,8 @@ class GenericRelationTests(TestCase):
             self.assertEqual(
                 result,
                 [
-                    (book1_pk, ct.pk, None),
-                    (self.book2.pk, ct.pk, self.book2),
+                    (str(book1_pk), ct.pk, None),
+                    (str(self.book2.pk), ct.pk, self.book2),
                 ],
             )
 

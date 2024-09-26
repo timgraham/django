@@ -224,7 +224,7 @@ class ModelInheritanceTests(TestCase):
                 test()
                 for query in queries:
                     sql = query["sql"]
-                    self.assertIn("INSERT INTO", sql, sql)
+                    self.assertIn(".insert_many(", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
         restaurant = Restaurant.objects.create()

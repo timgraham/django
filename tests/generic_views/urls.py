@@ -1,11 +1,27 @@
+from bson import ObjectId
+
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
-from django.urls import path, re_path
+from django.urls import path, re_path, register_converter
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView, dates
 
 from . import views
 from .models import Book
+
+
+class ObjectIdConverter:
+    regex = "[0-9a-f]{24}"
+
+    def to_python(self, value):
+        return ObjectId(value)
+
+    def to_url(self, value):
+        return str(value)
+
+
+register_converter(ObjectIdConverter, "objectId")
+
 
 urlpatterns = [
     # TemplateView
@@ -37,8 +53,8 @@ urlpatterns = [
     ),
     # DetailView
     path("detail/obj/", views.ObjectDetail.as_view()),
-    path("detail/artist/<int:pk>/", views.ArtistDetail.as_view(), name="artist_detail"),
-    path("detail/author/<int:pk>/", views.AuthorDetail.as_view(), name="author_detail"),
+    path("detail/artist/<str:pk>/", views.ArtistDetail.as_view(), name="artist_detail"),
+    path("detail/author/<str:pk>/", views.AuthorDetail.as_view(), name="author_detail"),
     path(
         "detail/author/bycustompk/<foo>/",
         views.AuthorDetail.as_view(pk_url_kwarg="foo"),
@@ -48,29 +64,32 @@ urlpatterns = [
         "detail/author/bycustomslug/<foo>/",
         views.AuthorDetail.as_view(slug_url_kwarg="foo"),
     ),
-    path("detail/author/bypkignoreslug/<int:pk>-<slug>/", views.AuthorDetail.as_view()),
     path(
-        "detail/author/bypkandslug/<int:pk>-<slug>/",
+        "detail/author/bypkignoreslug/<objectId:pk>-<slug>/",
+        views.AuthorDetail.as_view(),
+    ),
+    path(
+        "detail/author/bypkandslug/<objectId:pk>-<slug>/",
         views.AuthorDetail.as_view(query_pk_and_slug=True),
     ),
     path(
-        "detail/author/<int:pk>/template_name_suffix/",
+        "detail/author/<str:pk>/template_name_suffix/",
         views.AuthorDetail.as_view(template_name_suffix="_view"),
     ),
     path(
-        "detail/author/<int:pk>/template_name/",
+        "detail/author/<str:pk>/template_name/",
         views.AuthorDetail.as_view(template_name="generic_views/about.html"),
     ),
     path(
-        "detail/author/<int:pk>/context_object_name/",
+        "detail/author/<str:pk>/context_object_name/",
         views.AuthorDetail.as_view(context_object_name="thingy"),
     ),
-    path("detail/author/<int:pk>/custom_detail/", views.AuthorCustomDetail.as_view()),
+    path("detail/author/<str:pk>/custom_detail/", views.AuthorCustomDetail.as_view()),
     path(
-        "detail/author/<int:pk>/dupe_context_object_name/",
+        "detail/author/<str:pk>/dupe_context_object_name/",
         views.AuthorDetail.as_view(context_object_name="object"),
     ),
-    path("detail/page/<int:pk>/field/", views.PageDetail.as_view()),
+    path("detail/page/<str:pk>/field/", views.PageDetail.as_view()),
     path(r"detail/author/invalid/url/", views.AuthorDetail.as_view()),
     path("detail/author/invalid/qs/", views.AuthorDetail.as_view(queryset=None)),
     path("detail/nonmodel/1/", views.NonModelDetail.as_view()),
@@ -80,7 +99,7 @@ urlpatterns = [
     path("late-validation/", views.LateValidationView.as_view()),
     # Create/UpdateView
     path("edit/artists/create/", views.ArtistCreate.as_view()),
-    path("edit/artists/<int:pk>/update/", views.ArtistUpdate.as_view()),
+    path("edit/artists/<str:pk>/update/", views.ArtistUpdate.as_view()),
     path("edit/authors/create/naive/", views.NaiveAuthorCreate.as_view()),
     path(
         "edit/authors/create/redirect/",
@@ -97,46 +116,46 @@ urlpatterns = [
     path("edit/authors/create/restricted/", views.AuthorCreateRestricted.as_view()),
     re_path("^[eé]dit/authors/create/$", views.AuthorCreate.as_view()),
     path("edit/authors/create/special/", views.SpecializedAuthorCreate.as_view()),
-    path("edit/author/<int:pk>/update/naive/", views.NaiveAuthorUpdate.as_view()),
+    path("edit/author/<str:pk>/update/naive/", views.NaiveAuthorUpdate.as_view()),
     path(
-        "edit/author/<int:pk>/update/redirect/",
+        "edit/author/<str:pk>/update/redirect/",
         views.NaiveAuthorUpdate.as_view(success_url="/edit/authors/create/"),
     ),
     path(
-        "edit/author/<int:pk>/update/interpolate_redirect/",
+        "edit/author/<str:pk>/update/interpolate_redirect/",
         views.NaiveAuthorUpdate.as_view(success_url="/edit/author/{id}/update/"),
     ),
     path(
-        "edit/author/<int:pk>/update/interpolate_redirect_nonascii/",
+        "edit/author/<str:pk>/update/interpolate_redirect_nonascii/",
         views.NaiveAuthorUpdate.as_view(success_url="/%C3%A9dit/author/{id}/update/"),
     ),
-    re_path("^[eé]dit/author/(?P<pk>[0-9]+)/update/$", views.AuthorUpdate.as_view()),
+    re_path("^[eé]dit/author/(?P<pk>[0-9a-f]+)/update/$", views.AuthorUpdate.as_view()),
     path("edit/author/update/", views.OneAuthorUpdate.as_view()),
     path(
-        "edit/author/<int:pk>/update/special/", views.SpecializedAuthorUpdate.as_view()
+        "edit/author/<str:pk>/update/special/", views.SpecializedAuthorUpdate.as_view()
     ),
-    path("edit/author/<int:pk>/delete/naive/", views.NaiveAuthorDelete.as_view()),
+    path("edit/author/<str:pk>/delete/naive/", views.NaiveAuthorDelete.as_view()),
     path(
-        "edit/author/<int:pk>/delete/redirect/",
+        "edit/author/<str:pk>/delete/redirect/",
         views.NaiveAuthorDelete.as_view(success_url="/edit/authors/create/"),
     ),
     path(
-        "edit/author/<int:pk>/delete/interpolate_redirect/",
+        "edit/author/<str:pk>/delete/interpolate_redirect/",
         views.NaiveAuthorDelete.as_view(
             success_url="/edit/authors/create/?deleted={id}"
         ),
     ),
     path(
-        "edit/author/<int:pk>/delete/interpolate_redirect_nonascii/",
+        "edit/author/<str:pk>/delete/interpolate_redirect_nonascii/",
         views.NaiveAuthorDelete.as_view(
             success_url="/%C3%A9dit/authors/create/?deleted={id}"
         ),
     ),
-    path("edit/author/<int:pk>/delete/", views.AuthorDelete.as_view()),
+    path("edit/author/<str:pk>/delete/", views.AuthorDelete.as_view()),
     path(
-        "edit/author/<int:pk>/delete/special/", views.SpecializedAuthorDelete.as_view()
+        "edit/author/<str:pk>/delete/special/", views.SpecializedAuthorDelete.as_view()
     ),
-    path("edit/author/<int:pk>/delete/form/", views.AuthorDeleteFormView.as_view()),
+    path("edit/author/<str:pk>/delete/form/", views.AuthorDeleteFormView.as_view()),
     # ArchiveIndexView
     path("dates/books/", views.BookArchive.as_view()),
     path(
@@ -352,12 +371,15 @@ urlpatterns = [
     path("dates/booksignings/today/", views.BookSigningTodayArchive.as_view()),
     # DateDetailView
     path(
-        "dates/books/<int:year>/<int:month>/<day>/<int:pk>/",
+        "dates/books/<int:year>/<int:month>/<day>/<objectId:pk>/",
         views.BookDetail.as_view(month_format="%m"),
     ),
-    path("dates/books/<int:year>/<month>/<day>/<int:pk>/", views.BookDetail.as_view()),
     path(
-        "dates/books/<int:year>/<month>/<int:day>/<int:pk>/allow_future/",
+        "dates/books/<int:year>/<month>/<day>/<objectId:pk>/",
+        views.BookDetail.as_view(),
+    ),
+    path(
+        "dates/books/<int:year>/<month>/<int:day>/<str:pk>/allow_future/",
         views.BookDetail.as_view(allow_future=True),
     ),
     path("dates/books/<int:year>/<month>/<int:day>/nopk/", views.BookDetail.as_view()),
@@ -366,11 +388,11 @@ urlpatterns = [
         views.BookDetail.as_view(),
     ),
     path(
-        "dates/books/get_object_custom_queryset/<int:year>/<month>/<int:day>/<int:pk>/",
+        "dates/books/get_object_custom_queryset/<int:year>/<month>/<int:day>/<str:pk>/",
         views.BookDetailGetObjectCustomQueryset.as_view(),
     ),
     path(
-        "dates/booksignings/<int:year>/<month>/<int:day>/<int:pk>/",
+        "dates/booksignings/<int:year>/<month>/<int:day>/<str:pk>/",
         views.BookSigningDetail.as_view(),
     ),
     # Useful for testing redirects

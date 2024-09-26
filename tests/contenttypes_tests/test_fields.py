@@ -33,7 +33,7 @@ class GenericForeignKeyTests(TestCase):
 
         post = Post.objects.get(pk=post.pk)
         with self.assertNumQueries(1):
-            self.assertEqual(post.object_id, question_pk)
+            self.assertEqual(post.object_id, str(question_pk))
             self.assertIsNone(post.parent)
             self.assertIsNone(post.parent)
 

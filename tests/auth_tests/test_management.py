@@ -615,10 +615,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_environment_variable(self):
+        from bson import ObjectId
+
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
-        nonexistent_group_id = 1
-        msg = f"group instance with id {nonexistent_group_id} does not exist."
+        nonexistent_group_id = ObjectId()
+        msg = f"group instance with id {nonexistent_group_id!r} does not exist."
 
         with mock.patch.dict(
             os.environ,
@@ -1537,5 +1539,5 @@ class CreatePermissionsMultipleDatabasesTests(TestCase):
         Permission.objects.using("other").delete()
         with self.assertNumQueries(4, using="other") as captured_queries:
             create_permissions(apps.get_app_config("auth"), verbosity=0, using="other")
-        self.assertIn("INSERT INTO", captured_queries[-1]["sql"].upper())
+        self.assertIn("INSERT_MANY", captured_queries[-1]["sql"].upper())
         self.assertGreater(Permission.objects.using("other").count(), 0)

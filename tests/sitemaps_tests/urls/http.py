@@ -476,5 +476,5 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    path("i18n/testmodel/<int:id>/", testmodelview, name="i18n_testmodel"),
+    path("i18n/testmodel/<str:id>/", testmodelview, name="i18n_testmodel"),
 )

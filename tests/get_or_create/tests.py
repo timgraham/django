@@ -590,7 +590,9 @@ class UpdateOrCreateTests(TestCase):
                     )
                 self.assertIs(created, False)
                 update_sqls = [
-                    q["sql"] for q in captured_queries if q["sql"].startswith("UPDATE")
+                    q["sql"]
+                    for q in captured_queries
+                    if q["sql"].startswith("db.get_or_create_book.update_many")
                 ]
                 self.assertEqual(len(update_sqls), 1)
                 update_sql = update_sqls[0]

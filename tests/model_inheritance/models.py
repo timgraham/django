@@ -12,6 +12,8 @@ Model inheritance exists in two varieties:
 Both styles are demonstrated here.
 """
 
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.db import models
 
 #
@@ -168,7 +170,7 @@ class Base(models.Model):
 
 
 class SubBase(Base):
-    sub_id = models.IntegerField(primary_key=True)
+    sub_id = ObjectIdAutoField(primary_key=True)
 
 
 class GrandParent(models.Model):

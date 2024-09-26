@@ -15,7 +15,7 @@ urlpatterns = [
         "syndication/rss2/with-wrong-decorated-methods/",
         feeds.TestRss2FeedWithWrongDecoratedMethod(),
     ),
-    path("syndication/rss2/articles/<int:entry_id>/", feeds.TestGetObjectFeed()),
+    path("syndication/rss2/articles/<str:entry_id>/", feeds.TestGetObjectFeed()),
     path(
         "syndication/rss2/guid_ispermalink_true/",
         feeds.TestRss2FeedWithGuidIsPermaLinkTrue(),
