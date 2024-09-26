@@ -544,7 +544,7 @@ class ParentAdmin(admin.ModelAdmin):
 
 class EmptyModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(pk__gt=1)
+        return super().get_queryset(request).filter(pk__gt="000000000000000000000001")
 
 
 class OldSubscriberAdmin(admin.ModelAdmin):
@@ -722,7 +722,9 @@ class FieldOverridePostAdmin(PostAdmin):
 
 class CustomChangeList(ChangeList):
     def get_queryset(self, request):
-        return self.root_queryset.order_by("pk").filter(pk=9999)  # Doesn't exist
+        return self.root_queryset.order_by("pk").filter(
+            pk="000000000000000000000000"
+        )  # Doesn't exist
 
 
 class GadgetAdmin(admin.ModelAdmin):

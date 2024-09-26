@@ -1,25 +1,25 @@
 [
     {
-        "pk": 12,
+        "pk": "000000000000000000000012",
         "model": "fixtures_regress.person",
         "fields": {
             "name": "Greg Egan"
         }
     },
     {
-        "pk": 11,
+        "pk": "000000000000000000000011",
         "model": "fixtures_regress.store",
         "fields": {
             "name": "Angus and Robertson"
         }
     },
     {
-        "pk": 10,
+        "pk": "000000000000000000000010",
         "model": "fixtures_regress.book",
         "fields": {
             "name": "Permutation City",
-            "author": 12,
-            "stores": [11]
+            "author": "000000000000000000000012",
+            "stores": ["000000000000000000000011"]
         }
     }
 ]

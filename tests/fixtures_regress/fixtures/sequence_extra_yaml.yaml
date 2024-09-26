@@ -1,4 +1,4 @@
-- pk: "1"
+- pk: "000000000000000000000001"
   model: fixtures_regress.animal
   fields:
     name: Cat
@@ -7,7 +7,7 @@
     count: 3
     weight: 1.2
 
-- pk: "1"
+- pk: "000000000000000000000001"
   model: fixtures_regress.animal_extra
   fields:
     name: Nonexistent model

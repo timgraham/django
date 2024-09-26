@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from django.apps import apps
 from django.apps.registry import Apps
 from django.conf import settings
@@ -203,13 +205,13 @@ class SitesFrameworkTests(TestCase):
         self.assertEqual(Site.objects.get_by_natural_key(self.site.domain), self.site)
         self.assertEqual(self.site.natural_key(), (self.site.domain,))
 
-    @override_settings(SITE_ID="1")
+    @override_settings(SITE_ID="111111111111111111111111")
     def test_check_site_id_incorrect_type(self):
         self.assertEqual(
             check_site_id(None),
             [
                 checks.Error(
-                    msg="The SITE_ID setting must be of type int.",
+                    msg="The SITE_ID setting must be of type ObjectId.",
                     id="sites.E101",
                 ),
             ],
@@ -221,15 +223,17 @@ class SitesFrameworkTests(TestCase):
             check_site_id(None),
             [
                 checks.Error(
-                    msg="The SITE_ID setting failed to validate: ['“x” value "
-                    "must be an integer.'].",
+                    msg="The SITE_ID setting failed to validate: ['“x” is not "
+                    "a valid Object Id.'].",
                     id="sites.E101",
                 ),
             ],
         )
 
     def test_valid_site_id(self):
-        for site_id in [1, None]:
+        from bson import ObjectId
+
+        for site_id in [ObjectId("111111111111111111111111"), None]:
             with self.subTest(site_id=site_id), self.settings(SITE_ID=site_id):
                 self.assertEqual(check_site_id(None), [])
 
@@ -329,13 +333,13 @@ class CreateDefaultSiteTests(TestCase):
         )
         self.assertTrue(Site.objects.exists())
 
-    @override_settings(SITE_ID=35696)
+    @override_settings(SITE_ID="000000000000000000035696")
     def test_custom_site_id(self):
         """
         #23945 - The configured ``SITE_ID`` should be respected.
         """
         create_default_site(self.app_config, verbosity=0)
-        self.assertEqual(Site.objects.get().pk, 35696)
+        self.assertEqual(Site.objects.get().pk, ObjectId("000000000000000000035696"))
 
     @override_settings()  # Restore original ``SITE_ID`` afterward.
     def test_no_site_id(self):

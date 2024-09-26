@@ -91,7 +91,11 @@ class Item(models.Model):
     version = models.ForeignKey(Version, models.CASCADE)
     location = models.ForeignKey(Location, models.SET_NULL, blank=True, null=True)
     location_value = models.ForeignKey(
-        Location, models.SET(42), default=1, db_constraint=False, related_name="+"
+        Location,
+        models.SET("000000000000000000000042"),
+        default="000000000000000000000001",
+        db_constraint=False,
+        related_name="+",
     )
 
 

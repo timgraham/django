@@ -1,6 +1,6 @@
 [
     {
-    	"pk": "1",
+    	"pk": "000000000000000000000001",
     	"model": "fixtures.visa",
     	"fields": {
     	    "person": ["Django Reinhardt"],
@@ -12,7 +12,7 @@
     	}
     },
     {
-    	"pk": "2",
+    	"pk": "000000000000000000000002",
     	"model": "fixtures.visa",
     	"fields": {
     	    "person": ["Stephane Grappelli"],
@@ -22,7 +22,7 @@
     	}
     },
         {
-    	"pk": "3",
+    	"pk": "000000000000000000000003",
     	"model": "fixtures.visa",
     	"fields": {
     	    "person": ["Prince"],

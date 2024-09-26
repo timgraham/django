@@ -9,9 +9,9 @@ site = admin.AdminSite(name="custom_user_admin")
 class CustomUserAdmin(UserAdmin):
     def log_change(self, request, obj, message):
         # LogEntry.user column doesn't get altered to expect a UUID, so set an
-        # integer manually to avoid causing an error.
+        # ObjectId manually to avoid causing an error.
         original_pk = request.user.pk
-        request.user.pk = 1
+        request.user.pk = "000000000000000000000001"
         super().log_change(request, obj, message)
         request.user.pk = original_pk
 

@@ -1,6 +1,6 @@
 [
     {
-        "pk": "6",
+        "pk": "000000000000000000000006",
         "model": "fixtures.article",
         "fields": {
             "headline": "Who needs more than one database?",

@@ -169,7 +169,7 @@ class OneAuthorUpdate(generic.UpdateView):
     fields = "__all__"
 
     def get_object(self):
-        return Author.objects.get(pk=1)
+        return Author.objects.get(pk="000000000000000000000001")
 
 
 class SpecializedAuthorUpdate(generic.UpdateView):

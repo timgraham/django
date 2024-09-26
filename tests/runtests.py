@@ -13,6 +13,8 @@ import tempfile
 import warnings
 from pathlib import Path
 
+from bson import ObjectId
+
 try:
     import django
 except ImportError as e:
@@ -223,7 +225,7 @@ def setup_collect_tests(start_at, start_after, test_labels=None):
         }
     ]
     settings.LANGUAGE_CODE = "en"
-    settings.SITE_ID = 1
+    settings.SITE_ID = ObjectId("000000000000000000000001")
     settings.MIDDLEWARE = ALWAYS_MIDDLEWARE
     settings.MIGRATION_MODULES = {
         # This lets us skip creating migrations for the test models as many of

@@ -201,15 +201,21 @@ class InlineFormsetTests(TestCase):
         """
         FormSet = inlineformset_factory(UserProfile, ProfileNetwork, exclude=[])
 
-        user = User.objects.create(username="guido", serial=1337, pk=1)
-        self.assertEqual(user.pk, 1)
-        profile = UserProfile.objects.create(user=user, about="about", pk=2)
-        self.assertEqual(profile.pk, 2)
+        user = User.objects.create(
+            username="guido", serial=1337, pk="000000000000000000000001"
+        )
+        self.assertEqual(str(user.pk), "000000000000000000000001")
+        profile = UserProfile.objects.create(
+            user=user, about="about", pk="000000000000000000000002"
+        )
+        self.assertEqual(str(profile.pk), "000000000000000000000002")
         ProfileNetwork.objects.create(profile=profile, network=10, identifier=10)
         formset = FormSet(instance=profile)
 
         # Testing the inline model's relation
-        self.assertEqual(formset[0].instance.profile_id, 1)
+        self.assertEqual(
+            str(formset[0].instance.profile_id), "000000000000000000000001"
+        )
 
     def test_formset_with_none_instance(self):
         "A formset with instance=None can be created. Regression for #11872"

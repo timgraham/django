@@ -8,7 +8,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "distapp.southtexascity",
     "fields": {
       "name": "West University Place",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "distapp.southtexascity",
     "fields": {
       "name": "Southside Place",
@@ -24,7 +24,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "distapp.southtexascity",
     "fields": {
       "name": "Bellaire",
@@ -80,7 +80,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "distapp.southtexascityft",
     "fields": {
       "name": "West University Place",
@@ -88,7 +88,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "distapp.southtexascityft",
     "fields": {
       "name": "Southside Place",
@@ -96,7 +96,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "distapp.southtexascityft",
     "fields": {
       "name": "Bellaire",
@@ -152,7 +152,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "distapp.australiacity",
     "fields": {
       "name": "Shellharbour",
@@ -160,7 +160,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "distapp.australiacity",
     "fields": {
       "name": "Thirroul",
@@ -168,7 +168,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "distapp.australiacity",
     "fields": {
       "name": "Mittagong",
@@ -240,7 +240,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "distapp.censuszipcode",
     "fields": {
       "name": "77005",
@@ -248,7 +248,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "distapp.censuszipcode",
     "fields": {
       "name": "77025",
@@ -256,7 +256,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "distapp.censuszipcode",
     "fields": {
       "name": "77401",
@@ -272,7 +272,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "distapp.southtexaszipcode",
     "fields": {
       "name": "77005",
@@ -280,7 +280,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "distapp.southtexaszipcode",
     "fields": {
       "name": "77025",
@@ -288,7 +288,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "distapp.southtexaszipcode",
     "fields": {
       "name": "77401",

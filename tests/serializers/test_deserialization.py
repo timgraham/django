@@ -2,6 +2,8 @@ import json
 import textwrap
 import unittest
 
+from bson import ObjectId
+
 from django.core.exceptions import SuspiciousOperation
 from django.core.serializers.base import DeserializationError, DeserializedObject
 from django.core.serializers.json import Deserializer as JsonDeserializer
@@ -23,17 +25,26 @@ except ImportError:
 class TestDeserializer(SimpleTestCase):
     def setUp(self):
         self.object_list = [
-            {"pk": 1, "model": "serializers.author", "fields": {"name": "Jane"}},
-            {"pk": 2, "model": "serializers.author", "fields": {"name": "Joe"}},
+            {
+                "pk": "000000000000000000000001",
+                "model": "serializers.author",
+                "fields": {"name": "Jane"},
+            },
+            {
+                "pk": "000000000000000000000002",
+                "model": "serializers.author",
+                "fields": {"name": "Joe"},
+            },
         ]
         self.deserializer = Deserializer(self.object_list)
-        self.jane = Author(name="Jane", pk=1)
-        self.joe = Author(name="Joe", pk=2)
+        self.jane = Author(name="Jane", pk=ObjectId("000000000000000000000001"))
+        self.joe = Author(name="Joe", pk=ObjectId("000000000000000000000002"))
 
     def test_deserialized_object_repr(self):
         deserial_obj = DeserializedObject(obj=self.jane)
         self.assertEqual(
-            repr(deserial_obj), "<DeserializedObject: serializers.Author(pk=1)>"
+            repr(deserial_obj),
+            "<DeserializedObject: serializers.Author(pk=000000000000000000000001)>",
         )
 
     def test_next_functionality(self):
@@ -49,7 +60,11 @@ class TestDeserializer(SimpleTestCase):
 
     def test_invalid_model_identifier(self):
         invalid_object_list = [
-            {"pk": 1, "model": "serializers.author2", "fields": {"name": "Jane"}}
+            {
+                "pk": "000000000000000000000001",
+                "model": "serializers.author2",
+                "fields": {"name": "Jane"},
+            }
         ]
         self.deserializer = Deserializer(invalid_object_list)
         with self.assertRaises(DeserializationError):
@@ -90,11 +105,12 @@ class TestDeserializer(SimpleTestCase):
         self.assertEqual(second_item.object, self.joe)
 
     def test_jsonl_bytes_input(self):
-        test_string = """
-        {"pk": 1, "model": "serializers.author", "fields": {"name": "Jane"}}
-        {"pk": 2, "model": "serializers.author", "fields": {"name": "Joe"}}
-        {"pk": 3, "model": "serializers.author", "fields": {"name": "John"}}
-        {"pk": 4, "model": "serializers.author", "fields": {"name": "Smith"}}"""
+        zeros = "00000000000000000000000"
+        test_string = f"""
+{{"pk": "{zeros}1", "model": "serializers.author", "fields": {{"name": "Jane"}}}}
+{{"pk": "{zeros}2", "model": "serializers.author", "fields": {{"name": "Joe"}}}}
+{{"pk": "{zeros}3", "model": "serializers.author", "fields": {{"name": "John"}}}}
+{{"pk": "{zeros}4", "model": "serializers.author", "fields": {{"name": "Smith"}}}}"""
         stream = test_string.encode("utf-8")
         deserializer = JsonlDeserializer(stream_or_string=stream)
 
@@ -108,22 +124,22 @@ class TestDeserializer(SimpleTestCase):
     def test_yaml_bytes_input(self):
         from django.core.serializers.pyyaml import Deserializer as YamlDeserializer
 
-        test_string = """- pk: 1
+        test_string = """- pk: "000000000000000000000001"
   model: serializers.author
   fields:
     name: Jane
 
-- pk: 2
+- pk: "000000000000000000000002"
   model: serializers.author
   fields:
     name: Joe
 
-- pk: 3
+- pk: "000000000000000000000003"
   model: serializers.author
   fields:
     name: John
 
-- pk: 4
+- pk: "000000000000000000000004"
   model: serializers.author
   fields:
     name: Smith
@@ -146,7 +162,7 @@ class TestDeserializer(SimpleTestCase):
         field_content = f"{nested_open}{leaf}{nested_close}"
         crafted_xml = textwrap.dedent(f"""
         <django-objects version="1.0">
-            <object model="contenttypes.contenttype" pk="1">
+            <object model="contenttypes.contenttype" pk="000000000000000000000001">
                 <field name="app_label">{field_content}</field>
                 <field name="model">m</field>
             </object>

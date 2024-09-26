@@ -1,10 +1,9 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "test_utils.person",
         "fields": {
             "name": "Elvis Presley"
         }
     }
 ]
-

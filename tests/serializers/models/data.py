@@ -7,6 +7,8 @@ The basic idea is to have a model for each Django data type.
 
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdField
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -108,7 +110,7 @@ class Tag(models.Model):
 
     data = models.SlugField()
     content_type = models.ForeignKey(ContentType, models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = ObjectIdField()
 
     content_object = GenericForeignKey()
 

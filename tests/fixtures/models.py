@@ -10,6 +10,8 @@ in the application directory, or in one of the directories named in the
 
 import uuid
 
+from django_mongodb_backend.fields import ObjectIdField
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -56,7 +58,7 @@ class Tag(models.Model):
     tagged_type = models.ForeignKey(
         ContentType, models.CASCADE, related_name="fixtures_tag_set"
     )
-    tagged_id = models.PositiveIntegerField(default=0)
+    tagged_id = ObjectIdField(default="000000000000000000000000")
     tagged = GenericForeignKey(ct_field="tagged_type", fk_field="tagged_id")
 
     def __str__(self):

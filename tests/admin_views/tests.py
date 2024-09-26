@@ -1893,7 +1893,7 @@ class AdminCustomTemplateTests(AdminViewBasicTestCase):
             data={
                 "index": 0,
                 "action": ["delete_selected"],
-                "_selected_action": ["1"],
+                "_selected_action": [str(article_pk)],
             },
         )
         self.assertTemplateUsed(
@@ -3985,8 +3985,12 @@ class AdminViewDeletedObjectsTest(TestCase):
         cls.ssh1 = SuperSecretHideout.objects.create(
             location="super floating castle!", supervillain=cls.sv1
         )
-        cls.cy1 = CyclicOne.objects.create(pk=1, name="I am recursive", two_id=1)
-        cls.cy2 = CyclicTwo.objects.create(pk=1, name="I am recursive too", one_id=1)
+        cls.cy1 = CyclicOne.objects.create(
+            pk="000000000000000000000001", name="I am recursive", two_id=1
+        )
+        cls.cy2 = CyclicTwo.objects.create(
+            pk="000000000000000000000001", name="I am recursive too", one_id=1
+        )
 
     def setUp(self):
         self.client.force_login(self.superuser)
@@ -4901,12 +4905,22 @@ class AdminViewListEditable(TestCase):
         )
 
     def test_list_editable_ordering(self):
-        collector = Collector.objects.create(id=1, name="Frederick Clegg")
+        collector = Collector.objects.create(
+            id="000000000000000000000001", name="Frederick Clegg"
+        )
 
-        Category.objects.create(id=1, order=1, collector=collector)
-        Category.objects.create(id=2, order=2, collector=collector)
-        Category.objects.create(id=3, order=0, collector=collector)
-        Category.objects.create(id=4, order=0, collector=collector)
+        Category.objects.create(
+            id="000000000000000000000001", order=1, collector=collector
+        )
+        Category.objects.create(
+            id="000000000000000000000002", order=2, collector=collector
+        )
+        Category.objects.create(
+            id="000000000000000000000003", order=0, collector=collector
+        )
+        Category.objects.create(
+            id="000000000000000000000004", order=0, collector=collector
+        )
 
         # NB: The order values must be changed so that the items are reordered.
         data = {
@@ -4914,16 +4928,16 @@ class AdminViewListEditable(TestCase):
             "form-INITIAL_FORMS": "4",
             "form-MAX_NUM_FORMS": "0",
             "form-0-order": "14",
-            "form-0-id": "1",
+            "form-0-id": "000000000000000000000001",
             "form-0-collector": "1",
             "form-1-order": "13",
-            "form-1-id": "2",
+            "form-1-id": "000000000000000000000002",
             "form-1-collector": "1",
             "form-2-order": "1",
-            "form-2-id": "3",
+            "form-2-id": "000000000000000000000003",
             "form-2-collector": "1",
             "form-3-order": "0",
-            "form-3-id": "4",
+            "form-3-id": "000000000000000000000004",
             "form-3-collector": "1",
             # The form processing understands this as a list_editable "Save"
             # and not an action "Run".
@@ -4936,18 +4950,24 @@ class AdminViewListEditable(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # The order values have been applied to the right objects
-        self.assertEqual(Category.objects.get(id=1).order, 14)
-        self.assertEqual(Category.objects.get(id=2).order, 13)
-        self.assertEqual(Category.objects.get(id=3).order, 1)
-        self.assertEqual(Category.objects.get(id=4).order, 0)
+        self.assertEqual(Category.objects.get(id="000000000000000000000001").order, 14)
+        self.assertEqual(Category.objects.get(id="000000000000000000000002").order, 13)
+        self.assertEqual(Category.objects.get(id="000000000000000000000003").order, 1)
+        self.assertEqual(Category.objects.get(id="000000000000000000000004").order, 0)
 
     def test_list_editable_pagination(self):
         """
         Pagination works for list_editable items.
         """
-        UnorderedObject.objects.create(id=1, name="Unordered object #1")
-        UnorderedObject.objects.create(id=2, name="Unordered object #2")
-        UnorderedObject.objects.create(id=3, name="Unordered object #3")
+        UnorderedObject.objects.create(
+            id="000000000000000000000001", name="Unordered object #1"
+        )
+        UnorderedObject.objects.create(
+            id="000000000000000000000002", name="Unordered object #2"
+        )
+        UnorderedObject.objects.create(
+            id="000000000000000000000003", name="Unordered object #3"
+        )
         response = self.client.get(
             reverse("admin:admin_views_unorderedobject_changelist")
         )
@@ -5454,7 +5474,7 @@ class AdminCustomQuerysetTest(TestCase):
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
-        cls.pks = [EmptyModel.objects.create().id for i in range(3)]
+        cls.pks = [EmptyModel.objects.create(id=f"{i+1:024}").id for i in range(3)]
 
     def setUp(self):
         self.client.force_login(self.superuser)
@@ -5467,7 +5487,7 @@ class AdminCustomQuerysetTest(TestCase):
     def test_changelist_view(self):
         response = self.client.get(reverse("admin:admin_views_emptymodel_changelist"))
         for i in self.pks:
-            if i > 1:
+            if str(i) > "000000000000000000000001":
                 self.assertContains(response, "Primary key = %s" % i)
             else:
                 self.assertNotContains(response, "Primary key = %s" % i)
@@ -5504,13 +5524,16 @@ class AdminCustomQuerysetTest(TestCase):
         for i in self.pks:
             url = reverse("admin:admin_views_emptymodel_change", args=(i,))
             response = self.client.get(url, follow=True)
-            if i > 1:
+            if str(i) > "000000000000000000000001":
                 self.assertEqual(response.status_code, 200)
             else:
                 self.assertRedirects(response, reverse("admin:index"))
                 self.assertEqual(
                     [m.message for m in response.context["messages"]],
-                    ["empty model with ID “1” doesn’t exist. Perhaps it was deleted?"],
+                    [
+                        "empty model with ID “000000000000000000000001” doesn’t "
+                        "exist. Perhaps it was deleted?"
+                    ],
                 )
 
     def test_add_model_modeladmin_defer_qs(self):
@@ -5824,7 +5847,9 @@ class AdminInlineTests(TestCase):
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
-        cls.collector = Collector.objects.create(pk=1, name="John Fowles")
+        cls.collector = Collector.objects.create(
+            id="000000000000000000000001", name="John Fowles"
+        )
 
     def setUp(self):
         self.post_data = {
@@ -5833,59 +5858,59 @@ class AdminInlineTests(TestCase):
             "widget_set-INITIAL_FORMS": "0",
             "widget_set-MAX_NUM_FORMS": "0",
             "widget_set-0-id": "",
-            "widget_set-0-owner": "1",
+            "widget_set-0-owner": str(self.collector.pk),
             "widget_set-0-name": "",
             "widget_set-1-id": "",
-            "widget_set-1-owner": "1",
+            "widget_set-1-owner": str(self.collector.pk),
             "widget_set-1-name": "",
             "widget_set-2-id": "",
-            "widget_set-2-owner": "1",
+            "widget_set-2-owner": str(self.collector.pk),
             "widget_set-2-name": "",
             "doohickey_set-TOTAL_FORMS": "3",
             "doohickey_set-INITIAL_FORMS": "0",
             "doohickey_set-MAX_NUM_FORMS": "0",
-            "doohickey_set-0-owner": "1",
+            "doohickey_set-0-owner": str(self.collector.pk),
             "doohickey_set-0-code": "",
             "doohickey_set-0-name": "",
-            "doohickey_set-1-owner": "1",
+            "doohickey_set-1-owner": str(self.collector.pk),
             "doohickey_set-1-code": "",
             "doohickey_set-1-name": "",
-            "doohickey_set-2-owner": "1",
+            "doohickey_set-2-owner": str(self.collector.pk),
             "doohickey_set-2-code": "",
             "doohickey_set-2-name": "",
             "grommet_set-TOTAL_FORMS": "3",
             "grommet_set-INITIAL_FORMS": "0",
             "grommet_set-MAX_NUM_FORMS": "0",
             "grommet_set-0-code": "",
-            "grommet_set-0-owner": "1",
+            "grommet_set-0-owner": str(self.collector.pk),
             "grommet_set-0-name": "",
             "grommet_set-1-code": "",
-            "grommet_set-1-owner": "1",
+            "grommet_set-1-owner": str(self.collector.pk),
             "grommet_set-1-name": "",
             "grommet_set-2-code": "",
-            "grommet_set-2-owner": "1",
+            "grommet_set-2-owner": str(self.collector.pk),
             "grommet_set-2-name": "",
             "whatsit_set-TOTAL_FORMS": "3",
             "whatsit_set-INITIAL_FORMS": "0",
             "whatsit_set-MAX_NUM_FORMS": "0",
-            "whatsit_set-0-owner": "1",
+            "whatsit_set-0-owner": str(self.collector.pk),
             "whatsit_set-0-index": "",
             "whatsit_set-0-name": "",
-            "whatsit_set-1-owner": "1",
+            "whatsit_set-1-owner": str(self.collector.pk),
             "whatsit_set-1-index": "",
             "whatsit_set-1-name": "",
-            "whatsit_set-2-owner": "1",
+            "whatsit_set-2-owner": str(self.collector.pk),
             "whatsit_set-2-index": "",
             "whatsit_set-2-name": "",
             "fancydoodad_set-TOTAL_FORMS": "3",
             "fancydoodad_set-INITIAL_FORMS": "0",
             "fancydoodad_set-MAX_NUM_FORMS": "0",
             "fancydoodad_set-0-doodad_ptr": "",
-            "fancydoodad_set-0-owner": "1",
+            "fancydoodad_set-0-owner": str(self.collector.pk),
             "fancydoodad_set-0-name": "",
             "fancydoodad_set-0-expensive": "on",
             "fancydoodad_set-1-doodad_ptr": "",
-            "fancydoodad_set-1-owner": "1",
+            "fancydoodad_set-1-owner": str(self.collector.pk),
             "fancydoodad_set-1-name": "",
             "fancydoodad_set-1-expensive": "on",
             "fancydoodad_set-2-doodad_ptr": "",
@@ -5897,13 +5922,13 @@ class AdminInlineTests(TestCase):
             "category_set-MAX_NUM_FORMS": "0",
             "category_set-0-order": "",
             "category_set-0-id": "",
-            "category_set-0-collector": "1",
+            "category_set-0-collector": str(self.collector.pk),
             "category_set-1-order": "",
             "category_set-1-id": "",
-            "category_set-1-collector": "1",
+            "category_set-1-collector": str(self.collector.pk),
             "category_set-2-order": "",
             "category_set-2-id": "",
-            "category_set-2-collector": "1",
+            "category_set-2-collector": str(self.collector.pk),
         }
 
         self.client.force_login(self.superuser)
@@ -6099,10 +6124,18 @@ class AdminInlineTests(TestCase):
         An inline with an editable ordering fields is updated correctly.
         """
         # Create some objects with an initial ordering
-        Category.objects.create(id=1, order=1, collector=self.collector)
-        Category.objects.create(id=2, order=2, collector=self.collector)
-        Category.objects.create(id=3, order=0, collector=self.collector)
-        Category.objects.create(id=4, order=0, collector=self.collector)
+        Category.objects.create(
+            id="000000000000000000000001", order=1, collector=self.collector
+        )
+        Category.objects.create(
+            id="000000000000000000000002", order=2, collector=self.collector
+        )
+        Category.objects.create(
+            id="000000000000000000000003", order=0, collector=self.collector
+        )
+        Category.objects.create(
+            id="000000000000000000000004", order=0, collector=self.collector
+        )
 
         # NB: The order values must be changed so that the items are reordered.
         self.post_data.update(
@@ -6112,26 +6145,26 @@ class AdminInlineTests(TestCase):
                 "category_set-INITIAL_FORMS": "4",
                 "category_set-MAX_NUM_FORMS": "0",
                 "category_set-0-order": "14",
-                "category_set-0-id": "1",
-                "category_set-0-collector": "1",
+                "category_set-0-id": "000000000000000000000001",
+                "category_set-0-collector": str(self.collector.pk),
                 "category_set-1-order": "13",
-                "category_set-1-id": "2",
-                "category_set-1-collector": "1",
+                "category_set-1-id": "000000000000000000000002",
+                "category_set-1-collector": str(self.collector.pk),
                 "category_set-2-order": "1",
-                "category_set-2-id": "3",
-                "category_set-2-collector": "1",
+                "category_set-2-id": "000000000000000000000003",
+                "category_set-2-collector": str(self.collector.pk),
                 "category_set-3-order": "0",
-                "category_set-3-id": "4",
-                "category_set-3-collector": "1",
+                "category_set-3-id": "000000000000000000000004",
+                "category_set-3-collector": str(self.collector.pk),
                 "category_set-4-order": "",
                 "category_set-4-id": "",
-                "category_set-4-collector": "1",
+                "category_set-4-collector": str(self.collector.pk),
                 "category_set-5-order": "",
                 "category_set-5-id": "",
-                "category_set-5-collector": "1",
+                "category_set-5-collector": str(self.collector.pk),
                 "category_set-6-order": "",
                 "category_set-6-id": "",
-                "category_set-6-collector": "1",
+                "category_set-6-collector": str(self.collector.pk),
             }
         )
         collector_url = reverse(
@@ -6143,10 +6176,10 @@ class AdminInlineTests(TestCase):
 
         # The order values have been applied to the right objects
         self.assertEqual(self.collector.category_set.count(), 4)
-        self.assertEqual(Category.objects.get(id=1).order, 14)
-        self.assertEqual(Category.objects.get(id=2).order, 13)
-        self.assertEqual(Category.objects.get(id=3).order, 1)
-        self.assertEqual(Category.objects.get(id=4).order, 0)
+        self.assertEqual(Category.objects.get(id="000000000000000000000001").order, 14)
+        self.assertEqual(Category.objects.get(id="000000000000000000000002").order, 13)
+        self.assertEqual(Category.objects.get(id="000000000000000000000003").order, 1)
+        self.assertEqual(Category.objects.get(id="000000000000000000000004").order, 0)
 
 
 @override_settings(ROOT_URLCONF="admin_views.urls")
@@ -8829,7 +8862,7 @@ class AdminUserMessageTest(TestCase):
         message with the level has appeared in the response.
         """
         action_data = {
-            ACTION_CHECKBOX_NAME: [1],
+            ACTION_CHECKBOX_NAME: ["000000000000000000000001"],
             "action": "message_%s" % level,
             "index": 0,
         }
@@ -8861,7 +8894,7 @@ class AdminUserMessageTest(TestCase):
 
     def test_message_extra_tags(self):
         action_data = {
-            ACTION_CHECKBOX_NAME: [1],
+            ACTION_CHECKBOX_NAME: ["000000000000000000000001"],
             "action": "message_extra_tags",
             "index": 0,
         }

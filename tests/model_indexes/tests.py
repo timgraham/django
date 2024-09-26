@@ -287,7 +287,8 @@ class SimpleIndexesTests(SimpleTestCase):
             index_names,
             [
                 "model_index_title_196f42_idx",
-                "model_index_isbn_34f975_idx",
+                # Edited since MongoDB's id column is _id.
+                "model_index_isbn_8cecda_idx",
                 "model_indexes_book_barcode_idx",
             ],
         )

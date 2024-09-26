@@ -1,6 +1,6 @@
 [
     {
-        "pk": "2",
+        "pk": "000000000000000000000002",
         "model": "fixtures.article",
         "fields": {
             "headline": "Poker has no place on ESPN\u0000",

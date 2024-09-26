@@ -108,7 +108,7 @@ class Event(models.Model):
     main_band = models.ForeignKey(
         Band,
         models.CASCADE,
-        limit_choices_to=models.Q(pk__gt=0),
+        limit_choices_to=models.Q(pk__gt="000000000000000000000000"),
         related_name="events_main_band_at",
     )
     supporting_bands = models.ManyToManyField(

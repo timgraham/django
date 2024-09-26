@@ -230,14 +230,14 @@ class BulkCreateTests(TestCase):
         """
         TwoFields.objects.bulk_create(
             [
-                TwoFields(id=i if i % 2 == 0 else None, f1=i, f2=i + 1)
+                TwoFields(id=f"{i:024}" if i % 2 == 0 else None, f1=i, f2=i + 1)
                 for i in range(100000, 101000)
             ]
         )
         self.assertEqual(TwoFields.objects.count(), 1000)
         # We can't assume much about the ID's created, except that the above
         # created IDs must exist.
-        id_range = range(100000, 101000, 2)
+        id_range = [f"{i:024}" for i in range(100000, 101000, 2)]
         self.assertEqual(TwoFields.objects.filter(id__in=id_range).count(), 500)
         self.assertEqual(TwoFields.objects.exclude(id__in=id_range).count(), 500)
 
@@ -250,7 +250,7 @@ class BulkCreateTests(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             TwoFields.objects.bulk_create(
                 [
-                    TwoFields(id=i if i % 2 == 0 else None, f1=i, f2=i + 1)
+                    TwoFields(id=f"{i:024}" if i % 2 == 0 else None, f1=i, f2=i + 1)
                     for i in range(100000, 101000)
                 ]
             )

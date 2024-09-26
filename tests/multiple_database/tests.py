@@ -900,7 +900,7 @@ class QueryTestCase(TestCase):
         new_bob_profile = UserProfile(flavor="spring surprise")
 
         # assigning a profile requires an explicit pk as the object isn't saved
-        charlie = User(pk=51, username="charlie", email="charlie@example.com")
+        charlie = User(username="charlie", email="charlie@example.com")
         charlie.set_unusable_password()
 
         # initially, no db assigned
@@ -1669,16 +1669,16 @@ class RouterTestCase(TestCase):
         "M2M relations can cross databases if the database share a source"
         # Create books and authors on the inverse to the usual database
         pro = Book.objects.using("other").create(
-            pk=1, title="Pro Django", published=datetime.date(2008, 12, 16)
+            title="Pro Django", published=datetime.date(2008, 12, 16)
         )
 
-        marty = Person.objects.using("other").create(pk=1, name="Marty Alchin")
+        marty = Person.objects.using("other").create(name="Marty Alchin")
 
         dive = Book.objects.using("default").create(
-            pk=2, title="Dive into Python", published=datetime.date(2009, 5, 4)
+            title="Dive into Python", published=datetime.date(2009, 5, 4)
         )
 
-        mark = Person.objects.using("default").create(pk=2, name="Mark Pilgrim")
+        mark = Person.objects.using("default").create(name="Mark Pilgrim")
 
         # Now save back onto the usual database.
         # This simulates primary/replica - the objects exist on both database,
@@ -1761,7 +1761,7 @@ class RouterTestCase(TestCase):
         # If you create an object through a M2M relation, it will be
         # written to the write database, even if the original object
         # was on the read database
-        alice = dive.authors.create(name="Alice", pk=3)
+        alice = dive.authors.create(name="Alice")
         self.assertEqual(alice._state.db, "default")
 
         # Same goes for get_or_create, regardless of whether getting or
@@ -1769,7 +1769,9 @@ class RouterTestCase(TestCase):
         alice, created = dive.authors.get_or_create(name="Alice")
         self.assertEqual(alice._state.db, "default")
 
-        bob, created = dive.authors.get_or_create(name="Bob", defaults={"pk": 4})
+        bob, created = dive.authors.get_or_create(
+            name="Bob", defaults={"pk": "000000000000000000000004"}
+        )
         self.assertEqual(bob._state.db, "default")
 
     def test_o2o_cross_database_protection(self):
@@ -1882,10 +1884,10 @@ class RouterTestCase(TestCase):
         managers
         """
         pro = Book.objects.using("other").create(
-            pk=1, title="Pro Django", published=datetime.date(2008, 12, 16)
+            title="Pro Django", published=datetime.date(2008, 12, 16)
         )
 
-        marty = Person.objects.using("other").create(pk=1, name="Marty Alchin")
+        marty = Person.objects.using("other").create(name="Marty Alchin")
 
         self.assertEqual(pro.authors.db, "other")
         self.assertEqual(pro.authors.db_manager("default").db, "default")
@@ -1900,9 +1902,8 @@ class RouterTestCase(TestCase):
         FK reverse relations are represented by managers, and can be controlled
         like managers.
         """
-        marty = Person.objects.using("other").create(pk=1, name="Marty Alchin")
+        marty = Person.objects.using("other").create(name="Marty Alchin")
         Book.objects.using("other").create(
-            pk=1,
             title="Pro Django",
             published=datetime.date(2008, 12, 16),
             editor=marty,

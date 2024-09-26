@@ -1,6 +1,6 @@
 [
     {
-        "pk": "3",
+        "pk": "000000000000000000000003",
         "model": "fixtures.article",
         "fields": {
             "headline": "Copyright is fine the way it is",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "pk": "4",
+        "pk": "000000000000000000000004",
         "model": "fixtures.article",
         "fields": {
             "headline": "Django conquers world!",

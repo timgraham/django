@@ -1,20 +1,20 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "multiple_database.person",
         "fields": {
             "name": "Marty Alchin"
         }
     },
     {
-        "pk": 2,
+        "pk": "000000000000000000000002",
         "model": "multiple_database.person",
         "fields": {
             "name": "George Vilches"
         }
     },
     {
-        "pk": 2,
+        "pk": "000000000000000000000002",
         "model": "multiple_database.book",
         "fields": {
             "title": "Pro Django",

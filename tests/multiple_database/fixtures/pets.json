@@ -1,18 +1,18 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "multiple_database.pet",
         "fields": {
             "name": "Mr Bigglesworth",
-            "owner": 1
+            "owner": "000000000000000000000001"
         }
     },
     {
-        "pk": 2,
+        "pk": "000000000000000000000002",
         "model": "multiple_database.pet",
         "fields": {
             "name": "Spot",
-            "owner": 2
+            "owner": "000000000000000000000002"
         }
     }
 ]

@@ -1,6 +1,6 @@
 [
     {
-        "pk": "1",
+        "pk": "000000000000000000000001",
         "model": "fixtures.article",
         "fields": {
             "headline": "How To Deal With Special Characters",

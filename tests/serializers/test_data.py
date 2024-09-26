@@ -12,6 +12,8 @@ import decimal
 import uuid
 from collections import namedtuple
 
+from bson import ObjectId
+
 from django.core import serializers
 from django.db import connection, models
 from django.test import TestCase, skipIfDBFeature, skipUnlessDBFeature
@@ -79,6 +81,16 @@ from .models import (
 )
 from .tests import register_tests
 
+
+def prep_value(value):
+    """Format a data value for MongoDB (convert int to ObjectId)."""
+    return f"{value:024}" if isinstance(value, int) else value
+
+
+def value_to_object_id(value):
+    return ObjectId(f"{value:024}") if isinstance(value, int) else value
+
+
 # A set of functions that can be used to recreate
 # test data objects of various kinds.
 # The save method is a raw base model save, to make
@@ -104,7 +116,7 @@ def generic_create(pk, klass, data):
 
 def fk_create(pk, klass, data):
     instance = klass(id=pk)
-    setattr(instance, "data_id", data)
+    setattr(instance, "data_id", prep_value(data))
     models.Model.save_base(instance, raw=True)
     return [instance]
 
@@ -112,7 +124,7 @@ def fk_create(pk, klass, data):
 def m2m_create(pk, klass, data):
     instance = klass(id=pk)
     models.Model.save_base(instance, raw=True)
-    instance.data.set_base(data, raw=True)
+    instance.data.set_base([f"{d:024}" for d in data], raw=True)
     return [instance]
 
 
@@ -124,8 +136,10 @@ def im2m_create(pk, klass, data):
 
 def im_create(pk, klass, data):
     instance = klass(id=pk)
-    instance.right_id = data["right"]
-    instance.left_id = data["left"]
+    instance.right_id = (
+        f'{data["right"]:024}'  # if data is not None else data   # data["right"]
+    )
+    instance.left_id = f'{data["left"]:024}'
     if "extra" in data:
         instance.extra = data["extra"]
     models.Model.save_base(instance, raw=True)
@@ -134,7 +148,7 @@ def im_create(pk, klass, data):
 
 def o2o_create(pk, klass, data):
     instance = klass()
-    instance.data_id = data
+    instance.data_id = f"{data:024}" if data is not None else data
     models.Model.save_base(instance, raw=True)
     return [instance]
 
@@ -202,12 +216,15 @@ def generic_compare(testcase, pk, klass, data):
 
 def fk_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data, instance.data_id)
+    testcase.assertEqual(value_to_object_id(data), instance.data_id)
 
 
 def m2m_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
+    testcase.assertEqual(
+        [value_to_object_id(d) for d in data],
+        [obj.id for obj in instance.data.order_by("id")],
+    )
 
 
 def im2m_compare(testcase, pk, klass, data):
@@ -217,8 +234,8 @@ def im2m_compare(testcase, pk, klass, data):
 
 def im_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data["left"], instance.left_id)
-    testcase.assertEqual(data["right"], instance.right_id)
+    testcase.assertEqual(value_to_object_id(data["left"]), instance.left_id)
+    testcase.assertEqual(value_to_object_id(data["right"]), instance.right_id)
     if "extra" in data:
         testcase.assertEqual(data["extra"], instance.extra)
     else:
@@ -226,8 +243,8 @@ def im_compare(testcase, pk, klass, data):
 
 
 def o2o_compare(testcase, pk, klass, data):
-    instance = klass.objects.get(data=data)
-    testcase.assertEqual(data, instance.data_id)
+    instance = klass.objects.get(data=prep_value(data))
+    testcase.assertEqual(value_to_object_id(data), instance.data_id)
 
 
 def pk_compare(testcase, pk, klass, data):
@@ -424,7 +441,7 @@ def assert_serializer(self, format, data):
     objects = []
     for test_helper, pk, model, data_value in data:
         with connection.constraint_checks_disabled():
-            objects.extend(test_helper.create_object(pk, model, data_value))
+            objects.extend(test_helper.create_object(prep_value(pk), model, data_value))
 
     # Get a count of the number of objects created for each model class.
     instance_counts = {}
@@ -444,7 +461,7 @@ def assert_serializer(self, format, data):
     # Assert that the deserialized data is the same as the original source.
     for test_helper, pk, model, data_value in data:
         with self.subTest(model=model, data_value=data_value):
-            test_helper.compare_object(self, pk, model, data_value)
+            test_helper.compare_object(self, prep_value(pk), model, data_value)
 
     # Assert no new objects were created.
     for model, count in instance_counts.items():

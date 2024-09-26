@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <django-objects version="1.0">
-  <object pk="1" model="fixtures_regress.stuff">
+  <object pk="000000000000000000000001" model="fixtures_regress.stuff">
     <field type="CharField" name="name">
       <None/>
     </field>

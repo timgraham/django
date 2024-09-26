@@ -5,13 +5,13 @@
     "title": "Title of this feature article"
   },
   "model": "fixtures_regress.article",
-  "pk": 1
+  "pk": "000000000000000000000001"
 },
 {
   "fields": {
     "channels": []
   },
   "model": "fixtures_regress.feature",
-  "pk": 1
+  "pk": "000000000000000000000001"
 }
 ]

@@ -1,3 +1,5 @@
+from django_mongodb_backend.fields import ObjectIdAutoField
+
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.test import SimpleTestCase, override_settings
@@ -16,7 +18,7 @@ class TestDefaultPK(SimpleTestCase):
         class MyModel(models.Model):
             pass
 
-        self.assertIsInstance(MyModel._meta.pk, models.BigAutoField)
+        self.assertIsInstance(MyModel._meta.pk, ObjectIdAutoField)
 
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.NonexistentAutoField")
     def test_default_auto_field_setting_nonexistent(self):

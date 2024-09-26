@@ -8,7 +8,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "geogapp.city",
     "fields": {
       "name": "Dallas",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "geogapp.city",
     "fields": {
       "name": "Oklahoma City",
@@ -24,7 +24,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "geogapp.city",
     "fields": {
       "name": "Wellington",
@@ -72,7 +72,7 @@
        }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "geogapp.zipcode",
     "fields" : {
        "code" : "77005",
@@ -80,7 +80,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "geogapp.zipcode",
     "fields" : {
        "code" : "77025",
@@ -88,7 +88,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "geogapp.zipcode",
     "fields" : {
        "code" : "77401",

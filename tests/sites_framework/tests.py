@@ -16,7 +16,7 @@ class SitesFrameworkTestCase(TestCase):
             id=settings.SITE_ID, domain="example.com", name="example.com"
         )
         Site.objects.create(
-            id=settings.SITE_ID + 1, domain="example2.com", name="example2.com"
+            id="000000000000000000000002", domain="example2.com", name="example2.com"
         )
 
     def test_site_fk(self):
@@ -28,9 +28,9 @@ class SitesFrameworkTestCase(TestCase):
     def test_sites_m2m(self):
         article = SyndicatedArticle.objects.create(title="Fresh News!")
         article.sites.add(Site.objects.get(id=settings.SITE_ID))
-        article.sites.add(Site.objects.get(id=settings.SITE_ID + 1))
+        article.sites.add(Site.objects.get(id="000000000000000000000002"))
         article2 = SyndicatedArticle.objects.create(title="More News!")
-        article2.sites.add(Site.objects.get(id=settings.SITE_ID + 1))
+        article2.sites.add(Site.objects.get(id="000000000000000000000002"))
         self.assertEqual(SyndicatedArticle.on_site.get(), article)
 
     def test_custom_named_field(self):

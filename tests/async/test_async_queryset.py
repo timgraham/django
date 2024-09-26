@@ -3,6 +3,7 @@ import xml.etree.ElementTree
 from datetime import datetime
 
 from asgiref.sync import async_to_sync, sync_to_async
+from bson import ObjectId
 
 from django.db import NotSupportedError, connection
 from django.db.models import Prefetch, Sum
@@ -207,9 +208,7 @@ class AsyncQuerySetTest(TestCase):
         check = await SimpleModel.objects.acontains(self.s1)
         self.assertIs(check, True)
         # Unsaved instances are not allowed, so use an ID known not to exist.
-        check = await SimpleModel.objects.acontains(
-            SimpleModel(id=self.s3.id + 1, field=4)
-        )
+        check = await SimpleModel.objects.acontains(SimpleModel(id=ObjectId(), field=4))
         self.assertIs(check, False)
 
     async def test_aupdate(self):

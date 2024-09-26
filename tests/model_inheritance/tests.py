@@ -451,7 +451,7 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_inherited_not_updated_exception(self):
         # NotUpdated is also inherited.
-        obj = Restaurant(id=999)
+        obj = Restaurant(id="000000000000000000000999")
         with self.assertRaises(Place.NotUpdated):
             obj.save(update_fields={"name"})
 
