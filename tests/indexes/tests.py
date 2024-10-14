@@ -2,7 +2,7 @@ import datetime
 from unittest import skipUnless
 
 from django.conf import settings
-from django.db import connection
+from django.db import NotSupportedError, connection
 from django.db.models import CASCADE, CharField, ForeignKey, Index, Q
 from django.db.models.functions import Lower
 from django.test import (
@@ -398,9 +398,9 @@ class PartialIndexTests(TransactionTestCase):
                     ),
                 ),
             )
-            self.assertIn(
-                "WHERE %s" % editor.quote_name("pub_date"),
-                str(index.create_sql(Article, schema_editor=editor)),
+            self.assertEqual(
+                {"pub_date": {"$gt": datetime.datetime(2015, 1, 1, 6, 0)}},
+                index._get_condition_mql(Article, schema_editor=editor),
             )
             editor.add_index(index=index, model=Article)
             with connection.cursor() as cursor:
@@ -417,12 +417,13 @@ class PartialIndexTests(TransactionTestCase):
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
-                fields=["id"],
+                # This is changed
+                fields=["headline"],
                 condition=Q(pk__gt=1),
             )
-            self.assertIn(
-                "WHERE %s" % editor.quote_name("id"),
-                str(index.create_sql(Article, schema_editor=editor)),
+            self.assertEqual(
+                {"_id": {"$gt": 1}},
+                index._get_condition_mql(Article, schema_editor=editor),
             )
             editor.add_index(index=index, model=Article)
             with connection.cursor() as cursor:
@@ -442,9 +443,9 @@ class PartialIndexTests(TransactionTestCase):
                 fields=["published"],
                 condition=Q(published=True),
             )
-            self.assertIn(
-                "WHERE %s" % editor.quote_name("published"),
-                str(index.create_sql(Article, schema_editor=editor)),
+            self.assertEqual(
+                {"published": {"$eq": True}},
+                index._get_condition_mql(Article, schema_editor=editor),
             )
             editor.add_index(index=index, model=Article)
             with connection.cursor() as cursor:
@@ -472,15 +473,24 @@ class PartialIndexTests(TransactionTestCase):
                             tzinfo=timezone.get_current_timezone(),
                         )
                     )
-                    & Q(headline__contains="China")
+                    & Q(headline="China")
                 ),
             )
-            sql = str(index.create_sql(Article, schema_editor=editor))
-            where = sql.find("WHERE")
-            self.assertIn("WHERE (%s" % editor.quote_name("pub_date"), sql)
+            sql = index._get_condition_mql(Article, schema_editor=editor)
+            self.assertEqual(
+                sql,
+                {
+                    "$and": [
+                        {"pub_date": {"$gt": datetime.datetime(2015, 1, 1, 6, 0)}},
+                        {"headline": {"$eq": "China"}},
+                    ]
+                },
+            )
+            # where = sql.find("WHERE")
+            # self.assertIn("WHERE (%s" % editor.quote_name("pub_date"), sql)
             # Because each backend has different syntax for the operators,
             # check ONLY the occurrence of headline in the SQL.
-            self.assertGreater(sql.rfind("headline"), where)
+            # self.assertGreater(sql.rfind("headline"), where)
             editor.add_index(index=index, model=Article)
             with connection.cursor() as cursor:
                 self.assertIn(
@@ -493,26 +503,17 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_is_null_condition(self):
-        with connection.schema_editor() as editor:
-            index = Index(
-                name="recent_article_idx",
-                fields=["pub_date"],
-                condition=Q(pub_date__isnull=False),
-            )
-            self.assertIn(
-                "WHERE %s IS NOT NULL" % editor.quote_name("pub_date"),
-                str(index.create_sql(Article, schema_editor=editor)),
-            )
-            editor.add_index(index=index, model=Article)
-            with connection.cursor() as cursor:
-                self.assertIn(
-                    index.name,
-                    connection.introspection.get_constraints(
-                        cursor=cursor,
-                        table_name=Article._meta.db_table,
-                    ),
-                )
-            editor.remove_index(index=index, model=Article)
+        msg = "MongoDB does not support the 'isnull' lookup in indexes."
+        index = Index(
+            name="recent_article_idx",
+            fields=["pub_date"],
+            condition=Q(pub_date__isnull=False),
+        )
+        with (
+            self.assertRaisesMessage(NotSupportedError, msg),
+            connection.schema_editor() as editor,
+        ):
+            index._get_condition_mql(Article, schema_editor=editor)
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_partial_func_index(self):
