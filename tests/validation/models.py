@@ -214,6 +214,6 @@ class UniqueConstraintConditionProduct(models.Model):
             models.UniqueConstraint(
                 fields=["name"],
                 name="name_without_color_uniq_validation",
-                condition=models.Q(color__isnull=True),
+                condition=models.Q(color="blue"),
             ),
         ]

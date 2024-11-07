@@ -97,7 +97,7 @@ class UniqueConstraintConditionModel(models.Model):
             models.UniqueConstraint(
                 fields=["name"],
                 name="cond_name_without_color_uniq",
-                condition=models.Q(color__isnull=True),
+                condition=models.Q(color="blue"),
             ),
         ]
 

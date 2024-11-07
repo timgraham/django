@@ -855,10 +855,10 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_database_constraint_with_condition(self):
-        UniqueConstraintConditionProduct.objects.create(name="p1")
-        UniqueConstraintConditionProduct.objects.create(name="p2")
+        UniqueConstraintConditionProduct.objects.create(name="p1", color="blue")
+        UniqueConstraintConditionProduct.objects.create(name="p2", color="blue")
         with self.assertRaises(IntegrityError):
-            UniqueConstraintConditionProduct.objects.create(name="p1")
+            UniqueConstraintConditionProduct.objects.create(name="p1", color="blue")
 
     def test_model_validation(self):
         msg = "Unique constraint product with this Name and Color already exists."
@@ -874,13 +874,14 @@ class UniqueConstraintTests(TestCase):
         Model.validate_constraints().
         """
         obj1 = UniqueConstraintConditionProduct.objects.create(name="p1", color="red")
-        obj2 = UniqueConstraintConditionProduct.objects.create(name="p2")
+        obj2 = UniqueConstraintConditionProduct.objects.create(name="p2", color="blue")
         UniqueConstraintConditionProduct(
             name=obj1.name, color="blue"
         ).validate_constraints()
         msg = "Constraint “name_without_color_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
-            UniqueConstraintConditionProduct(name=obj2.name).validate_constraints()
+            p = UniqueConstraintConditionProduct(name=obj2.name, color="blue")
+            p.validate_constraints()
 
     def test_model_validation_constraint_no_code_error(self):
         class ValidateNoCodeErrorConstraint(UniqueConstraint):
@@ -986,13 +987,13 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_validate_condition(self):
-        p1 = UniqueConstraintConditionProduct.objects.create(name="p1")
+        p1 = UniqueConstraintConditionProduct.objects.create(name="p1", color="blue")
         constraint = UniqueConstraintConditionProduct._meta.constraints[0]
         msg = "Constraint “name_without_color_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
             constraint.validate(
                 UniqueConstraintConditionProduct,
-                UniqueConstraintConditionProduct(name=p1.name, color=None),
+                UniqueConstraintConditionProduct(name=p1.name, color="blue"),
             )
         # Values not matching condition are ignored.
         constraint.validate(
@@ -1010,11 +1011,11 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_validate_condition_custom_error(self):
-        p1 = UniqueConstraintConditionProduct.objects.create(name="p1")
+        p1 = UniqueConstraintConditionProduct.objects.create(name="p1", color="blue")
         constraint = models.UniqueConstraint(
             fields=["name"],
             name="name_without_color_uniq",
-            condition=models.Q(color__isnull=True),
+            condition=models.Q(color="blue"),
             violation_error_code="custom_code",
             violation_error_message="Custom message",
         )
@@ -1022,7 +1023,7 @@ class UniqueConstraintTests(TestCase):
         with self.assertRaisesMessage(ValidationError, msg) as cm:
             constraint.validate(
                 UniqueConstraintConditionProduct,
-                UniqueConstraintConditionProduct(name=p1.name, color=None),
+                UniqueConstraintConditionProduct(name=p1.name, color="blue"),
             )
         self.assertEqual(cm.exception.code, "custom_code")
 
@@ -1065,20 +1066,20 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_validate_case_when(self):
-        UniqueConstraintProduct.objects.create(name="p1")
+        UniqueConstraintProduct.objects.create(name="p1", color="blue")
         constraint = models.UniqueConstraint(
-            Case(When(color__isnull=True, then=F("name"))),
-            name="name_without_color_uniq",
+            Case(When(color="blue", then=F("name"))),
+            name="blue_names_uniq",
         )
-        msg = "Constraint “name_without_color_uniq” is violated."
+        msg = "Constraint “blue_names_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
             constraint.validate(
                 UniqueConstraintProduct,
-                UniqueConstraintProduct(name="p1"),
+                UniqueConstraintProduct(name="p1", color="blue"),
             )
         constraint.validate(
             UniqueConstraintProduct,
-            UniqueConstraintProduct(name="p1", color="green"),
+            UniqueConstraintProduct(name="p2", color="blue"),
         )
 
     def test_validate_ordered_expression(self):
@@ -1108,9 +1109,13 @@ class UniqueConstraintTests(TestCase):
         constraint = models.UniqueConstraint(
             Lower("name"),
             name="name_lower_without_color_uniq",
-            condition=models.Q(color__isnull=True),
+            condition=models.Q(color="blue"),
         )
-        non_unique_product = UniqueConstraintProduct(name=self.p2.name.upper())
+        p2 = UniqueConstraintProduct.objects.create(name="p2", color="blue")
+        non_unique_product = UniqueConstraintProduct(
+            name=p2.name.upper(),
+            color=p2.color,
+        )
         msg = "Constraint “name_lower_without_color_uniq” is violated."
         with self.assertRaisesMessage(ValidationError, msg):
             constraint.validate(UniqueConstraintProduct, non_unique_product)

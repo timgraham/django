@@ -75,8 +75,8 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints(self):
-        UniqueConstraintConditionProduct.objects.create(name="product")
-        product = UniqueConstraintConditionProduct(name="product")
+        UniqueConstraintConditionProduct.objects.create(name="product", color="blue")
+        product = UniqueConstraintConditionProduct(name="product", color="blue")
         with self.assertRaises(ValidationError) as cm:
             product.full_clean()
         self.assertEqual(
@@ -90,6 +90,6 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints_disabled(self):
-        UniqueConstraintConditionProduct.objects.create(name="product")
-        product = UniqueConstraintConditionProduct(name="product")
+        UniqueConstraintConditionProduct.objects.create(name="product", color="blue")
+        product = UniqueConstraintConditionProduct(name="product", color="blue")
         product.full_clean(validate_constraints=False)
