@@ -2051,12 +2051,10 @@ class RawQuerySet:
         params=(),
         translations=None,
         using=None,
-        hints=None,
     ):
         self.raw_query = raw_query
         self.model = model
         self._db = using
-        self._hints = hints or {}
         self.query = query or sql.RawQuery(sql=raw_query, using=self.db, params=params)
         self.params = params
         self.translations = translations or {}
@@ -2103,7 +2101,6 @@ class RawQuerySet:
             params=self.params,
             translations=self.translations,
             using=self._db,
-            hints=self._hints,
         )
         c._prefetch_related_lookups = self._prefetch_related_lookups[:]
         return c
@@ -2148,7 +2145,7 @@ class RawQuerySet:
     @property
     def db(self):
         """Return the database used if this query is executed now."""
-        return self._db or router.db_for_read(self.model, **self._hints)
+        return self._db or router.db_for_read(self.model)
 
     def using(self, alias):
         """Select the database this RawQuerySet should execute against."""
