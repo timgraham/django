@@ -83,13 +83,7 @@ class AdminActionsTest(TestCase):
             )
         # Log entries are inserted in bulk.
         self.assertEqual(
-            len(
-                [
-                    q["sql"]
-                    for q in ctx.captured_queries
-                    if q["sql"].startswith("INSERT")
-                ]
-            ),
+            len([q["sql"] for q in ctx.captured_queries if "insert_many" in q["sql"]]),
             1,
         )
         self.assertEqual(Subscriber.objects.count(), 0)
