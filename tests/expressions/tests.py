@@ -1697,8 +1697,10 @@ class ExpressionOperatorTests(TestCase):
         Number.objects.filter(pk=self.n.pk).update(
             integer=640 / F("integer"), float=42.7 / F("float")
         )
-
-        self.assertEqual(Number.objects.get(pk=self.n.pk).integer, 15)
+        # Unlike SQL, MongoDB doesn't truncate decimals for integer division.
+        self.assertEqual(
+            Number.objects.get(pk=self.n.pk).integer, Approximate(15.238, places=3)
+        )
         self.assertEqual(
             Number.objects.get(pk=self.n.pk).float, Approximate(2.755, places=3)
         )
