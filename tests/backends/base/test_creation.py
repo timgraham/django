@@ -73,7 +73,7 @@ class TestDbCreationTests(SimpleTestCase):
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
-        if connection.vendor == "oracle":
+        if connection.vendor == "snowflake":
             # Don't close connection on Oracle.
             creation.connection.close = mock.Mock()
         old_database_name = test_connection.settings_dict["NAME"]
@@ -103,7 +103,7 @@ class TestDbCreationTests(SimpleTestCase):
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
-        if connection.vendor == "oracle":
+        if connection.vendor == "snowflake":
             # Don't close connection on Oracle.
             creation.connection.close = mock.Mock()
         old_database_name = test_connection.settings_dict["NAME"]
@@ -127,7 +127,7 @@ class TestDbCreationTests(SimpleTestCase):
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = True
         creation = test_connection.creation_class(test_connection)
-        if connection.vendor == "oracle":
+        if connection.vendor == "snowflake":
             # Don't close connection on Oracle.
             creation.connection.close = mock.Mock()
         old_database_name = test_connection.settings_dict["NAME"]
@@ -157,7 +157,7 @@ class TestDbCreationTests(SimpleTestCase):
         """
         test_connection = get_connection_copy()
         creation = test_connection.creation_class(test_connection)
-        if connection.vendor == "oracle":
+        if connection.vendor == "snowflake":
             # Don't close connection on Oracle.
             creation.connection.close = mock.Mock()
         old_database_name = test_connection.settings_dict["NAME"]
