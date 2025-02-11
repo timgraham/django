@@ -95,7 +95,9 @@ class OrLookupsTests(TestCase):
         )
 
         self.assertQuerySetEqual(
-            Article.objects.filter(pk__in=[self.a1, self.a2, self.a3, 40000]),
+            Article.objects.filter(
+                pk__in=[self.a1, self.a2, self.a3, "000000000000000000040000"]
+            ),
             ["Hello", "Goodbye", "Hello and goodbye"],
             attrgetter("headline"),
         )

@@ -145,12 +145,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Dump the current contents of the database as a JSON fixture
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -158,17 +161,20 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Try just dumping the contents of fixtures.Category
         self._dumpdata_assert(
             ["fixtures.Category"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}]',
         )
 
         # ...and just fixtures.Article
         self._dumpdata_assert(
             ["fixtures.Article"],
-            '[{"pk": 2, "model": "fixtures.article", "fields": '
+            '[{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -176,12 +182,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # ...and both
         self._dumpdata_assert(
             ["fixtures.Category", "fixtures.Article"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -190,10 +199,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self._dumpdata_assert(
             ["fixtures.Article", "fixtures.Article"],
             (
-                '[{"pk": 2, "model": "fixtures.article", "fields": '
+                '[{"pk": "000000000000000000000002", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Poker has no place on ESPN", '
                 '"pub_date": "2006-06-16T12:00:00"}}, '
-                '{"pk": 3, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Time to reform copyright", '
                 '"pub_date": "2006-06-16T13:00:00"}}]'
             ),
@@ -202,12 +213,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Specify a dump that specifies Article both explicitly and implicitly
         self._dumpdata_assert(
             ["fixtures.Article", "fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -216,12 +230,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # but lists the app first (#22025).
         self._dumpdata_assert(
             ["fixtures", "fixtures.Article"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -229,12 +246,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Same again, but specify in the reverse order
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -242,9 +262,10 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Specify one model from one application, and an entire other application.
         self._dumpdata_assert(
             ["fixtures.Category", "sites"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 1, "model": "sites.site", "fields": '
+            '{"pk": "000000000000000000000001", "model": "sites.site", "fields": '
             '{"domain": "example.com", "name": "example.com"}}]',
         )
 
@@ -340,14 +361,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # By default, you get raw keys on dumpdata
         self._dumpdata_assert(
             ["fixtures.book"],
-            '[{"pk": 1, "model": "fixtures.book", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.book", "fields": '
             '{"name": "Music for all ages", "authors": [3, 1]}}]',
         )
 
         # But you can get natural keys if you ask for them and they are available
         self._dumpdata_assert(
             ["fixtures.book"],
-            '[{"pk": 1, "model": "fixtures.book", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.book", "fields": '
             '{"name": "Music for all ages", "authors": '
             '[["Artist formerly known as \\"Prince\\""], ["Django Reinhardt"]]}}]',
             natural_foreign_keys=True,
@@ -367,49 +388,59 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Dump the current contents of the database as a JSON fixture
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker on TV is great!", '
             '"pub_date": "2006-06-16T11:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Copyright is fine the way it is", '
             '"pub_date": "2006-06-16T14:00:00"}}, '
-            '{"pk": 4, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000004", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Django conquers world!", '
             '"pub_date": "2006-06-16T15:00:00"}}, '
             '{"pk": 5, "model": "fixtures.article", "fields": '
             '{"headline": "XML identified as leading cause of cancer", '
             '"pub_date": "2006-06-16T16:00:00"}}, '
-            '{"pk": 1, "model": "fixtures.tag", "fields": '
+            '{"pk": "000000000000000000000001", "model": "fixtures.tag",'
+            ' "fields": '
             '{"tagged_type": ["fixtures", "article"], "name": "copyright", '
             '"tagged_id": 3}}, '
-            '{"pk": 2, "model": "fixtures.tag", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.tag",'
+            ' "fields": '
             '{"tagged_type": ["fixtures", "article"], "name": "legal", '
             '"tagged_id": 3}}, '
-            '{"pk": 3, "model": "fixtures.tag", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.tag",'
+            ' "fields": '
             '{"tagged_type": ["fixtures", "article"], "name": "django", '
             '"tagged_id": 4}}, '
-            '{"pk": 4, "model": "fixtures.tag", "fields": '
+            '{"pk": "000000000000000000000004", "model": "fixtures.tag",'
+            ' "fields": '
             '{"tagged_type": ["fixtures", "article"], "name": "world domination", '
             '"tagged_id": 4}}, '
-            '{"pk": 1, "model": "fixtures.person", '
+            '{"pk": "000000000000000000000001", "model": "fixtures.person", '
             '"fields": {"name": "Django Reinhardt"}}, '
-            '{"pk": 2, "model": "fixtures.person", '
+            '{"pk": "000000000000000000000002", "model": "fixtures.person", '
             '"fields": {"name": "Stephane Grappelli"}}, '
-            '{"pk": 3, "model": "fixtures.person", '
+            '{"pk": "000000000000000000000003", "model": "fixtures.person", '
             '"fields": {"name": "Artist formerly known as \\"Prince\\""}}, '
-            '{"pk": 1, "model": "fixtures.visa", '
+            '{"pk": "000000000000000000000001", "model": "fixtures.visa", '
             '"fields": {"person": ["Django Reinhardt"], "permissions": '
             '[["add_user", "auth", "user"], ["change_user", "auth", "user"], '
             '["delete_user", "auth", "user"]]}}, '
-            '{"pk": 2, "model": "fixtures.visa", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.visa",'
+            ' "fields": '
             '{"person": ["Stephane Grappelli"], "permissions": '
             '[["add_user", "auth", "user"], ["delete_user", "auth", "user"]]}}, '
-            '{"pk": 3, "model": "fixtures.visa", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.visa", "fields": '
             '{"person": ["Artist formerly known as \\"Prince\\""], "permissions": '
             '[["change_user", "auth", "user"]]}}, '
-            '{"pk": 1, "model": "fixtures.book", "fields": '
+            '{"pk": "000000000000000000000001", "model": "fixtures.book",'
+            ' "fields": '
             '{"name": "Music for all ages", "authors": '
             '[["Artist formerly known as \\"Prince\\""], ["Django Reinhardt"]]}}]',
             natural_foreign_keys=True,
@@ -522,7 +553,7 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Excluding fixtures app should only leave sites
         self._dumpdata_assert(
             ["sites", "fixtures"],
-            '[{"pk": 1, "model": "sites.site", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "sites.site", "fields": '
             '{"domain": "example.com", "name": "example.com"}}]',
             exclude_list=["fixtures"],
         )
@@ -530,9 +561,10 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Excluding fixtures.Article/Book should leave fixtures.Category
         self._dumpdata_assert(
             ["sites", "fixtures"],
-            '[{"pk": 1, "model": "sites.site", '
+            '[{"pk": "000000000000000000000001", "model": "sites.site", '
             '"fields": {"domain": "example.com", "name": "example.com"}}, '
-            '{"pk": 1, "model": "fixtures.category", "fields": '
+            '{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}]',
             exclude_list=["fixtures.Article", "fixtures.Book"],
         )
@@ -540,9 +572,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Excluding fixtures and fixtures.Article/Book should be a no-op
         self._dumpdata_assert(
             ["sites", "fixtures"],
-            '[{"pk": 1, "model": "sites.site", '
+            '[{"pk": "000000000000000000000001", "model": "sites.site", '
             '"fields": {"domain": "example.com", "name": "example.com"}}, '
-            '{"pk": 1, "model": "fixtures.category", '
+            '{"pk": "000000000000000000000001", "model": "fixtures.category", '
             '"fields": {"description": "Latest news stories", '
             '"title": "News Stories"}}]',
             exclude_list=["fixtures.Article", "fixtures.Book"],
@@ -551,7 +583,8 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Excluding sites and fixtures.Article/Book should only leave fixtures.Category
         self._dumpdata_assert(
             ["sites", "fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}]',
             exclude_list=["fixtures.Article", "fixtures.Book", "sites"],
         )
@@ -605,21 +638,21 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture2.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures.Article"],
-            '[{"pk": 2, "model": "fixtures.article", '
+            '[{"pk": "000000000000000000000002", "model": "fixtures.article", '
             '"fields": {"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article", "fields": '
             '{"headline": "Copyright is fine the way it is", '
             '"pub_date": "2006-06-16T14:00:00"}}]',
-            primary_keys="2,3",
+            primary_keys="000000000000000000000002,000000000000000000000003",
         )
 
         self._dumpdata_assert(
             ["fixtures.Article"],
-            '[{"pk": 2, "model": "fixtures.article", '
+            '[{"pk": "000000000000000000000002", "model": "fixtures.article", '
             '"fields": {"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}]',
-            primary_keys="2",
+            primary_keys="000000000000000000000002",
         )
 
         with self.assertRaisesMessage(
@@ -627,10 +660,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         ):
             self._dumpdata_assert(
                 ["fixtures"],
-                '[{"pk": 2, "model": "fixtures.article", "fields": '
+                '[{"pk": "000000000000000000000002", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Poker has no place on ESPN", '
                 '"pub_date": "2006-06-16T12:00:00"}}, '
-                '{"pk": 3, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Copyright is fine the way it is", '
                 '"pub_date": "2006-06-16T14:00:00"}}]',
                 primary_keys="2,3",
@@ -641,10 +676,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         ):
             self._dumpdata_assert(
                 "",
-                '[{"pk": 2, "model": "fixtures.article", "fields": '
+                '[{"pk": "000000000000000000000002", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Poker has no place on ESPN", '
                 '"pub_date": "2006-06-16T12:00:00"}}, '
-                '{"pk": 3, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Copyright is fine the way it is", '
                 '"pub_date": "2006-06-16T14:00:00"}}]',
                 primary_keys="2,3",
@@ -655,10 +692,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         ):
             self._dumpdata_assert(
                 ["fixtures.Article", "fixtures.category"],
-                '[{"pk": 2, "model": "fixtures.article", "fields": '
+                '[{"pk": "000000000000000000000002", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Poker has no place on ESPN", '
                 '"pub_date": "2006-06-16T12:00:00"}}, '
-                '{"pk": 3, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Copyright is fine the way it is", '
                 '"pub_date": "2006-06-16T14:00:00"}}]',
                 primary_keys="2,3",
@@ -683,12 +722,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
             filename="dumpdata.json",
@@ -698,12 +740,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
             filename="dumpdata.json.gz",
@@ -714,12 +759,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
             filename="dumpdata.json.bz2",
@@ -730,12 +778,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
             filename="dumpdata.json.lzma",
@@ -746,12 +797,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
             filename="dumpdata.json.xz",
@@ -763,12 +817,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         with self.assertWarnsMessage(RuntimeWarning, msg):
             self._dumpdata_assert(
                 ["fixtures"],
-                '[{"pk": 1, "model": "fixtures.category", "fields": '
+                '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+                ' "fields": '
                 '{"description": "Latest news stories", "title": "News Stories"}}, '
-                '{"pk": 2, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Poker has no place on ESPN", '
                 '"pub_date": "2006-06-16T12:00:00"}}, '
-                '{"pk": 3, "model": "fixtures.article", "fields": '
+                '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+                ' "fields": '
                 '{"headline": "Time to reform copyright", '
                 '"pub_date": "2006-06-16T13:00:00"}}]',
                 filename="dumpdata.json.zip",
@@ -928,14 +985,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         if connection.vendor == "mysql":
             with connection.cursor() as cursor:
                 cursor.execute("SET sql_mode = 'TRADITIONAL'")
-        msg = "Could not load fixtures.Article(pk=1):"
+        msg = "Could not load fixtures.Article(pk=000000000000000000000001):"
         with self.assertRaisesMessage(IntegrityError, msg):
             management.call_command("loaddata", "invalid.json", verbosity=0)
 
     @skipUnlessDBFeature("prohibits_null_characters_in_text_exception")
     def test_loaddata_null_characters_on_postgresql(self):
         error, msg = connection.features.prohibits_null_characters_in_text_exception
-        msg = f"Could not load fixtures.Article(pk=2): {msg}"
+        msg = f"Could not load fixtures.Article(pk=000000000000000000000002): {msg}"
         with self.assertRaisesMessage(error, msg):
             management.call_command("loaddata", "null_character_in_field_value.json")
 
@@ -1018,24 +1075,32 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         # Dump the current contents of the database as a JSON fixture
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}, '
-            '{"pk": 1, "model": "fixtures.tag", "fields": '
+            '{"pk": "000000000000000000000001", "model": "fixtures.tag", "fields": '
             '{"tagged_type": ["fixtures", "article"], "name": "copyright", '
-            '"tagged_id": 3}}, '
-            '{"pk": 2, "model": "fixtures.tag", "fields": '
-            '{"tagged_type": ["fixtures", "article"], "name": "law", "tagged_id": 3}}, '
-            '{"pk": 1, "model": "fixtures.person", "fields": '
+            '"tagged_id": "000000000000000000000003"}}, '
+            '{"pk": "000000000000000000000002", "model": "fixtures.tag", "fields": '
+            '{"tagged_type": ["fixtures", "article"], "name": "law", "tagged_id": '
+            '"000000000000000000000003"}}, '
+            '{"pk": "000000000000000000000001", "model": "fixtures.person",'
+            ' "fields": '
             '{"name": "Django Reinhardt"}}, '
-            '{"pk": 2, "model": "fixtures.person", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.person",'
+            ' "fields": '
             '{"name": "Stephane Grappelli"}}, '
-            '{"pk": 3, "model": "fixtures.person", "fields": {"name": "Prince"}}]',
+            '{"pk": "000000000000000000000003", "model": "fixtures.person",'
+            ' "fields": '
+            '{"name": "Prince"}}]',
             natural_foreign_keys=True,
         )
 
@@ -1043,39 +1108,41 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self._dumpdata_assert(
             ["fixtures"],
             '<?xml version="1.0" encoding="utf-8"?><django-objects version="1.0">'
-            '<object pk="1" model="fixtures.category">'
+            '<object pk="000000000000000000000001" model="fixtures.category">'
             '<field type="CharField" name="title">News Stories</field>'
             '<field type="TextField" name="description">Latest news stories</field>'
             "</object>"
-            '<object pk="2" model="fixtures.article">'
+            '<object pk="000000000000000000000002" model="fixtures.article">'
             '<field type="CharField" name="headline">Poker has no place on ESPN</field>'
             '<field type="DateTimeField" name="pub_date">2006-06-16T12:00:00</field>'
             "</object>"
-            '<object pk="3" model="fixtures.article">'
+            '<object pk="000000000000000000000003" model="fixtures.article">'
             '<field type="CharField" name="headline">Time to reform copyright</field>'
             '<field type="DateTimeField" name="pub_date">2006-06-16T13:00:00</field>'
             "</object>"
-            '<object pk="1" model="fixtures.tag">'
+            '<object pk="000000000000000000000001" model="fixtures.tag">'
             '<field type="CharField" name="name">copyright</field>'
             '<field to="contenttypes.contenttype" name="tagged_type" '
             'rel="ManyToOneRel"><natural>fixtures</natural>'
             "<natural>article</natural></field>"
-            '<field type="PositiveIntegerField" name="tagged_id">3</field>'
+            '<field type="ObjectIdField" name="tagged_id">000000000000000000000003'
+            "</field>"
             "</object>"
-            '<object pk="2" model="fixtures.tag">'
+            '<object pk="000000000000000000000002" model="fixtures.tag">'
             '<field type="CharField" name="name">law</field>'
             '<field to="contenttypes.contenttype" name="tagged_type" '
             'rel="ManyToOneRel"><natural>fixtures</natural>'
             "<natural>article</natural></field>"
-            '<field type="PositiveIntegerField" name="tagged_id">3</field>'
+            '<field type="ObjectIdField" name="tagged_id">000000000000000000000003'
+            "</field>"
             "</object>"
-            '<object pk="1" model="fixtures.person">'
+            '<object pk="000000000000000000000001" model="fixtures.person">'
             '<field type="CharField" name="name">Django Reinhardt</field>'
             "</object>"
-            '<object pk="2" model="fixtures.person">'
+            '<object pk="000000000000000000000002" model="fixtures.person">'
             '<field type="CharField" name="name">Stephane Grappelli</field>'
             "</object>"
-            '<object pk="3" model="fixtures.person">'
+            '<object pk="000000000000000000000003" model="fixtures.person">'
             '<field type="CharField" name="name">Prince</field>'
             "</object></django-objects>",
             format="xml",
@@ -1212,12 +1279,15 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
         # Dump the current contents of the database as a JSON fixture
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"pk": 1, "model": "fixtures.category", "fields": '
+            '[{"pk": "000000000000000000000001", "model": "fixtures.category",'
+            ' "fields": '
             '{"description": "Latest news stories", "title": "News Stories"}}, '
-            '{"pk": 2, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000002", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Poker has no place on ESPN", '
             '"pub_date": "2006-06-16T12:00:00"}}, '
-            '{"pk": 3, "model": "fixtures.article", "fields": '
+            '{"pk": "000000000000000000000003", "model": "fixtures.article",'
+            ' "fields": '
             '{"headline": "Time to reform copyright", '
             '"pub_date": "2006-06-16T13:00:00"}}]',
         )
@@ -1242,10 +1312,12 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(t2.other_thing, t1)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"model": "fixtures.naturalkeything", "pk": 1, '
-            '"fields": {"key": "t1", "other_thing": 2, "other_things": []}}, '
-            '{"model": "fixtures.naturalkeything", "pk": 2, '
-            '"fields": {"key": "t2", "other_thing": 1, "other_things": []}}]',
+            '[{"model": "fixtures.naturalkeything", "pk": "000000000000000000000001", '
+            '"fields": {"key": "t1", "other_thing": "000000000000000000000002",'
+            ' "other_things": []}}, '
+            '{"model": "fixtures.naturalkeything", "pk": "000000000000000000000002", '
+            '"fields": {"key": "t2", "other_thing": "000000000000000000000001",'
+            ' "other_things": []}}]',
         )
 
     def test_forward_reference_fk_natural_key(self):
@@ -1277,11 +1349,12 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"model": "fixtures.naturalkeything", "pk": 1, '
-            '"fields": {"key": "t1", "other_thing": null, "other_things": [2, 3]}}, '
-            '{"model": "fixtures.naturalkeything", "pk": 2, '
+            '[{"model": "fixtures.naturalkeything", "pk": "000000000000000000000001", '
+            '"fields": {"key": "t1", "other_thing": null, "other_things": '
+            '["000000000000000000000002", "000000000000000000000003"]}}, '
+            '{"model": "fixtures.naturalkeything", "pk": "000000000000000000000002", '
             '"fields": {"key": "t2", "other_thing": null, "other_things": []}}, '
-            '{"model": "fixtures.naturalkeything", "pk": 3, '
+            '{"model": "fixtures.naturalkeything", "pk": "000000000000000000000003", '
             '"fields": {"key": "t3", "other_thing": null, "other_things": []}}]',
         )
 
@@ -1320,10 +1393,10 @@ class CircularReferenceTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(obj_b.obj, obj_a)
         self._dumpdata_assert(
             ["fixtures"],
-            '[{"model": "fixtures.circulara", "pk": 1, '
-            '"fields": {"key": "x", "obj": 1}}, '
-            '{"model": "fixtures.circularb", "pk": 1, '
-            '"fields": {"key": "y", "obj": 1}}]',
+            '[{"model": "fixtures.circulara", "pk": "000000000000000000000001", '
+            '"fields": {"key": "x", "obj": "000000000000000000000001"}}, '
+            '{"model": "fixtures.circularb", "pk": "000000000000000000000001", '
+            '"fields": {"key": "y", "obj": "000000000000000000000001"}}]',
         )
 
     def test_circular_reference_natural_key(self):

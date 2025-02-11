@@ -89,9 +89,11 @@ class AdminActionsTest(TestCase):
         self.assertEqual(Subscriber.objects.count(), 0)
 
     def test_default_delete_action_nonexistent_pk(self):
-        self.assertFalse(Subscriber.objects.filter(id=9998).exists())
+        self.assertFalse(
+            Subscriber.objects.filter(id="000000000000000000009998").exists()
+        )
         action_data = {
-            ACTION_CHECKBOX_NAME: ["9998"],
+            ACTION_CHECKBOX_NAME: ["000000000000000000009998"],
             "action": "delete_selected",
             "index": 0,
         }
@@ -109,7 +111,7 @@ class AdminActionsTest(TestCase):
         If USE_THOUSAND_SEPARATOR is set, the ids for the objects selected for
         deletion are rendered without separators.
         """
-        s = ExternalSubscriber.objects.create(id=9999)
+        s = ExternalSubscriber.objects.create(id="000000000000000000009999")
         action_data = {
             ACTION_CHECKBOX_NAME: [s.pk, self.s2.pk],
             "action": "delete_selected",
@@ -119,7 +121,7 @@ class AdminActionsTest(TestCase):
             reverse("admin:admin_views_subscriber_changelist"), action_data
         )
         self.assertTemplateUsed(response, "admin/delete_selected_confirmation.html")
-        self.assertContains(response, 'value="9999"')  # Instead of 9,999
+        self.assertContains(response, 'value="000000000000000000009999"')
         self.assertContains(response, 'value="%s"' % self.s2.pk)
 
     def test_model_admin_default_delete_action_protected(self):

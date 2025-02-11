@@ -875,7 +875,7 @@ class ChangeListTests(TestCase):
             self.assertIs(cl.queryset.query.distinct, False)
 
         # A ManyToManyField in params does have distinct applied.
-        request = self.factory.get("/band/", {"genres": "0"})
+        request = self.factory.get("/band/", {"genres": "000000000000000000000000"})
         request.user = self.superuser
         cl = m.get_changelist_instance(request)
         self.assertIs(cl.queryset.query.distinct, True)
@@ -993,14 +993,19 @@ class ChangeListTests(TestCase):
         """
         parent = Parent.objects.create(name="parent")
         for i in range(1, 10):
-            Child.objects.create(id=i, name="child %s" % i, parent=parent, age=i)
+            Child.objects.create(
+                id=f"{i:024}",
+                name="child %s" % i,
+                parent=parent,
+                age=i,
+            )
 
         m = DynamicListDisplayLinksChildAdmin(Child, custom_site)
         superuser = self._create_superuser("superuser")
         request = self._mocked_authenticated_request("/child/", superuser)
         response = m.changelist_view(request)
         for i in range(1, 10):
-            link = reverse("admin:admin_changelist_child_change", args=(i,))
+            link = reverse("admin:admin_changelist_child_change", args=(f"{i:024}",))
             self.assertContains(response, '<a href="%s">%s</a>' % (link, i))
 
         list_display = m.get_list_display(request)
@@ -1277,7 +1282,7 @@ class ChangeListTests(TestCase):
         superuser = self._create_superuser("superuser")
 
         for counter in range(1, 51):
-            UnorderedObject.objects.create(id=counter, bool=True)
+            UnorderedObject.objects.create(id=f"{counter:024}", bool=True)
 
         class UnorderedObjectAdmin(admin.ModelAdmin):
             list_per_page = 10
@@ -1293,7 +1298,7 @@ class ChangeListTests(TestCase):
                 response = model_admin.changelist_view(request)
                 for result in response.context_data["cl"].result_list:
                     counter += 1 if ascending else -1
-                    self.assertEqual(result.id, counter)
+                    self.assertEqual(str(result.id), f"{counter:024}")
             custom_site.unregister(UnorderedObject)
 
         # When no order is defined at all, everything is ordered by '-pk'.
@@ -1323,7 +1328,7 @@ class ChangeListTests(TestCase):
         superuser = self._create_superuser("superuser")
 
         for counter in range(1, 51):
-            OrderedObject.objects.create(id=counter, bool=True, number=counter)
+            OrderedObject.objects.create(id=f"{counter:024}", bool=True, number=counter)
 
         class OrderedObjectAdmin(admin.ModelAdmin):
             list_per_page = 10
@@ -1339,7 +1344,7 @@ class ChangeListTests(TestCase):
                 response = model_admin.changelist_view(request)
                 for result in response.context_data["cl"].result_list:
                     counter += 1 if ascending else -1
-                    self.assertEqual(result.id, counter)
+                    self.assertEqual(str(result.id), f"{counter:024}")
             custom_site.unregister(OrderedObject)
 
         # When no order is defined at all, use the model's default ordering

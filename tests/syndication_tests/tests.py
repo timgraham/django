@@ -718,5 +718,7 @@ class SyndicationFeedTest(FeedTestCase):
         )
 
     def test_get_non_existent_object(self):
-        response = self.client.get("/syndication/rss2/articles/0/")
+        response = self.client.get(
+            "/syndication/rss2/articles/000000000000000000000000/"
+        )
         self.assertEqual(response.status_code, 404)

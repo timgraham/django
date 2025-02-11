@@ -52,7 +52,9 @@ class DefaultsTests(TestCase):
             author=author,
             date_created=datetime.datetime(2001, 1, 1, 21, 22, 23),
         )
-        Site(id=1, domain="testserver", name="testserver").save()
+        Site(
+            id="000000000000000000000001", domain="testserver", name="testserver"
+        ).save()
 
     def test_page_not_found(self):
         "A 404 status is returned by the page_not_found view"

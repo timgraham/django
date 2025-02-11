@@ -1,10 +1,10 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "fixtures_regress.book",
         "fields": {
             "name": "Cryptonomicon",
-            "author": 4
+            "author": "000000000000000000000004"
         }
     }
 ]

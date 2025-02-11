@@ -1,6 +1,6 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "multiple_database.book",
         "fields": {
             "title": "The Definitive Guide to Django",

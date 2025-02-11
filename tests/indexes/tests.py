@@ -1,6 +1,8 @@
 import datetime
 from unittest import skipUnless
 
+from bson import ObjectId
+
 from django.conf import settings
 from django.db import NotSupportedError, connection
 from django.db.models import CASCADE, CharField, ForeignKey, Index, Q
@@ -419,10 +421,10 @@ class PartialIndexTests(TransactionTestCase):
                 name="recent_article_idx",
                 # This is changed
                 fields=["headline"],
-                condition=Q(pk__gt=1),
+                condition=Q(pk__gt="000000000000000000000001"),
             )
             self.assertEqual(
-                {"_id": {"$gt": 1}},
+                {"_id": {"$gt": ObjectId("000000000000000000000001")}},
                 index._get_condition_mql(Article, schema_editor=editor),
             )
             editor.add_index(index=index, model=Article)

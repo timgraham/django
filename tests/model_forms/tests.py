@@ -2174,7 +2174,7 @@ class ModelMultipleChoiceFieldTests(TestCase):
         # Note, we are using an id of 1006 here since tests that run before
         # this may create categories with primary keys up to 6. Use
         # a number that will not conflict.
-        c6 = Category.objects.create(id=1006, name="Sixth", url="6th")
+        c6 = Category.objects.create(name="Sixth", url="6th")
         self.assertCountEqual(f.clean([c6.id]), [c6])
 
         # Delete a Category object *after* the ModelMultipleChoiceField has already been

@@ -501,8 +501,10 @@ class TestInline(TestDataMixin, TestCase):
         The "View on Site" link is correct for locales that use thousand
         separators.
         """
-        holder = Holder.objects.create(pk=123456789, dummy=42)
-        inner = Inner.objects.create(pk=987654321, holder=holder, dummy=42, readonly="")
+        holder = Holder.objects.create(pk="000000000000000123456789", dummy=42)
+        inner = Inner.objects.create(
+            pk="000000000000000987654321", holder=holder, dummy=42, readonly=""
+        )
         response = self.client.get(
             reverse("admin:admin_inlines_holder_change", args=(holder.id,))
         )
@@ -936,7 +938,7 @@ class TestInlinePermissions(TestCase):
         )
         cls.user.user_permissions.add(permission)
 
-        author = Author.objects.create(pk=1, name="The Author")
+        author = Author.objects.create(pk="000000000000000000000001", name="The Author")
         cls.book = author.books.create(name="The inline Book")
         cls.author_change_url = reverse(
             "admin:admin_inlines_author_change", args=(author.id,)

@@ -12,7 +12,9 @@ class TestDataMixin:
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
-        cls.site1 = Site(pk=1, domain="example.com", name="example.com")
+        cls.site1 = Site(
+            pk="000000000000000000000001", domain="example.com", name="example.com"
+        )
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
             url="/flatpage/",
@@ -65,7 +67,6 @@ class TestDataMixin:
     ],
     ROOT_URLCONF="flatpages_tests.urls",
     TEMPLATES=FLATPAGES_TEMPLATES,
-    SITE_ID=1,
 )
 class FlatpageMiddlewareTests(TestDataMixin, TestCase):
     def test_view_flatpage(self):
@@ -144,7 +145,6 @@ class FlatpageMiddlewareTests(TestDataMixin, TestCase):
     ],
     ROOT_URLCONF="flatpages_tests.urls",
     TEMPLATES=FLATPAGES_TEMPLATES,
-    SITE_ID=1,
 )
 class FlatpageMiddlewareAppendSlashTests(TestDataMixin, TestCase):
     def test_redirect_view_flatpage(self):

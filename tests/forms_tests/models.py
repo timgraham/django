@@ -80,11 +80,11 @@ def choice_default_list():
 
 
 def int_default():
-    return 1
+    return "000000000000000000000001"
 
 
 def int_list_default():
-    return [1]
+    return ["000000000000000000000001"]
 
 
 class ChoiceFieldModel(models.Model):

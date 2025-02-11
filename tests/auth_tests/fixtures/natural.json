@@ -1,6 +1,6 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "auth.group",
         "fields": {
             "name": "my_group",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "auth.user",
         "fields": {
             "username": "my_username",

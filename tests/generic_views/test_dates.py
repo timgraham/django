@@ -897,13 +897,17 @@ class DateDetailViewTests(TestDataMixin, TestCase):
         self.assertTemplateUsed(res, "generic_views/book_detail.html")
 
         res = self.client.get(
-            "/dates/books/get_object_custom_queryset/2008/oct/01/9999999/"
+            "/dates/books/get_object_custom_queryset/2008/oct/01/"
+            "000000000000000009999999/"
         )
         self.assertEqual(res.status_code, 404)
 
     def test_get_object_custom_queryset_numqueries(self):
         with self.assertNumQueries(1):
-            self.client.get("/dates/books/get_object_custom_queryset/2006/may/01/2/")
+            self.client.get(
+                "/dates/books/get_object_custom_queryset/2006/may/01/"
+                "000000000000000000000002/"
+            )
 
     def test_datetime_date_detail(self):
         bs = BookSigning.objects.create(event_date=datetime.datetime(2008, 4, 2, 12, 0))

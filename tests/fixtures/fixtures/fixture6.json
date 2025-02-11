@@ -1,38 +1,38 @@
 [
     {
-        "pk": "1",
+        "pk": "000000000000000000000001",
         "model": "fixtures.tag",
         "fields": {
             "name": "copyright",
             "tagged_type": ["fixtures", "article"],
-            "tagged_id": "3"
+            "tagged_id": "000000000000000000000003"
         }
     },
     {
-        "pk": "2",
+        "pk": "000000000000000000000002",
         "model": "fixtures.tag",
         "fields": {
             "name": "law",
             "tagged_type": ["fixtures", "article"],
-            "tagged_id": "3"
+            "tagged_id": "000000000000000000000003"
         }
     },
     {
-    	"pk": "1",
+    	"pk": "000000000000000000000001",
     	"model": "fixtures.person",
     	"fields": {
     	    "name": "Django Reinhardt"
     	}
     },
     {
-    	"pk": "2",
+    	"pk": "000000000000000000000002",
     	"model": "fixtures.person",
     	"fields": {
     	    "name": "Stephane Grappelli"
     	}
     },
         {
-    	"pk": "3",
+    	"pk": "000000000000000000000003",
     	"model": "fixtures.person",
     	"fields": {
     	    "name": "Prince"

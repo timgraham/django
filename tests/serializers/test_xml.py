@@ -97,18 +97,18 @@ class XmlSerializerTransactionTestCase(
     serializer_name = "xml"
     fwd_ref_str = """<?xml version="1.0" encoding="utf-8"?>
 <django-objects version="1.0">
-    <object pk="1" model="serializers.article">
-        <field to="serializers.author" name="author" rel="ManyToOneRel">1</field>
+    <object pk="000000000000000000000001" model="serializers.article">
+        <field to="serializers.author" name="author" rel="ManyToOneRel">000000000000000000000001</field>
         <field type="CharField" name="headline">Forward references pose no problem</field>
         <field type="DateTimeField" name="pub_date">2006-06-16T15:00:00</field>
         <field to="serializers.category" name="categories" rel="ManyToManyRel">
-            <object pk="1"></object>
+            <object pk="000000000000000000000001"></object>
         </field>
         <field to="serializers.categorymetadata" name="meta_data" rel="ManyToManyRel"></field>
     </object>
-    <object pk="1" model="serializers.author">
+    <object pk="000000000000000000000001" model="serializers.author">
         <field type="CharField" name="name">Agnes</field>
     </object>
-    <object pk="1" model="serializers.category">
+    <object pk="000000000000000000000001" model="serializers.category">
         <field type="CharField" name="name">Reference</field></object>
 </django-objects>"""  # NOQA

@@ -250,14 +250,15 @@ class GenericRelationTests(TestCase):
         b = Board.objects.create(name=str(hs1.pk))
         Link.objects.create(content_object=hs2)
         # An integer PK is required for the Sum() queryset that follows.
-        link = Link.objects.create(content_object=hs1, pk=10)
+        # Removed since not supported on MongoDB.
+        link = Link.objects.create(content_object=hs1)
         Link.objects.create(content_object=b)
         qs = HasLinkThing.objects.annotate(Sum("links")).filter(pk=hs1.pk)
         # If content_type restriction isn't in the query's join condition,
         # then wrong results are produced here as the link to b will also match
         # (b and hs1 have equal pks).
         self.assertEqual(qs.count(), 1)
-        self.assertEqual(qs[0].links__sum, link.id)
+        self.assertEqual(qs[0].links__sum, 0)  # Modified for MongoDB.
         link.delete()
         # Now if we don't have proper left join, we will not produce any
         # results at all here.
@@ -273,9 +274,9 @@ class GenericRelationTests(TestCase):
     def test_filter_targets_related_pk(self):
         # Use hardcoded PKs to ensure different PKs for "link" and "hs2"
         # objects.
-        HasLinkThing.objects.create(pk=1)
-        hs2 = HasLinkThing.objects.create(pk=2)
-        link = Link.objects.create(content_object=hs2, pk=1)
+        HasLinkThing.objects.create(pk="000000000000000000000001")
+        hs2 = HasLinkThing.objects.create(pk="000000000000000000000002")
+        link = Link.objects.create(content_object=hs2, pk="000000000000000000000001")
         self.assertNotEqual(link.object_id, link.pk)
         self.assertSequenceEqual(HasLinkThing.objects.filter(links=link.pk), [hs2])
 

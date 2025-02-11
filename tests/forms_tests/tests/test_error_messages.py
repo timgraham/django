@@ -311,9 +311,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
 class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
     def test_modelchoicefield(self):
         # Create choices for the model choice field tests below.
-        ChoiceModel.objects.create(pk=1, name="a")
-        ChoiceModel.objects.create(pk=2, name="b")
-        ChoiceModel.objects.create(pk=3, name="c")
+        ChoiceModel.objects.create(pk="000000000000000000000001", name="a")
+        ChoiceModel.objects.create(pk="000000000000000000000002", name="b")
+        ChoiceModel.objects.create(pk="000000000000000000000003", name="c")
 
         # ModelChoiceField
         e = {
@@ -322,7 +322,7 @@ class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
         }
         f = ModelChoiceField(queryset=ChoiceModel.objects.all(), error_messages=e)
         self.assertFormErrors(["REQUIRED"], f.clean, "")
-        self.assertFormErrors(["INVALID CHOICE"], f.clean, "4")
+        self.assertFormErrors(["INVALID CHOICE"], f.clean, "000000000000000000000004")
 
         # ModelMultipleChoiceField
         e = {
@@ -334,8 +334,14 @@ class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
             queryset=ChoiceModel.objects.all(), error_messages=e
         )
         self.assertFormErrors(["REQUIRED"], f.clean, "")
-        self.assertFormErrors(["NOT A LIST OF VALUES"], f.clean, "3")
-        self.assertFormErrors(["4 IS INVALID CHOICE"], f.clean, ["4"])
+        self.assertFormErrors(
+            ["NOT A LIST OF VALUES"], f.clean, "000000000000000000000003"
+        )
+        self.assertFormErrors(
+            ["000000000000000000000004 IS INVALID CHOICE"],
+            f.clean,
+            ["000000000000000000000004"],
+        )
 
     def test_modelchoicefield_value_placeholder(self):
         f = ModelChoiceField(

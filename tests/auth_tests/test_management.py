@@ -600,8 +600,10 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_validate_fk(self):
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
-        nonexistent_group_id = 1
-        msg = f"group instance with id {nonexistent_group_id} does not exist."
+        nonexistent_group_id = "000000000000000000000001"
+        msg = (
+            f"group instance with id ObjectId('{nonexistent_group_id}') does not exist."
+        )
 
         with self.assertRaisesMessage(CommandError, msg):
             call_command(
@@ -639,8 +641,10 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_validate_fk_via_option_interactive(self):
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
-        nonexistent_group_id = 1
-        msg = f"group instance with id {nonexistent_group_id} does not exist."
+        nonexistent_group_id = "000000000000000000000001"
+        msg = (
+            f"group instance with id ObjectId('{nonexistent_group_id}') does not exist."
+        )
 
         @mock_inputs(
             {

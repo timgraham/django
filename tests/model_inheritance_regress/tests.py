@@ -431,10 +431,14 @@ class ModelInheritanceTest(TestCase):
     def test_inherited_nullable_exclude(self):
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         self.assertQuerySetEqual(
-            SelfRefParent.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
+            SelfRefParent.objects.exclude(self_data="000000000000000000000072"),
+            [obj.pk],
+            attrgetter("pk"),
         )
         self.assertQuerySetEqual(
-            SelfRefChild.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
+            SelfRefChild.objects.exclude(self_data="000000000000000000000072"),
+            [obj.pk],
+            attrgetter("pk"),
         )
 
     def test_concrete_abstract_concrete_pk(self):

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <django-objects version="1.0">
-    <object pk="1" model="fixtures_regress.animal">
+    <object pk="000000000000000000000001" model="fixtures_regress.animal">
         <field type="CharField" name="name">Wolf</field>
         <field type="CharField" name="extra_name">Super Wolf</field>
         <field type="CharField" name="latin_name">Canis lupus</field>

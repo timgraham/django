@@ -1,6 +1,6 @@
 [
     {
-        "pk": 6,
+        "pk": "000000000000000000000006",
         "model": "fixtures_regress.channel",
         "fields": {
             "name": "Business"
@@ -8,76 +8,76 @@
     },
 
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 1",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 2,
+        "pk": "000000000000000000000002",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 2",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 3,
+        "pk": "000000000000000000000003",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 3",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 4,
+        "pk": "000000000000000000000004",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 4",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
 
     {
-        "pk": 5,
+        "pk": "000000000000000000000005",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 5",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 6,
+        "pk": "000000000000000000000006",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 6",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 7,
+        "pk": "000000000000000000000007",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 7",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 8,
+        "pk": "000000000000000000000008",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Article Title 8",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     },
     {
-        "pk": 9,
+        "pk": "000000000000000000000009",
         "model": "fixtures_regress.article",
         "fields": {
             "title": "Yet Another Article",
-            "channels": [6]
+            "channels": ["000000000000000000000006"]
         }
     }
 ]

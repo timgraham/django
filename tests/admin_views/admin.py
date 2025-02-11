@@ -288,11 +288,13 @@ class ArticleAdmin2(admin.ModelAdmin):
 class RowLevelChangePermissionModelAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         """Only allow changing objects with even id number"""
-        return request.user.is_staff and (obj is not None) and (obj.id % 2 == 0)
+        return (
+            request.user.is_staff and (obj is not None) and (int(str(obj.id)) % 2 == 0)
+        )
 
     def has_view_permission(self, request, obj=None):
         """Only allow viewing objects if id is a multiple of 3."""
-        return request.user.is_staff and obj is not None and obj.id % 3 == 0
+        return request.user.is_staff and obj is not None and int(str(obj.id)) % 3 == 0
 
 
 class CustomArticleAdmin(admin.ModelAdmin):
@@ -467,7 +469,7 @@ class ParentAdmin(admin.ModelAdmin):
 
 class EmptyModelAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(pk__gt=1)
+        return super().get_queryset(request).filter(pk__gt="000000000000000000000001")
 
 
 class OldSubscriberAdmin(admin.ModelAdmin):
@@ -644,7 +646,9 @@ class FieldOverridePostAdmin(PostAdmin):
 
 class CustomChangeList(ChangeList):
     def get_queryset(self, request):
-        return self.root_queryset.order_by("pk").filter(pk=9999)  # Doesn't exist
+        return self.root_queryset.order_by("pk").filter(
+            pk="000000000000000000000000"
+        )  # Doesn't exist
 
 
 class GadgetAdmin(admin.ModelAdmin):

@@ -107,24 +107,26 @@ class ProxyModelTests(TestCase):
         Proxy models are included in the ancestors for a model's DoesNotExist
         and MultipleObjectsReturned
         """
-        Person.objects.create(name="Foo McBar", pk=1)
-        MyPerson.objects.create(name="Bazza del Frob", pk=2)
-        LowerStatusPerson.objects.create(status="low", name="homer", pk=3)
-        max_id = Person.objects.aggregate(max_id=models.Max("id"))["max_id"]
+        Person.objects.create(name="Foo McBar", pk="000000000000000000000001")
+        MyPerson.objects.create(name="Bazza del Frob", pk="000000000000000000000002")
+        LowerStatusPerson.objects.create(
+            status="low", name="homer", pk="000000000000000000000002"
+        )
+        max_id = int(str(Person.objects.aggregate(max_id=models.Max("id"))["max_id"]))
 
         with self.assertRaises(Person.DoesNotExist):
             MyPersonProxy.objects.get(name="Zathras")
         with self.assertRaises(Person.MultipleObjectsReturned):
-            MyPersonProxy.objects.get(id__lt=max_id + 1)
+            MyPersonProxy.objects.get(id__lt=f"{max_id + 1:024}")
         with self.assertRaises(Person.DoesNotExist):
             StatusPerson.objects.get(name="Zathras")
 
-        StatusPerson.objects.create(name="Bazza Jr.", pk=4)
-        StatusPerson.objects.create(name="Foo Jr.", pk=5)
-        max_id = Person.objects.aggregate(max_id=models.Max("id"))["max_id"]
+        StatusPerson.objects.create(name="Bazza Jr.", pk="000000000000000000000004")
+        StatusPerson.objects.create(name="Foo Jr.", pk="000000000000000000000005")
+        max_id = int(str(Person.objects.aggregate(max_id=models.Max("id"))["max_id"]))
 
         with self.assertRaises(Person.MultipleObjectsReturned):
-            StatusPerson.objects.get(id__lt=max_id + 1)
+            StatusPerson.objects.get(id__lt=f"{max_id + 1:024}")
 
     def test_abstract_base_with_model_fields(self):
         msg = (
@@ -392,7 +394,7 @@ class ProxyModelTests(TestCase):
 
     def test_proxy_load_from_fixture(self):
         management.call_command("loaddata", "mypeople.json", verbosity=0)
-        p = MyPerson.objects.get(pk=100)
+        p = MyPerson.objects.get(pk="000000000000000000000100")
         self.assertEqual(p.name, "Elvis Presley")
 
     def test_select_related_only(self):

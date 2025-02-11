@@ -79,12 +79,13 @@ class GetOrCreateTests(TestCase):
         """
         Using the pk property of a model is allowed.
         """
-        Thing.objects.get_or_create(pk=1)
+        Thing.objects.get_or_create(pk="000000000000000000000001")
 
     def test_get_or_create_with_model_property_defaults(self):
         """Using a property with a setter implemented is allowed."""
         t, _ = Thing.objects.get_or_create(
-            defaults={"capitalized_name_property": "annie"}, pk=1
+            defaults={"capitalized_name_property": "annie"},
+            pk="000000000000000000000001",
         )
         self.assertEqual(t.name, "Annie")
 
@@ -214,9 +215,11 @@ class GetOrCreateTests(TestCase):
 
 
 class GetOrCreateTestsWithManualPKs(TestCase):
+    id = "000000000000000000000001"
+
     @classmethod
     def setUpTestData(cls):
-        ManualPrimaryKeyTest.objects.create(id=1, data="Original")
+        ManualPrimaryKeyTest.objects.create(id=cls.id, data="Original")
 
     def test_create_with_duplicate_primary_key(self):
         """
@@ -224,8 +227,8 @@ class GetOrCreateTestsWithManualPKs(TestCase):
         then you will get an error and data will not be updated.
         """
         with self.assertRaises(IntegrityError):
-            ManualPrimaryKeyTest.objects.get_or_create(id=1, data="Different")
-        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=1).data, "Original")
+            ManualPrimaryKeyTest.objects.get_or_create(id=self.id, data="Different")
+        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=self.id).data, "Original")
 
     def test_savepoint_rollback(self):
         """
@@ -236,7 +239,8 @@ class GetOrCreateTestsWithManualPKs(TestCase):
         with self.assertRaises(DatabaseError):
             # pk 123456789 doesn't exist, so the tag object will be created.
             # Saving triggers a unique constraint violation on 'text'.
-            Tag.objects.get_or_create(pk=123456789, defaults={"text": "foo"})
+            pk = "000000000000000123456789"
+            Tag.objects.get_or_create(pk=pk, defaults={"text": "foo"})
         # Tag objects can be created after the error.
         Tag.objects.create(text="bar")
 
@@ -258,7 +262,7 @@ class GetOrCreateTransactionTests(TransactionTestCase):
         otherwise the exception is never raised.
         """
         try:
-            Profile.objects.get_or_create(person=Person(id=1))
+            Profile.objects.get_or_create(person=Person(id="000000000000000000000001"))
         except IntegrityError:
             pass
         else:
@@ -349,21 +353,23 @@ class UpdateOrCreateTests(TestCase):
         If you specify an existing primary key, but different other fields,
         then you will get an error and data will not be updated.
         """
-        ManualPrimaryKeyTest.objects.create(id=1, data="Original")
+        id = "000000000000000000000001"
+        ManualPrimaryKeyTest.objects.create(id=id, data="Original")
         with self.assertRaises(IntegrityError):
-            ManualPrimaryKeyTest.objects.update_or_create(id=1, data="Different")
-        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=1).data, "Original")
+            ManualPrimaryKeyTest.objects.update_or_create(id=id, data="Different")
+        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=id).data, "Original")
 
     def test_with_pk_property(self):
         """
         Using the pk property of a model is allowed.
         """
-        Thing.objects.update_or_create(pk=1)
+        Thing.objects.update_or_create(pk="000000000000000000000001")
 
     def test_update_or_create_with_model_property_defaults(self):
         """Using a property with a setter implemented is allowed."""
         t, _ = Thing.objects.update_or_create(
-            defaults={"capitalized_name_property": "annie"}, pk=1
+            defaults={"capitalized_name_property": "annie"},
+            pk="000000000000000000000001",
         )
         self.assertEqual(t.name, "Annie")
 
@@ -374,8 +380,9 @@ class UpdateOrCreateTests(TestCase):
         We cannot use assertRaises/assertRaises here because we need to inspect
         the actual traceback. Refs #16340.
         """
+        id = "000000000000000000000001"
         try:
-            ManualPrimaryKeyTest.objects.update_or_create(id=1, data="Different")
+            ManualPrimaryKeyTest.objects.update_or_create(id=id, data="Different")
         except IntegrityError:
             formatted_traceback = traceback.format_exc()
             self.assertIn("obj.save", formatted_traceback)
@@ -609,12 +616,13 @@ class UpdateOrCreateTestsWithManualPKs(TestCase):
     def test_create_with_duplicate_primary_key(self):
         """
         If an existing primary key is specified with different values for other
-        fields, then IntegrityError is raised and data isn't updated.
+        fields, then Integritrror is raised and data isn't updated.
         """
-        ManualPrimaryKeyTest.objects.create(id=1, data="Original")
+        id = "000000000000000000000001"
+        ManualPrimaryKeyTest.objects.create(id=id, data="Original")
         with self.assertRaises(IntegrityError):
-            ManualPrimaryKeyTest.objects.update_or_create(id=1, data="Different")
-        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=1).data, "Original")
+            ManualPrimaryKeyTest.objects.update_or_create(id=id, data="Different")
+        self.assertEqual(ManualPrimaryKeyTest.objects.get(id=id).data, "Original")
 
 
 class UpdateOrCreateTransactionTests(TransactionTestCase):

@@ -1639,14 +1639,16 @@ class Ticket19607Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
         LessonEntry.objects.bulk_create(
-            LessonEntry(id=id_, name1=name1, name2=name2)
+            LessonEntry(id=f"{id_:024}", name1=name1, name2=name2)
             for id_, name1, name2 in [
                 (1, "einfach", "simple"),
                 (2, "schwierig", "difficult"),
             ]
         )
         WordEntry.objects.bulk_create(
-            WordEntry(id=id_, lesson_entry_id=lesson_entry_id, name=name)
+            WordEntry(
+                id=f"{id_:024}", lesson_entry_id=f"{lesson_entry_id:024}", name=name
+            )
             for id_, lesson_entry_id, name in [
                 (1, 1, "einfach"),
                 (2, 1, "simple"),

@@ -21,9 +21,15 @@ def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
     with connection.constraint_checks_disabled():
         objects = [
-            NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
-            FKDataNaturalKey.objects.create(id=1101, data_id=1100),
-            FKDataNaturalKey.objects.create(id=1102, data_id=None),
+            NaturalKeyAnchor.objects.create(
+                id="000000000000000000001100", data="Natural Key Anghor"
+            ),
+            FKDataNaturalKey.objects.create(
+                id="000000000000000000001101", data_id="000000000000000000001100"
+            ),
+            FKDataNaturalKey.objects.create(
+                id="000000000000000000001102", data_id=None
+            ),
         ]
     # Serialize the test database
     serialized_data = serializers.serialize(
@@ -40,7 +46,7 @@ def natural_key_serializer_test(self, format):
         self.assertEqual(
             obj.data,
             instance.data,
-            "Objects with PK=%d not equal; expected '%s' (%s), got '%s' (%s)"
+            "Objects with PK=%s not equal; expected '%s' (%s), got '%s' (%s)"
             % (
                 obj.pk,
                 obj.data,

@@ -27,7 +27,9 @@ class ContentTypesViewsTests(TestCase):
     def setUpTestData(cls):
         # Don't use the manager to ensure the site exists with pk=1, regardless
         # of whether or not it already exists.
-        cls.site1 = Site(pk=1, domain="testserver", name="testserver")
+        cls.site1 = Site(
+            pk="000000000000000000000001", domain="testserver", name="testserver"
+        )
         cls.site1.save()
         cls.author1 = Author.objects.create(name="Boris")
         cls.article1 = Article.objects.create(
@@ -178,7 +180,7 @@ class ContentTypesViewsSiteRelTests(TestCase):
         # domains in the MockSite model.
         MockSite.objects.bulk_create(
             [
-                MockSite(pk=1, domain="example.com"),
+                MockSite(pk="000000000000000000000001", domain="example.com"),
                 MockSite(pk=self.site_2.pk, domain=self.site_2.domain),
                 MockSite(pk=self.site_3.pk, domain=self.site_3.domain),
             ]

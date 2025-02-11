@@ -100,7 +100,7 @@ class SignalTests(BaseSignalSetup, TestCase):
             data[:] = []
 
             p2 = Person(first_name="James", last_name="Jones")
-            p2.id = 99999
+            p2.id = "000000000000000000099999"
             p2.save()
             self.assertEqual(
                 data,
@@ -110,7 +110,7 @@ class SignalTests(BaseSignalSetup, TestCase):
                 ],
             )
             data[:] = []
-            p2.id = 99998
+            p2.id = "000000000000000000099998"
             p2.save()
             self.assertEqual(
                 data,
@@ -167,9 +167,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             data[:] = []
 
             p2 = Person(first_name="James", last_name="Jones")
-            p2.id = 99999
+            p2.id = "000000000000000000099999"
             p2.save()
-            p2.id = 99998
+            p2.id = "000000000000000000099998"
             p2.save()
             p2.delete()
             self.assertEqual(

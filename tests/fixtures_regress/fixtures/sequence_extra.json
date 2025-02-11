@@ -1,6 +1,6 @@
 [
     {
-        "pk": "1",
+        "pk": "000000000000000000000001",
         "model": "fixtures_regress.animal",
         "fields": {
             "name": "Lion",
@@ -11,7 +11,7 @@
         }
     },
         {
-        "pk": "1",
+        "pk": "000000000000000000000001",
         "model": "fixtures_regress.animal_extra",
         "fields": {
             "name": "Nonexistent model",

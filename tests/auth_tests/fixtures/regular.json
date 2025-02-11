@@ -1,6 +1,6 @@
 [
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "auth.group",
         "fields": {
             "name": "my_group",
@@ -8,7 +8,7 @@
         }
     },
     {
-        "pk": 1,
+        "pk": "000000000000000000000001",
         "model": "auth.user",
         "fields": {
             "username": "my_username",
@@ -19,7 +19,7 @@
             "is_staff": true,
             "last_login": "2012-01-13 00:14:00",
             "groups": [
-                1
+                "000000000000000000000001"
             ],
             "user_permissions": [],
             "password": "pbkdf2_sha256$10000$LUyhxJjuLwXF$f6Zbpnx1L5dPze8m0itBaHMDyZ/n6JyhuavQy2RrBIM=",

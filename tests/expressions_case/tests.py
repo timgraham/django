@@ -466,7 +466,7 @@ class CaseExpressionTests(TestCase):
 
     def test_case_reuse(self):
         SOME_CASE = Case(
-            When(pk=0, then=Value("0")),
+            When(pk="000000000000000000000000", then=Value("0")),
             default=Value("1"),
         )
         self.assertQuerySetEqual(
@@ -1360,7 +1360,7 @@ class CaseExpressionTests(TestCase):
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(pk=o.pk).annotate(
                 foo=Case(
-                    When(fk_rel__pk=1, then=2),
+                    When(fk_rel__pk="000000000000000000000001", then=2),
                     default=3,
                 ),
             ),
@@ -1390,11 +1390,11 @@ class CaseExpressionTests(TestCase):
         self.assertQuerySetEqual(
             CaseTestModel.objects.filter(pk=o.pk).annotate(
                 foo=Case(
-                    When(fk_rel__pk=1, then=2),
+                    When(fk_rel__pk="000000000000000000000001", then=2),
                     default=3,
                 ),
                 bar=Case(
-                    When(fk_rel__pk=1, then=4),
+                    When(fk_rel__pk="000000000000000000000001", then=4),
                     default=5,
                 ),
             ),

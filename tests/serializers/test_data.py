@@ -11,6 +11,8 @@ import datetime
 import decimal
 import uuid
 
+from bson import ObjectId
+
 from django.core import serializers
 from django.db import connection, models
 from django.test import TestCase
@@ -75,6 +77,16 @@ from .models import (
 )
 from .tests import register_tests
 
+
+def prep_value(value):
+    """Format a data value for MongoDB (convert int to ObjectId)."""
+    return f"{value:024}" if isinstance(value, int) else value
+
+
+def value_to_object_id(value):
+    return ObjectId(f"{value:024}") if isinstance(value, int) else value
+
+
 # A set of functions that can be used to recreate
 # test data objects of various kinds.
 # The save method is a raw base model save, to make
@@ -100,7 +112,7 @@ def generic_create(pk, klass, data):
 
 def fk_create(pk, klass, data):
     instance = klass(id=pk)
-    setattr(instance, "data_id", data)
+    setattr(instance, "data_id", prep_value(data))
     models.Model.save_base(instance, raw=True)
     return [instance]
 
@@ -108,7 +120,7 @@ def fk_create(pk, klass, data):
 def m2m_create(pk, klass, data):
     instance = klass(id=pk)
     models.Model.save_base(instance, raw=True)
-    instance.data.set(data)
+    instance.data.set([f"{d:024}" for d in data])
     return [instance]
 
 
@@ -120,8 +132,10 @@ def im2m_create(pk, klass, data):
 
 def im_create(pk, klass, data):
     instance = klass(id=pk)
-    instance.right_id = data["right"]
-    instance.left_id = data["left"]
+    instance.right_id = (
+        f'{data["right"]:024}'  # if data is not None else data   # data["right"]
+    )
+    instance.left_id = f'{data["left"]:024}'
     if "extra" in data:
         instance.extra = data["extra"]
     models.Model.save_base(instance, raw=True)
@@ -130,7 +144,7 @@ def im_create(pk, klass, data):
 
 def o2o_create(pk, klass, data):
     instance = klass()
-    instance.data_id = data
+    instance.data_id = f"{data:024}" if data is not None else data
     models.Model.save_base(instance, raw=True)
     return [instance]
 
@@ -166,7 +180,7 @@ def data_compare(testcase, pk, klass, data):
         testcase.assertEqual(
             bytes(data),
             bytes(instance.data),
-            "Objects with PK=%d not equal; expected '%s' (%s), got '%s' (%s)"
+            "Objects with PK=%s not equal; expected '%s' (%s), got '%s' (%s)"
             % (
                 pk,
                 repr(bytes(data)),
@@ -179,7 +193,7 @@ def data_compare(testcase, pk, klass, data):
         testcase.assertEqual(
             data,
             instance.data,
-            "Objects with PK=%d not equal; expected '%s' (%s), got '%s' (%s)"
+            "Objects with PK=%s not equal; expected '%s' (%s), got '%s' (%s)"
             % (
                 pk,
                 data,
@@ -198,12 +212,15 @@ def generic_compare(testcase, pk, klass, data):
 
 def fk_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data, instance.data_id)
+    testcase.assertEqual(value_to_object_id(data), instance.data_id)
 
 
 def m2m_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
+    testcase.assertEqual(
+        [value_to_object_id(d) for d in data],
+        [obj.id for obj in instance.data.order_by("id")],
+    )
 
 
 def im2m_compare(testcase, pk, klass, data):
@@ -213,8 +230,8 @@ def im2m_compare(testcase, pk, klass, data):
 
 def im_compare(testcase, pk, klass, data):
     instance = klass.objects.get(id=pk)
-    testcase.assertEqual(data["left"], instance.left_id)
-    testcase.assertEqual(data["right"], instance.right_id)
+    testcase.assertEqual(value_to_object_id(data["left"]), instance.left_id)
+    testcase.assertEqual(value_to_object_id(data["right"]), instance.right_id)
     if "extra" in data:
         testcase.assertEqual(data["extra"], instance.extra)
     else:
@@ -222,8 +239,8 @@ def im_compare(testcase, pk, klass, data):
 
 
 def o2o_compare(testcase, pk, klass, data):
-    instance = klass.objects.get(data=data)
-    testcase.assertEqual(data, instance.data_id)
+    instance = klass.objects.get(data=prep_value(data))
+    testcase.assertEqual(value_to_object_id(data), instance.data_id)
 
 
 def pk_compare(testcase, pk, klass, data):
@@ -449,7 +466,7 @@ def serializerTest(self, format):
     instance_count = {}
     for func, pk, klass, datum in test_data:
         with connection.constraint_checks_disabled():
-            objects.extend(func[0](pk, klass, datum))
+            objects.extend(func[0](prep_value(pk), klass, datum))
 
     # Get a count of the number of objects created for each class
     for klass in instance_count:
@@ -467,7 +484,7 @@ def serializerTest(self, format):
     # Assert that the deserialized data is the same
     # as the original source
     for func, pk, klass, datum in test_data:
-        func[1](self, pk, klass, datum)
+        func[1](self, prep_value(pk), klass, datum)
 
     # Assert that the number of objects deserialized is the
     # same as the number that was serialized.

@@ -162,17 +162,17 @@ class YamlSerializerTransactionTestCase(
 ):
     serializer_name = "yaml"
     fwd_ref_str = """- model: serializers.article
-  pk: 1
+  pk: "000000000000000000000001"
   fields:
     headline: Forward references pose no problem
     pub_date: 2006-06-16 15:00:00
-    categories: [1]
-    author: 1
+    categories: ["000000000000000000000001"]
+    author: "000000000000000000000001"
 - model: serializers.category
-  pk: 1
+  pk: "000000000000000000000001"
   fields:
     name: Reference
 - model: serializers.author
-  pk: 1
+  pk: "000000000000000000000001"
   fields:
     name: Agnes"""

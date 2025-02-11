@@ -69,7 +69,9 @@ class DuplicateDBTableTests(SimpleTestCase):
             ],
         )
 
-    @modify_settings(INSTALLED_APPS={"append": "basic"})
+    @modify_settings(
+        INSTALLED_APPS={"append": "basic", "remove": "django.contrib.sites"}
+    )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
         class Model1(models.Model):
@@ -94,7 +96,9 @@ class DuplicateDBTableTests(SimpleTestCase):
             ],
         )
 
-    @modify_settings(INSTALLED_APPS={"append": "basic"})
+    @modify_settings(
+        INSTALLED_APPS={"append": "basic", "remove": "django.contrib.sites"}
+    )
     @override_settings(
         DATABASE_ROUTERS=["check_framework.test_model_checks.EmptyRouter"]
     )
@@ -235,7 +239,9 @@ class IndexNameTests(SimpleTestCase):
 
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
-    @modify_settings(INSTALLED_APPS={"append": "basic"})
+    @modify_settings(
+        INSTALLED_APPS={"append": "basic", "remove": "django.contrib.sites"}
+    )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
         index = models.Index(fields=["id"], name="foo")
@@ -261,7 +267,9 @@ class IndexNameTests(SimpleTestCase):
             ],
         )
 
-    @modify_settings(INSTALLED_APPS={"append": "basic"})
+    @modify_settings(
+        INSTALLED_APPS={"append": "basic", "remove": "django.contrib.sites"}
+    )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
         index = models.Index(fields=["id"], name="%(app_label)s_%(class)s_foo")
@@ -367,7 +375,9 @@ class ConstraintNameTests(TestCase):
 
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
-    @modify_settings(INSTALLED_APPS={"append": "basic"})
+    @modify_settings(
+        INSTALLED_APPS={"append": "basic", "remove": "django.contrib.sites"}
+    )
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")

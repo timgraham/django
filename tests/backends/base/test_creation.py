@@ -179,13 +179,13 @@ class TestDeserializeDbFromString(TransactionTestCase):
         [
             {
                 "model": "backends.object",
-                "pk": 1,
-                "fields": {"obj_ref": 1, "related_objects": []}
+                "pk": "000000000000000000000001",
+                "fields": {"obj_ref": "000000000000000000000001", "related_objects": []}
             },
             {
                 "model": "backends.objectreference",
-                "pk": 1,
-                "fields": {"obj": 1}
+                "pk": "000000000000000000000001",
+                "fields": {"obj": "000000000000000000000001"}
             }
         ]
         """

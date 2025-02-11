@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from django.apps import apps
 from django.apps.registry import Apps
 from django.conf import settings
@@ -316,13 +318,13 @@ class CreateDefaultSiteTests(TestCase):
         )
         self.assertTrue(Site.objects.exists())
 
-    @override_settings(SITE_ID=35696)
+    @override_settings(SITE_ID="000000000000000000035696")
     def test_custom_site_id(self):
         """
         #23945 - The configured ``SITE_ID`` should be respected.
         """
         create_default_site(self.app_config, verbosity=0)
-        self.assertEqual(Site.objects.get().pk, 35696)
+        self.assertEqual(Site.objects.get().pk, ObjectId("000000000000000000035696"))
 
     @override_settings()  # Restore original ``SITE_ID`` afterward.
     def test_no_site_id(self):

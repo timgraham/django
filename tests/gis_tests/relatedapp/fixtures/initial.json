@@ -7,21 +7,21 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "relatedapp.location",
     "fields": {
       "point": "SRID=4326;POINT (-104.528056 33.387222)"
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "relatedapp.location",
     "fields": {
       "point": "SRID=4326;POINT (-79.460734 40.18476)"
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "relatedapp.location",
     "fields": {
       "point": "SRID=4326;POINT (-95.363151 29.763374)"
@@ -44,7 +44,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "relatedapp.city",
     "fields": {
       "name": "Roswell",
@@ -53,7 +53,7 @@
     }
   },
   {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "relatedapp.city",
     "fields": {
       "name": "Kecksburg",
@@ -62,7 +62,7 @@
     }
   },
   {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "relatedapp.city",
     "fields": {
       "name": "Dallas",
@@ -97,7 +97,7 @@
     }
  },
  {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "relatedapp.Author",
     "fields": {
       "name": "William Patry",
@@ -113,7 +113,7 @@
     }
  },
  {
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "model": "relatedapp.Book",
     "fields": {
       "title": "I Could Tell You But Then You Would Have to be Destroyed by Me",
@@ -121,7 +121,7 @@
     }
  },
  {
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "model": "relatedapp.Book",
     "fields": {
       "title": "Blank Spots on the Map",
@@ -129,7 +129,7 @@
     }
  },
  {
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "model": "relatedapp.Book",
     "fields": {
       "title": "Patry on Copyright",
@@ -150,7 +150,7 @@
   },
   {
     "model": "relatedapp.parcel",
-    "pk": 2,
+    "pk": "000000000000000000000002",
     "fields": {
       "name": "Aurora Parcel Beta",
       "city": 1,
@@ -162,7 +162,7 @@
   },
   {
     "model": "relatedapp.parcel",
-    "pk": 3,
+    "pk": "000000000000000000000003",
     "fields": {
       "name": "Aurora Parcel Ignore",
       "city": 1,
@@ -174,7 +174,7 @@
   },
   {
     "model": "relatedapp.parcel",
-    "pk": 4,
+    "pk": "000000000000000000000004",
     "fields": {
       "name": "Roswell Parcel Ignore",
       "city": 2,

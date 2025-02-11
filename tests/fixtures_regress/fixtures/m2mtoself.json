@@ -1,1 +1,1 @@
-[{"fields": {"parent": [1]}, "model": "fixtures_regress.m2mtoself", "pk": 1}]
+[{"fields": {"parent": ["000000000000000000000001"]}, "model": "fixtures_regress.m2mtoself", "pk": "000000000000000000000001"}]
