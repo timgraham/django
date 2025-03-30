@@ -5,6 +5,9 @@ from enum import Enum
 from graphlib import TopologicalSorter
 from itertools import chain
 
+from django_mongodb_backend.fields import EmbeddedModelField
+from django_mongodb_backend.models import EMBEDDED
+
 from django.conf import settings
 from django.db import models
 from django.db.migrations import operations
@@ -143,18 +146,23 @@ class MigrationAutodetector:
         # resolve dependencies caused by M2Ms and FKs.
         self.generated_operations = {}
         self.altered_indexes = {}
+        self.altered_embedded_indexes = {}
         self.altered_constraints = {}
         self.renamed_fields = {}
 
         # Prepare some old/new state and model lists, separating
         # proxy models and ignoring unmigrated apps.
+        self.old_embedded_keys = set()
         self.old_model_keys = set()
         self.old_proxy_keys = set()
         self.old_unmanaged_keys = set()
+        self.new_embedded_keys = set()
         self.new_model_keys = set()
         self.new_proxy_keys = set()
         self.new_unmanaged_keys = set()
         for (app_label, model_name), model_state in self.from_state.models.items():
+            if model_state.options.get("db_table") is EMBEDDED:
+                self.old_embedded_keys.add((app_label, model_name))
             if not model_state.options.get("managed", True):
                 self.old_unmanaged_keys.add((app_label, model_name))
             elif app_label not in self.from_state.real_apps:
@@ -164,7 +172,9 @@ class MigrationAutodetector:
                     self.old_model_keys.add((app_label, model_name))
 
         for (app_label, model_name), model_state in self.to_state.models.items():
-            if not model_state.options.get("managed", True):
+            if model_state.options.get("db_table") is EMBEDDED:
+                self.new_embedded_keys.add((app_label, model_name))
+            elif not model_state.options.get("managed", True):
                 self.new_unmanaged_keys.add((app_label, model_name))
             elif app_label not in self.from_state.real_apps or (
                 convert_apps and app_label in convert_apps
@@ -202,6 +212,7 @@ class MigrationAutodetector:
         # This avoids the same computation in generate_removed_indexes()
         # and generate_added_indexes().
         self.create_altered_indexes()
+        self.create_altered_embedded_indexes()
         self.create_altered_constraints()
         # Generate index removal operations before field is removed
         self.generate_removed_constraints()
@@ -1411,6 +1422,81 @@ class MigrationAutodetector:
                 }
             )
 
+    def create_altered_embedded_indexes(self, column_prefix=None, parent_model=None):
+        option_name = operations.AddEmbeddedIndex.option_name
+        for app_label, model_name in sorted(self.kept_model_keys):
+            # old_model_name = self.renamed_models.get(
+            #     (app_label, model_name), model_name
+            # )
+            # old_parent_model_state = self.from_state.models[app_label, old_model_name]
+            new_parent_model_state = self.to_state.models[app_label, model_name]
+
+            for field_name in new_parent_model_state.fields:
+                field = new_parent_model_state.get_field(field_name)
+                if isinstance(field, EmbeddedModelField):
+                    parent_model = new_parent_model_state.name
+                    embedded_model = field.embedded_model
+                    column_prefix = f"{field_name}."
+                    embedded_model_name = embedded_model._meta.model_name
+
+                    # TODO: handle renamed embedded models
+                    old_model_state = self.from_state.models[
+                        embedded_model._meta.app_label, embedded_model_name
+                    ]
+                    new_model_state = self.to_state.models[
+                        embedded_model._meta.app_label, embedded_model_name
+                    ]
+
+                    old_indexes = old_model_state.options[option_name]
+                    new_indexes = new_model_state.options[option_name]
+                    added_indexes = [
+                        idx for idx in new_indexes if idx not in old_indexes
+                    ]
+                    # removed_indexes = [
+                    #     idx for idx in old_indexes if idx not in new_indexes
+                    # ]
+                    # renamed_indexes = []
+                    # Find renamed indexes.
+                    remove_from_added = []
+                    # remove_from_removed = []
+                    # for new_index in added_indexes:
+                    #     new_index_dec = new_index.deconstruct()
+                    #     new_index_name = new_index_dec[2].pop("name")
+                    #     for old_index in removed_indexes:
+                    #         old_index_dec = old_index.deconstruct()
+                    #         old_index_name = old_index_dec[2].pop("name")
+                    #         # Indexes are the same except for the names.
+                    #         if (
+                    #             new_index_dec == old_index_dec
+                    #             and new_index_name != old_index_name
+                    #         ):
+                    #             renamed_indexes.append((old_index_name, new_index_name, None))  # noqa [temp line length]
+                    #             remove_from_added.append(new_index)
+                    #             remove_from_removed.append(old_index)
+                    # Remove renamed indexes from the lists of added and removed
+                    # indexes.
+                    added_indexes = [
+                        idx for idx in added_indexes if idx not in remove_from_added
+                    ]
+                    # removed_indexes = [
+                    #     idx for idx in removed_indexes if idx not in remove_from_removed  # noqa [temp line length]
+                    # ]
+
+                    self.altered_embedded_indexes.update(
+                        {
+                            (
+                                app_label,
+                                embedded_model_name,
+                                column_prefix,
+                                parent_model,
+                            ): {
+                                "added_indexes": added_indexes,
+                                # "removed_indexes": removed_indexes,
+                                # "renamed_indexes": renamed_indexes,
+                            }
+                        }
+                    )
+
     def generate_added_indexes(self):
         for (app_label, model_name), alt_indexes in self.altered_indexes.items():
             dependencies = self._get_dependencies_for_model(app_label, model_name)
@@ -1420,6 +1506,24 @@ class MigrationAutodetector:
                     operations.AddIndex(
                         model_name=model_name,
                         index=index,
+                    ),
+                    dependencies=dependencies,
+                )
+        for (
+            app_label,
+            model_name,
+            column_prefix,
+            parent_model_name,
+        ), alt_indexes in self.altered_embedded_indexes.items():
+            dependencies = self._get_dependencies_for_model(app_label, model_name)
+            for index in alt_indexes["added_indexes"]:
+                self.add_operation(
+                    app_label,
+                    operations.AddEmbeddedIndex(
+                        model_name=model_name,
+                        index=index,
+                        column_prefix=column_prefix,
+                        parent_model_name=parent_model_name,
                     ),
                     dependencies=dependencies,
                 )

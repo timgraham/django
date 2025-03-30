@@ -963,6 +963,38 @@ class AddIndex(IndexOperation):
         return super().reduce(operation, app_label)
 
 
+class AddEmbeddedIndex(AddIndex):
+
+    def __init__(self, model_name, index, column_prefix, parent_model_name):
+        super().__init__(model_name, index)
+        self.column_prefix = column_prefix
+        self.parent_model_name = parent_model_name
+
+    def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        model = to_state.apps.get_model(app_label, self.model_name)
+        if self.parent_model_name:
+            parent_model = to_state.apps.get_model(app_label, self.parent_model_name)
+        else:
+            parent_model = None
+        if self.allow_migrate_model(schema_editor.connection.alias, parent_model):
+            schema_editor.add_index(
+                model,
+                self.index,
+                column_prefix=self.column_prefix,
+                parent_model=parent_model,
+            )
+
+    def deconstruct(self):
+        name, args, kwargs = super().deconstruct()
+        kwargs.update(
+            {
+                "column_prefix": self.column_prefix,
+                "parent_model_name": self.parent_model_name,
+            }
+        )
+        return name, args, kwargs
+
+
 class RemoveIndex(IndexOperation):
     """Remove an index from a model."""
 
