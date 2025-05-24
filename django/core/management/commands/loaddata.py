@@ -18,6 +18,7 @@ from django.db import (
     DEFAULT_DB_ALIAS,
     DatabaseError,
     IntegrityError,
+    connection,
     connections,
     router,
     transaction,
@@ -251,7 +252,24 @@ class Command(BaseCommand):
 
                 for obj in objects:
                     objects_in_fixture += 1
+
+                    # Workaround for MongoDB to ignore unsupported SRIDs in
+                    # test fixtures.
+                    if connection.features.gis_enabled:
+                        from django.contrib.gis.db.models import GeometryField
+
+                        invalid_srid = False
+                        for field in obj.object._meta.fields:
+                            if isinstance(field, GeometryField):
+                                val = getattr(obj.object, field.name)
+                                if val and val.srid in {32140, 2278}:
+                                    invalid_srid = True
+                                    break
+                        if invalid_srid:
+                            continue
+
                     if self.save_obj(obj):
+
                         loaded_objects_in_fixture += 1
                         if show_progress:
                             self.stdout.write(

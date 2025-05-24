@@ -1,9 +1,9 @@
 [
   {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "relatedapp.location",
     "fields": {
-      "point": "SRID=4326;POINT (-97.516111 33.058333)"
+      "point": "POINT (-97.516111 33.058333)"
     }
   },
   {
@@ -28,19 +28,19 @@
     }
   },
   {
-    "pk": 5,
+    "pk": "000000000000000000000005",
     "model": "relatedapp.location",
     "fields": {
       "point": "SRID=4326;POINT (-96.801611 32.782057)"
     }
   },
   {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "relatedapp.city",
     "fields": {
       "name": "Aurora",
       "state": "TX",
-      "location": 1
+      "location": "000000000000000000000001"
     }
   },
   {
@@ -49,7 +49,7 @@
     "fields": {
       "name": "Roswell",
       "state": "NM",
-      "location": 2
+      "location": "000000000000000000000002"
     }
   },
   {
@@ -58,7 +58,7 @@
     "fields": {
       "name": "Kecksburg",
       "state": "PA",
-      "location": 3
+      "location": "000000000000000000000003"
     }
   },
   {
@@ -67,29 +67,29 @@
     "fields": {
       "name": "Dallas",
       "state": "TX",
-      "location": 5
+      "location": "000000000000000000000005"
     }
   },
   {
-    "pk": 5,
+    "pk": "000000000000000000000005",
     "model": "relatedapp.city",
     "fields": {
       "name": "Houston",
       "state": "TX",
-      "location": 4
+      "location": "000000000000000000000004"
     }
  },
  {
-    "pk": 6,
+    "pk": "000000000000000000000006",
     "model": "relatedapp.city",
     "fields": {
       "name": "Fort Worth",
       "state": "TX",
-      "location": 5
+      "location": "000000000000000000000005"
     }
  },
  {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "relatedapp.Author",
     "fields": {
       "name": "Trevor Paglen",
@@ -105,11 +105,11 @@
     }
  },
  {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "relatedapp.Book",
     "fields": {
       "title": "Torture Taxi",
-      "author": 1
+      "author": "000000000000000000000001"
     }
  },
  {
@@ -117,7 +117,7 @@
     "model": "relatedapp.Book",
     "fields": {
       "title": "I Could Tell You But Then You Would Have to be Destroyed by Me",
-      "author": 1
+      "author": "000000000000000000000001"
     }
  },
  {
@@ -125,7 +125,7 @@
     "model": "relatedapp.Book",
     "fields": {
       "title": "Blank Spots on the Map",
-      "author": 1
+      "author": "000000000000000000000001"
     }
  },
  {
@@ -133,15 +133,15 @@
     "model": "relatedapp.Book",
     "fields": {
       "title": "Patry on Copyright",
-      "author": 2
+      "author": "000000000000000000000002"
     }
   },
   {
     "model": "relatedapp.parcel",
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "fields": {
       "name": "Aurora Parcel Alpha",
-      "city": 1,
+      "city": "000000000000000000000001",
       "center1": "POINT (1.7128 -2.0060)",
       "center2": "POINT (3.7128 -5.0060)",
       "border1": "POLYGON((0 0, 5 5, 12 12, 0 0))",
@@ -153,7 +153,7 @@
     "pk": "000000000000000000000002",
     "fields": {
       "name": "Aurora Parcel Beta",
-      "city": 1,
+      "city": "000000000000000000000001",
       "center1": "POINT (4.7128 5.0060)",
       "center2": "POINT (12.75 10.05)",
       "border1": "POLYGON((10 10, 15 15, 22 22, 10 10))",
@@ -165,7 +165,7 @@
     "pk": "000000000000000000000003",
     "fields": {
       "name": "Aurora Parcel Ignore",
-      "city": 1,
+      "city": "000000000000000000000001",
       "center1": "POINT (9.7128 12.0060)",
       "center2": "POINT (1.7128 -2.0060)",
       "border1": "POLYGON ((24 23, 25 25, 32 32, 24 23))",
@@ -177,7 +177,7 @@
     "pk": "000000000000000000000004",
     "fields": {
       "name": "Roswell Parcel Ignore",
-      "city": 2,
+      "city": "000000000000000000000002",
       "center1": "POINT (-9.7128 -12.0060)",
       "center2": "POINT (-1.7128 2.0060)",
       "border1": "POLYGON ((30 30, 35 35, 42 32, 30 30))",

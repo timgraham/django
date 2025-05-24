@@ -512,7 +512,10 @@ class GeoLookupTest(TestCase):
         self.assertIsNone(nmi.poly)
 
         # Assigning a geometry and saving -- then UPDATE back to NULL.
-        nmi.poly = "POLYGON((0 0,1 0,1 1,1 0,0 0))"
+
+        # Edited from "POLYGON((0 0,1 0,1 1,1 0,0 0))"
+        # MongoDB: Duplicate vertices: 1 and 3
+        nmi.poly = "POLYGON((0 0,1 0,1 1,0 0))"
         nmi.save()
         State.objects.filter(name="Northern Mariana Islands").update(poly=None)
         self.assertIsNone(State.objects.get(name="Northern Mariana Islands").poly)

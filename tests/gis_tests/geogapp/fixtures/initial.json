@@ -1,6 +1,6 @@
 [
   {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "geogapp.city",
     "fields": {
       "name": "Houston",
@@ -32,7 +32,7 @@
     }
   },
   {
-    "pk": 5,
+    "pk": "000000000000000000000005",
     "model": "geogapp.city",
     "fields": {
       "name": "Pueblo",
@@ -40,7 +40,7 @@
     }
   },
   {
-    "pk": 6,
+    "pk": "000000000000000000000006",
     "model": "geogapp.city",
     "fields": {
       "name": "Lawrence",
@@ -48,7 +48,7 @@
     }
   },
   {
-    "pk": 7,
+    "pk": "000000000000000000000007",
     "model": "geogapp.city",
     "fields": {
       "name": "Chicago",
@@ -56,7 +56,7 @@
     }
   },
   {
-    "pk": 8,
+    "pk": "000000000000000000000008",
     "model": "geogapp.city",
     "fields": {
       "name": "Victoria",
@@ -64,7 +64,7 @@
     }
   },
   {
-    "pk": 1,
+    "pk": "000000000000000000000001",
     "model": "geogapp.zipcode",
     "fields" : {
        "code" : "77002",

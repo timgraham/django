@@ -204,6 +204,7 @@ class RelatedGeoModelTest(TestCase):
         for m, d, t in zip(gqs, gvqs, gvlqs):
             # The values should be Geometry objects and not raw strings
             # returned by the spatial database.
+            self.assertEqual(m.id, d["id"])
             self.assertIsInstance(d["point"], GEOSGeometry)
             self.assertIsInstance(t[1], GEOSGeometry)
             self.assertEqual(m.point, d["point"])
@@ -231,12 +232,14 @@ class RelatedGeoModelTest(TestCase):
         # are out of order. Dallas and Houston have location IDs that differ
         # from their PKs -- this is done to ensure that the related location
         # ID column is selected instead of ID column for the city.
+        from bson import ObjectId
+
         city_ids = (1, 2, 3, 4, 5)
         loc_ids = (1, 2, 3, 5, 4)
         ids_qs = City.objects.order_by("id").values("id", "location__id")
         for val_dict, c_id, l_id in zip(ids_qs, city_ids, loc_ids):
-            self.assertEqual(val_dict["id"], c_id)
-            self.assertEqual(val_dict["location__id"], l_id)
+            self.assertEqual(val_dict["id"], ObjectId(f"{c_id:024}"))
+            self.assertEqual(val_dict["location__id"], ObjectId(f"{l_id:024}"))
 
     @skipUnlessGISLookup("within")
     def test10_combine(self):
@@ -283,7 +286,7 @@ class RelatedGeoModelTest(TestCase):
     def test13c_count(self):
         "Testing `Count` aggregate with `.values()`. See #15305."
         qs = (
-            Location.objects.filter(id=5)
+            Location.objects.filter(id="000000000000000000000005")
             .annotate(num_cities=Count("city"))
             .values("id", "point", "num_cities")
         )

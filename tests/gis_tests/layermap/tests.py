@@ -14,7 +14,7 @@ from django.contrib.gis.utils.layermapping import (
     MissingForeignKey,
 )
 from django.db import connection
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from .models import (
     City,
@@ -47,7 +47,9 @@ NUMS = [1, 2, 1, 19, 1]  # Number of polygons for each.
 STATES = ["Texas", "Texas", "Texas", "Hawaii", "Colorado"]
 
 
-class LayerMapTest(TestCase):
+class LayerMapTest(TransactionTestCase):
+    available_apps = ["gis_tests.layermap"]
+
     def test_init(self):
         "Testing LayerMapping initialization."
 
@@ -419,7 +421,12 @@ class LayerMapTest(TestCase):
         # transaction. You can't execute queries until the end of the 'atomic'
         # block." On Oracle and MySQL, the one object that did load appears in
         # this count. On other databases, no records appear.
-        self.assertLessEqual(DoesNotAllowNulls.objects.count(), 1)
+        if connection.features.supports_transactions:
+            self.assertLessEqual(DoesNotAllowNulls.objects.count(), 1)
+        else:
+            # When transactions aren't supported, so "An error  occurred..."
+            # doesn't happen and all valid objects are created.
+            self.assertEqual(DoesNotAllowNulls.objects.count(), 2)
 
 
 class OtherRouter:
