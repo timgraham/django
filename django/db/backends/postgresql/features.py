@@ -69,6 +69,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     supports_stored_generated_columns = True
     supports_virtual_generated_columns = False
     can_rename_index = True
+    prohibits_dollar_signs_in_column_aliases = True
     test_collations = {
         "deterministic": "C",
         "non_default": "sv-x-icu",
