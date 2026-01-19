@@ -432,6 +432,8 @@ class BaseDatabaseFeatures:
     supports_uuid7_function = False
     supports_uuid7_function_shift = False
 
+    pattern_lookup_needs_param_pattern = True
+
     def __init__(self, connection):
         self.connection = connection
 

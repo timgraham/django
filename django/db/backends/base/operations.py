@@ -535,6 +535,10 @@ class BaseDatabaseOperations:
         """Prepare a value for use in a LIKE query."""
         return str(x).replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
 
+    def prep_rhs_for_like_query(self, lookup_name, rhs):
+        conn = self.connection
+        return conn.pattern_ops[lookup_name].format(conn.pattern_esc).format(rhs)
+
     # Same as prep_for_like_query(), but called for "iexact" matches, which
     # need not necessarily be implemented using "LIKE" in the backend.
     prep_for_iexact_query = prep_for_like_query
