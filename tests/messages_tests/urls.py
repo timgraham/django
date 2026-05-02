@@ -75,7 +75,7 @@ urlpatterns = [
     re_path("^add/(debug|info|success|warning|error)/$", add, name="add_message"),
     path("add/msg/", ContactFormViewWithMsg.as_view(), name="add_success_msg"),
     path(
-        "delete/msg/<int:pk>",
+        "delete/msg/<str:pk>",
         DeleteFormViewWithMsg.as_view(),
         name="success_msg_on_delete",
     ),
