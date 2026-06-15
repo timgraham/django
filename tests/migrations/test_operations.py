@@ -963,7 +963,9 @@ class OperationTests(OperationTestBase):
         self.assertIn(
             connection.ops.quote_name("test_rmwsrfcs_horserider"), collected_sql
         )
-        self.assertIn(connection.ops.quote_name("friend_id"), collected_sql)
+        self.assertEqual(
+            collected_sql, "db.test_rmwsrfcs_rider.rename('test_rmwsrfcs_horserider')"
+        )
         # Backwards: apply the rename for real so the renamed table exists,
         # then collect the reverse SQL. The same redirection must happen, this
         # time back to the "horserider" table.
@@ -976,8 +978,9 @@ class OperationTests(OperationTestBase):
                 "test_rmwsrfcs", editor, new_state, project_state
             )
             collected_sql = "\n".join(editor.collected_sql)
-        self.assertIn(connection.ops.quote_name("test_rmwsrfcs_rider"), collected_sql)
-        self.assertIn(connection.ops.quote_name("friend_id"), collected_sql)
+        self.assertEqual(
+            collected_sql, "db.test_rmwsrfcs_horserider.rename('test_rmwsrfcs_rider')"
+        )
 
     def test_rename_model_with_superclass_fk(self):
         """
