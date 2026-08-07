@@ -1534,7 +1534,7 @@ class AliasTests(TestCase):
         qs = Book.objects.alias(
             **{"crafted_alia$": FilteredRelation("authors")}
         ).values("name", "crafted_alia$")
-        if connection.vendor == "postgresql":
+        if connection.vendor in {"postgresql", "cockroachdb"}:
             msg = "Dollar signs are not permitted in column aliases on PostgreSQL."
             with self.assertRaisesMessage(ValueError, msg):
                 list(qs)
