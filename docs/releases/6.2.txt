@@ -289,7 +289,7 @@ Database backend API
 This section describes changes that may be needed in third-party database
 backends.
 
-* ...
+* The ``DatabaseFeatures.indexes_foreign_keys`` feature flag is removed.
 
 :mod:`django.contrib.admin`
 ---------------------------

@@ -333,12 +333,9 @@ class IntrospectionTests(TransactionTestCase):
         expected_columns = [
             ["headline", "pub_date"],
             ["headline", "response_to_id", "pub_date", "reporter_id"],
+            ["reporter_id"],
+            ["response_to_id"],
         ]
-        if connection.features.indexes_foreign_keys:
-            expected_columns += [
-                ["reporter_id"],
-                ["response_to_id"],
-            ]
         for val in constraints.values():
             if val["index"] and not (val["primary_key"] or val["unique"]):
                 self.assertIn(val["columns"], expected_columns)
